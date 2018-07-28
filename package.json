@@ -1,0 +1,39 @@
+{
+  "name": "build-frontend-assets",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build process for frontend assets",
+  "main": "index.js",
+  "scripts": {
+    "mkdirs": "mkdir -p assets/js | mkdir -p assets/css",
+    "watch:js": "globify --watch --debug \"assets-src/js/*.js\" -t babelify -o assets/js",
+    "build:js": "globify --debug \"assets-src/js/*.js\" -t babelify -o assets/js",
+    "scss": "node-sass \"assets-src/scss\" --output \"assets/css\" --output-style compressed --source-map \"assets/css\" --quiet",
+    "browser-sync": "browser-sync start -f \"assets/js/*.js, assets/css/*.css, **/*.php, **/*.json, !node_modules/**\" --no-notify",
+    "uglify:js": "uglifyjs-folder assets/js -e --extension .js -o assets/js --compress --mangle",
+    "build:css": "postcss assets/css/*.css --use autoprefixer --replace",
+    "build": "npm run build:js; npm run uglify:js; npm run scss; npm run build:css;",
+    "watch": "npm run mkdirs; npm run watch:js | npm run scss | npm run scss -- --watch | npm run browser-sync"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "author": "Rasso Hilber",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browser-sync": "^2.24.6",
+    "globify": "^2.1.0",
+    "modernizr": "^3.5.0",
+    "node-sass": "^4.5.3",
+    "postcss-cli": "^4.1.0",
+    "uglifyjs-folder": "^1.1.0"
+  },
+  "dependencies": {
+    "autosize": "^4.0.2"
+  }
+}
