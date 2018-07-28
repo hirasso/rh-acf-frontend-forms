@@ -76,7 +76,7 @@ export default class ImageDrop {
 
       this.$image.attr('src', src);
 
-      $(document).trigger('rah:acf-form-resized');
+      $(document).trigger('rah/acf-form-resized');
       
 
     }
