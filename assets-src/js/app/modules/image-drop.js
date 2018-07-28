@@ -39,6 +39,7 @@ export default class ImageDrop {
       e.preventDefault();
       this.$el.removeClass('is-dragover');
       this.$fileInput.get(0).files = e.dataTransfer.files;
+      this.$fileInput.trigger('change');
     });
 
     this.$clear.unbind().click((e) => {
@@ -74,6 +75,9 @@ export default class ImageDrop {
       this.$field.addClass('has-value');
 
       this.$image.attr('src', src);
+
+      $(document).trigger('rah:acf-form-resized');
+      
 
     }
     img.src = src;

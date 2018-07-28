@@ -11,8 +11,6 @@ window.acfAutoFill = function( id = 0 ) {
     return;
   }
 
-  autosize( $('textarea') );
-
   let values = window.acfAutofillValues;
   if( typeof values !== 'object' ) {
     console.warn('window.acfAutofillValues is not defined');

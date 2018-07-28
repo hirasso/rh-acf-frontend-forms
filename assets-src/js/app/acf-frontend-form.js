@@ -38,9 +38,10 @@ export default class ACFFrontendForm {
 
     this.$form = $form;
 
-    autosize( $('textarea') );
+    
     this.$form.find('.acf-field').find('input,textarea,select').trigger('change');
 
+    this.initTextAreasAutosize();
     this.createAjaxResponse();
     this.acfSetup();
     this.setupInputs();
@@ -65,13 +66,7 @@ export default class ACFFrontendForm {
     }
     acf.addAction('remove', function( $target ) {
       $target.remove();
-    });
-
-    acf.add_action('show_field', ( $field, type ) => {
-      $field.slideDown(400, 'easeOutQuint');
-    });
-    acf.add_action('hide_field', ( $field, type ) => {
-      $field.slideUp(400, 'easeOutQuint');
+      $(document).trigger('rah/acf-form-resized');
     });
     
     $('[data-event="add-row"]').removeClass('acf-icon');
@@ -100,6 +95,8 @@ export default class ACFFrontendForm {
         }
         $input.focus();
       }, 1);
+
+      $(document).trigger('rah/acf-form-resized');
     });
 
     
@@ -230,6 +227,14 @@ export default class ACFFrontendForm {
   }
   $field( input ) {
     return $(input).parents('.acf-field:first');
+  }
+
+  initTextAreasAutosize() {
+    this.$form.find('textarea').each(function(){
+      autosize(this);
+    }).on('autosize:resized', function(){
+      $(document).trigger('rah/acf-form-resized')
+    });
   }
 }
 
