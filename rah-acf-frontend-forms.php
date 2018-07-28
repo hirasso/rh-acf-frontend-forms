@@ -10,7 +10,11 @@
 class RahAcfFrontendForms {
 
   function __construct() {
+    // setup hooks
     $this->hooks();
+    // always set acf validation to true, so that the form 
+    // also works if the page is loaded via AJAX
+    acf_localize_data( array( 'validation' => 1 ) );
   }
   /**
    * Setup action and filter hooks
@@ -22,12 +26,11 @@ class RahAcfFrontendForms {
 
     // internal hooks
     add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
-    add_filter( 'acf/render_field/type=image', array( $this, 'prepare_image_drop' ) );
+    add_filter( 'acf/render_field/type=image', array( $this, 'render_image_drop' ) );
+    add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length' ) );
+    add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length' ) );
     add_action( 'acf/submit_form', array( $this, 'on_submit_form' ), 10, 2 );
 
-    // always set acf validation to true, so that the form 
-    // also works if the page is visited via ajax
-    acf_localize_data( array( 'validation' => 1 ) );
   }
 
   /**
@@ -47,8 +50,8 @@ class RahAcfFrontendForms {
 
   /**
    * Gets asset URIs with file creation time as version query parameter
-   * @param  [type] $path [description]
-   * @return [type]       [description]
+   * @param  string $path The path of the file, relative to the plugin's directory
+   * @return string $path 
    */
   function asset_uri( $path ) {
     $file_uri = plugins_url( $path, __FILE__ );
@@ -62,7 +65,7 @@ class RahAcfFrontendForms {
    * @param  array $field
    * @return array $field
    */
-  function prepare_image_drop( $field ) {
+  function render_image_drop( $field ) {
     if( is_admin() ) {
       return $field;
     }
@@ -81,7 +84,7 @@ class RahAcfFrontendForms {
       <div class="instructions__body"><?= implode(', ', $instructions) ?></div>
     </div>
 
-    <?php echo ob_get_clean(); //$field['instructions'] = ob_get_clean();
+    <?php echo ob_get_clean();
     return $field;
   }
 
@@ -119,6 +122,25 @@ class RahAcfFrontendForms {
       wp_send_json_error( array( 'message' => $submit_error_message ) );
     }
   }
+
+  /**
+   * Prepare text fields for max chars info
+   * @param  array $field
+   * @return array $field
+   */
+  function render_max_length( $field ) {
+
+    if( !$field['maxlength'] || is_admin() ) {
+      return;
+    }
+    ob_start(); ?>
+    <div class="maxlength-info">
+      <span class="remaining-count"><?= $field['maxlength'] ?></span> characters remaining
+    </div>
+    <?php echo ob_get_clean();
+
+  }
+  
 }
 new RahAcfFrontendForms();
 

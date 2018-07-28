@@ -47,8 +47,6 @@ export default class ACFFrontendForm {
     this.initImageDrops();
     this.hideConditionalFields();
     this.initMaxInputLengths();
-
-    
     this.setupAjaxSubmit();
     
   }
@@ -65,9 +63,9 @@ export default class ACFFrontendForm {
     acf.validation.hide_spinner = acf.validation.hideSpinner = function() {
       $('html').removeClass('is-loading-form');
     }
-    acf.remove = function( $el ) {
-      $el.remove();
-    }
+    acf.addAction('remove', function( $target ) {
+      $target.remove();
+    });
 
     acf.add_action('show_field', ( $field, type ) => {
       $field.slideDown(400, 'easeOutQuint');
@@ -75,38 +73,36 @@ export default class ACFFrontendForm {
     acf.add_action('hide_field', ( $field, type ) => {
       $field.slideUp(400, 'easeOutQuint');
     });
-    // for repeaters
-    acf.add_action('append', ( $el ) => {
+    
+    $('[data-event="add-row"]').removeClass('acf-icon');
+
+    // disable the confirmation for repeater remove-row buttons
+    this.$form.on('click', '[data-event="remove-row"]', function(e) {
+      $(this).click();
+    });
+
+    acf.addAction( 'append', function( $el ) {
       let $repeater = $el.parents('.acf-repeater');
       if( !$repeater.length ) {
         return;
       }
-      
+      // adjust disabled class
       let o = acf.get_data( $repeater );
       let count = $repeater.find('.acf-row').length - 1;
       if( o.max > 0 && count >= o.max ) {
         $el.find('[data-event="add-row"]').addClass('is-disabled');
       }
+      // focus the first input of the new row
+      setTimeout(() => {
+        let $input = $el.find('input:first');
+        if( !$input.length ) {
+          return;
+        }
+        $input.focus();
+      }, 1);
     });
 
-    // disable the confirmation for repeater remove-row buttons
-    acf.tooltip.confirm_remove = function($el, callback) {
-      callback.apply(null, [true]);
-    }
-
-    // Hack to force repeater fields 
-    this.$form.find('[data-event="add-row"]').removeClass('acf-icon');
     
-
-    this.$form.find('.acf-actions [data-event="add-row"]').each((i, el) => {
-      let $el = $(el);
-      $el.click(() => {
-        setTimeout(() => {
-          let $input = $el.parents('.acf-repeater').find('.acf-row:not(.acf-clone):last input:first');
-          $input.focus();
-        }, 1);
-      });
-    })
   }
 
   setupAjaxSubmit() {

@@ -3,7 +3,7 @@
  * Copy this template to acf-autofill-values.js, then edit it's contents
  */
 
-export default [
+const values = [
   {
     date: new Date(2018, 7, 1),
     from: new Date(2018, 7, 1, 19, 30),
@@ -30,3 +30,6 @@ export default [
     phone: '+4917620020805'
   }
 ];
+
+export default values;
+window.acfAutofillValues = values;

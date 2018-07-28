@@ -1,7 +1,6 @@
 
 global.jQuery = $ = window.jQuery;
 
-import acfValues from './acf-autofill-values';
 import autosize from 'autosize';
 
 window.acfAutoFill = function( id = 0 ) {
@@ -14,7 +13,12 @@ window.acfAutoFill = function( id = 0 ) {
 
   autosize( $('textarea') );
 
-  let values = acfValues[id];
+  let values = window.acfAutofillValues;
+  if( typeof values !== 'object' ) {
+    console.warn('window.acfAutofillValues is not defined');
+    return;
+  }
+  values = values[id];
 
   let scrollTop = $(document).scrollTop();
 
@@ -105,6 +109,10 @@ window.acfAutoFill = function( id = 0 ) {
       switch( type ) {
  
         case 'checkbox':
+        $input.prop('checked', value).trigger('change');
+        return true;
+        break;
+        case 'true_false':
         $input.prop('checked', value).trigger('change');
         return true;
         break;

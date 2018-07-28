@@ -6,7 +6,7 @@
 
 global.jQuery = $ = window.jQuery;
 
-import './app/acf-autofill';
+import './app/modules/acf-autofill';
 import ACFFrontendForm from './app/acf-frontend-form';
 
 window.rah = window.rah || {};

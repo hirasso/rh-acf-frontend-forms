@@ -1,4 +1,5 @@
 
+global.jQuery = $ = window.jQuery;
 
 export default class ImageDrop {
   
@@ -16,9 +17,14 @@ export default class ImageDrop {
 
     this.setupEvents();
     this.showImagePreview( this.$image.attr('src') );
+    
   }
 
   setupEvents() {
+    
+    if( $.inArray( 'dataTransfer', $.event.props ) === -1 ) {
+      $.event.props.push('dataTransfer');
+    }
 
     this.$el.on('dragover', (e) => {
       e.preventDefault();
