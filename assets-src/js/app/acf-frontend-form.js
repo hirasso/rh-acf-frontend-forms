@@ -33,7 +33,8 @@ export default class ACFFrontendForm {
 
     this.options = $.extend( {}, {
       ajaxSubmit: true,
-      resetAfterSubmit: true
+      resetAfterSubmit: true,
+      responseDuration: 1000
     }, options );
 
     this.$form = $form;
@@ -43,117 +44,42 @@ export default class ACFFrontendForm {
 
     this.initTextAreasAutosize();
     this.createAjaxResponse();
-    this.acfSetup();
+    this.setupForm();
     this.setupInputs();
     this.initImageDrops();
     this.hideConditionalFields();
     this.initMaxInputLengths();
-    this.setupAjaxSubmit();
     
+    this.$form.data('RAHFrontendForm', this);
   }
 
-  acfSetup() {
+  setupForm() {
     
-    // initialize the acf script
-    acf.doAction('ready');
+    if( this.options.ajaxSubmit ) {
+      this.$form.addClass('is-ajax-submit');
+      this.$form.on('submit', (e) => {
+        e.preventDefault();
+      });
+    }
 
-    // functions
-    acf.validation.show_spinner = acf.validation.showSpinner = function() {
-      $('html').addClass('is-loading-form');
-    }
-    acf.validation.hide_spinner = acf.validation.hideSpinner = function() {
-      $('html').removeClass('is-loading-form');
-    }
-    acf.addAction('remove', function( $target ) {
-      $target.remove();
-      $(document).trigger('rah/acf-form-resized');
-    });
-    
-    $('[data-event="add-row"]').removeClass('acf-icon');
+    this.$form.find('[data-event="add-row"]').removeClass('acf-icon');
 
     // disable the confirmation for repeater remove-row buttons
     this.$form.on('click', '[data-event="remove-row"]', function(e) {
       $(this).click();
     });
 
-    acf.addAction( 'append', function( $el ) {
-      let $repeater = $el.parents('.acf-repeater');
-      if( !$repeater.length ) {
-        return;
-      }
-      // adjust disabled class
-      let o = acf.get_data( $repeater );
-      let count = $repeater.find('.acf-row').length - 1;
-      if( o.max > 0 && count >= o.max ) {
-        $el.find('[data-event="add-row"]').addClass('is-disabled');
-      }
-      // focus the first input of the new row
-      setTimeout(() => {
-        let $input = $el.find('input:first');
-        if( !$input.length ) {
-          return;
-        }
-        $input.focus();
-      }, 1);
-
-      $(document).trigger('rah/acf-form-resized');
-    });
-
-    
   }
 
-  setupAjaxSubmit() {
-
-    if( !this.options.ajaxSubmit ) {
-      return;
-    }
-
-    this.$form.on('submit', (e) => {
-      e.preventDefault();
-    });
-
-    acf.addAction('validation_success', ( $form ) => {
-
-      if( $form.attr('id') !== this.$form.attr('id') ) {
-        return;
+  handleAjaxResponse( response ) {
+    this.showAjaxResponse( response );
+    setTimeout( () => {
+      this.$form.removeClass('show-ajax-response');
+      acf.validation.unlockForm( this.$form );
+      if( this.options.resetAfterSubmit ) {
+        this.resetForm( $form );
       }
-
-      let form = $form[0];
-
-      // Fix for Safari Webkit – empty file inputs
-      // https://stackoverflow.com/a/49827426/586823
-      let $inputs = $('input[type="file"]:not([disabled])', $form)
-      $inputs.each(function(i, input) {
-        if( input.files.length > 0 ) {
-          return;
-        }
-        $(input).prop('disabled', true);
-      })
-      
-      var formData = new FormData( form );
-
-      // Re-enable empty file inputs
-      $inputs.prop('disabled', false);
-
-      acf.validation.lockForm( this.$form );
-
-      $.ajax({
-        url: window.location.href,
-        method: 'post',
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false
-      }).done(response => {
-        acf.validation.hideSpinner();
-        this.showAjaxResponse( response );
-        if( this.options.resetAfterSubmit ) {
-          setTimeout( () => this.resetForm(), 5000 );
-        }
-      });
-          
-    });
-
+    }, this.options.responseDuration );
   }
 
   createAjaxResponse() {
@@ -174,8 +100,6 @@ export default class ACFFrontendForm {
     this.$form.get(0).reset();
     this.$form.find('.acf-field').find('input,textarea,select').trigger('change');
     this.$form.find('.acf-field').removeClass('has-value has-focus');
-    this.$form.removeClass('show-ajax-response');
-    acf.validation.unlockForm( this.$form );
   }
 
   initImageDrops() {
@@ -185,7 +109,7 @@ export default class ACFFrontendForm {
   }
 
   hideConditionalFields() {
-    $('.acf-field.hidden-by-conditional-logic').hide();
+    this.$form.find('.acf-field.hidden-by-conditional-logic').hide();
   }
 
   initMaxInputLengths() {
