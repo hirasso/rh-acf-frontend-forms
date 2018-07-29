@@ -13,7 +13,7 @@ import MaxInputLength from './modules/max-input-length';
 
 export default class ACFFrontendForm {
 
-  constructor( $form, options = {} ) {
+  constructor( $form, jsOptions = {} ) {
 
     // return if there is no form element
     if( !$form.length ) {
@@ -31,12 +31,16 @@ export default class ACFFrontendForm {
     }
     $form.addClass('rah-is-initialized');
 
-    this.options = $.extend( {}, {
+    let defaultOptions = {
       ajaxSubmit: true,
       resetAfterSubmit: true,
       responseDuration: 1000,
       submitOnChange: false
-    }, options );
+    };
+
+    let dataOptions = $form.data('rah-options') || {};
+
+    this.options = $.extend( defaultOptions, dataOptions, jsOptions );
 
     this.$form = $form;
 
@@ -189,7 +193,7 @@ export default class ACFFrontendForm {
     }
   }
   maybeSubmitForm() {
-    if( !this.options.submitOnChange ) {
+    if( this.options.submitOnChange ) {
       this.$form.find('[type="submit"]').click();
     }
   }
