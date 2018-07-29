@@ -54,17 +54,7 @@ export default class ACFFrontendForm {
     this.initImageDrops();
     this.hideConditionalFields();
     this.initMaxInputLengths();
-
-    // setup new fields if not set already
-    this.$form.find('.acf-field').each((i, el) => {
-      if( typeof acf.getInstance( $(el) ) === 'undefined' ) {
-        console.log( 'no acf instance set for this field yet, initializing...' );
-        acf.newField( $(el) );
-      }
-    })
-    // this.$form.find('.acf-field:not(.rah-is-initialized)').each((i, el) => {
-      
-    // })
+    this.lateInitializeFields();
 
     this.$form.data('RAHFrontendForm', this);
   }
@@ -85,6 +75,18 @@ export default class ACFFrontendForm {
       $(this).click();
     });
 
+  }
+  
+  /**
+   * Initialize fields that aren't initialized already
+   */
+  lateInitializeFields() {
+    let $fields = acf.findFields();
+    $fields.each((i, el) => {
+      if( typeof acf.getInstance( $(el) ) === 'undefined' ) {
+        acf.newField( $(el) );
+      }
+    })
   }
 
   doAjaxSubmit() {
