@@ -26,15 +26,16 @@ export default class ACFFrontendForm {
       return;
     }
     // return if form has already been initialized
-    if( $form.hasClass('rah-is--initialized') ) {
+    if( $form.hasClass('rah-is-initialized') ) {
       return;
     }
-    $form.addClass('rah-is--initialized');
+    $form.addClass('rah-is-initialized');
 
     this.options = $.extend( {}, {
       ajaxSubmit: true,
       resetAfterSubmit: true,
-      responseDuration: 1000
+      responseDuration: 1000,
+      submitOnChange: false
     }, options );
 
     this.$form = $form;
@@ -49,7 +50,18 @@ export default class ACFFrontendForm {
     this.initImageDrops();
     this.hideConditionalFields();
     this.initMaxInputLengths();
-    
+
+    // setup new fields if not set already
+    this.$form.find('.acf-field').each((i, el) => {
+      if( typeof acf.getInstance( $(el) ) === 'undefined' ) {
+        console.log( 'no acf instance set for this field yet, initializing...' );
+        acf.newField( $(el) );
+      }
+    })
+    // this.$form.find('.acf-field:not(.rah-is-initialized)').each((i, el) => {
+      
+    // })
+
     this.$form.data('RAHFrontendForm', this);
   }
 
@@ -71,13 +83,47 @@ export default class ACFFrontendForm {
 
   }
 
+  doAjaxSubmit() {
+
+    // Fix for Safari Webkit – empty file inputs
+    // https://stackoverflow.com/a/49827426/586823
+    let $fileInputs = $('input[type="file"]:not([disabled])', this.$form)
+    $fileInputs.each(function(i, input) {
+      if( input.files.length > 0 ) {
+        return;
+      }
+      $(input).prop('disabled', true);
+    })
+    
+    var formData = new FormData( this.$form[0] );
+
+    // Re-enable empty file $fileInputs
+    $fileInputs.prop('disabled', false);
+
+    acf.validation.lockForm( this.$form );
+    this.$form.addClass('rah-is-locked');
+
+    $.ajax({
+      url: window.location.href,
+      method: 'post',
+      data: formData,
+      cache: false,
+      processData: false,
+      contentType: false
+    }).done(response => {
+      this.handleAjaxResponse( response );
+    });
+  }
+
   handleAjaxResponse( response ) {
+    acf.validation.hideSpinner();
     this.showAjaxResponse( response );
     setTimeout( () => {
       this.$form.removeClass('show-ajax-response');
       acf.validation.unlockForm( this.$form );
+      this.$form.removeClass('rah-is-locked');
       if( this.options.resetAfterSubmit ) {
-        this.resetForm( $form );
+        this.resetForm();
       }
     }, this.options.responseDuration );
   }
@@ -119,15 +165,14 @@ export default class ACFFrontendForm {
   }
 
   setupInputs() {
-    
-    this.$form.on( 'keyup keydown change', 'input,textarea,select', e => this.onInputChange( e.currentTarget ) );
-    this.$form.on( 'focus', 'input,textarea,select', e => this.onInputFocus( e.currentTarget ) );
-    this.$form.on( 'blur', 'input,textarea,select', e => this.onInputBlur( e.currentTarget ) );
+    let selector = 'input,textarea,select';
+    this.$form.on( 'keyup keydown change', selector, e => this.adjustFieldClasses( $(e.currentTarget) ) );
+    this.$form.on( 'change', selector, e => this.maybeSubmitForm() );
+    this.$form.on( 'focus', selector, e => this.onInputFocus( e.currentTarget ) );
+    this.$form.on( 'blur', selector, e => this.onInputBlur( e.currentTarget ) );
       
   }
-  onInputChange( el ) {
-
-    let $el = $(el);
+  adjustFieldClasses( $el ) {
 
     let $field = $el.parents('.acf-field:first');
     let type = $el.attr('type');
@@ -141,6 +186,11 @@ export default class ACFFrontendForm {
       $field.addClass('has-value');
     } else {
       $field.removeClass('has-value');
+    }
+  }
+  maybeSubmitForm() {
+    if( !this.options.submitOnChange ) {
+      this.$form.find('[type="submit"]').click();
     }
   }
   onInputFocus( el ) {
@@ -160,5 +210,8 @@ export default class ACFFrontendForm {
       $(document).trigger('rah/acf-form-resized')
     });
   }
+
+
+
 }
 

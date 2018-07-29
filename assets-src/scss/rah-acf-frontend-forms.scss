@@ -1,3 +1,6 @@
 /**
  * Styles should be defined in the theme – they will change all the time, anyways :)
  */
+.acf-form.rah-is-locked {
+  pointer-events: none;
+}

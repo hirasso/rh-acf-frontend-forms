@@ -33,10 +33,10 @@ class App {
    */
   setup() {
     
-    // re-setup ACF on AJAX reload
-    $(document).on('rah/render', () => {
-      acf.doAction('ready');
-    })
+    // add initialized class to fields on initialization
+    acf.addAction('new_field', function( field ) {
+      field.$el.addClass('rah-is-initialized');
+    });
 
     // functions
     acf.validation.show_spinner = acf.validation.showSpinner = function() {
@@ -84,54 +84,17 @@ class App {
       if( !$form.hasClass('is-ajax-submit') ) {
         return true;
       }
-      
-      // if( $form.attr('id') !== this.$form.attr('id') ) {
-      //   return;
-      // }
 
-      let form = $form[0];
+      this.getInstance( $form ).doAjaxSubmit();
 
-      // Fix for Safari Webkit – empty file inputs
-      // https://stackoverflow.com/a/49827426/586823
-      let $inputs = $('input[type="file"]:not([disabled])', $form)
-      $inputs.each(function(i, input) {
-        if( input.files.length > 0 ) {
-          return;
-        }
-        $(input).prop('disabled', true);
-      })
-      
-      var formData = new FormData( form );
-
-      // Re-enable empty file inputs
-      $inputs.prop('disabled', false);
-
-      acf.validation.lockForm( $form );
-
-      $.ajax({
-        url: window.location.href,
-        method: 'post',
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false
-      }).done(response => {
-        acf.validation.hideSpinner();
-        this.getFormInstance( $form ).handleAjaxResponse( response );
-        // $form.trigger('rah/ajax-submit');
-        
-      });
-          
     });
 
   }
 
-  getFormInstance( $form ) {
+  getInstance( $form ) {
     return $form.data('RAHFrontendForm');
   }
 
 }
 
-$(document).ready(function() {
-  new App;
-});
+new App();

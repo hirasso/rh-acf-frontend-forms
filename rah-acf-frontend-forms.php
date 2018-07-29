@@ -25,7 +25,7 @@ class RahAcfFrontendForms {
     add_action( 'template_redirect', 'acf_form_head');
 
     // internal hooks
-    add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
+    add_action( 'wp_enqueue_scripts', array( $this, 'assets' ), 100 );
     add_filter( 'acf/render_field/type=image', array( $this, 'render_image_drop' ) );
     add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length' ) );
     add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length' ) );
@@ -40,6 +40,9 @@ class RahAcfFrontendForms {
 
     // enqueue plugin script
     wp_enqueue_script( 'rah-acf-frontend-forms', $this->asset_uri('assets/js/rah-acf-frontend-forms.js'), array('jquery'), null, true );
+
+    // enqueue plugin styles
+    wp_enqueue_style( 'rah-acf-frontend-forms', $this->asset_uri('assets/css/rah-acf-frontend-forms.css'), array(), 'all');
 
     // Removes the default ACF styles
     wp_deregister_style('acf-global');
