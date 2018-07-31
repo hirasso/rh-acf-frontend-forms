@@ -14,7 +14,9 @@ class RahAcfFrontendForms {
     $this->hooks();
     // always set acf validation to true, so that the form 
     // also works if the page is loaded via AJAX
-    acf_localize_data( array( 'validation' => 1 ) );
+    if( isset($_GET['force_validation']) ) {
+      acf_localize_data( array( 'validation' => 1 ) );
+    }
   }
   /**
    * Setup action and filter hooks
@@ -26,7 +28,8 @@ class RahAcfFrontendForms {
 
     // internal hooks
     add_action( 'wp_enqueue_scripts', array( $this, 'assets' ), 100 );
-    add_filter( 'acf/render_field/type=image', array( $this, 'render_image_drop' ) );
+    add_filter( 'acf/prepare_field/type=image', array( $this, 'prepare_image_field' ) );
+    add_filter( 'acf/render_field/type=image', array( $this, 'render_image_field' ) );
     add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length' ) );
     add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length' ) );
     add_action( 'acf/submit_form', array( $this, 'on_submit_form' ), 10, 2 );
@@ -63,28 +66,54 @@ class RahAcfFrontendForms {
     return "$file_uri?v=$file_version";
   }
 
+  
   /**
-   * Prepares image fields for JS enhancements
+   * Prepares image fields
    * @param  array $field
    * @return array $field
    */
-  function render_image_drop( $field ) {
+  function prepare_image_field( $field ) {
+    $field['preview_size'] = 'large';
+    return $field;
+  }
+
+  /**
+   * Renders image field instructions
+   * @param  array $field
+   * @return array $field
+   */
+  function render_image_field( $field ) {
     if( is_admin() ) {
       return $field;
     }
+    $file_restrictions = array();
+    $mime_types = array();
 
-    $instructions = array();
     if( !empty($field['mime_types']) ) {
-      $instructions = array_merge( $instructions, explode(',', $field['mime_types']) );
+      $mime_types = explode(',', $field['mime_types']);
+      // glue together last 2 types
+      if( count($mime_types) > 1 ) {
+        
+        $last1 = array_pop($mime_types);
+        $last2 = array_pop($mime_types);
+        
+        $mime_types[] = $last2 . ' ' . __('or', 'acf') . ' ' . $last1;
+        
+      }
+      $file_restrictions = array_merge( $file_restrictions, $mime_types );
     }
     if( !empty($field['max_size']) ) {
-      $instructions[] = "max <span class='max-size'>{$field['max_size']}</span> MB";
+      $file_restrictions[] = "<span class='max-size-wrap'>max <span class='max-size'>{$field['max_size']}</span> MB</span>";
     }
+    $data_settings = array(
+      'mime_types' => $mime_types,
+      'max_size' => $field['max_size']
+    );
     ob_start(); ?>
     
-    <div class="instructions">
+    <div class="instructions" data-settings='<?= json_encode($data_settings) ?>'>
       <div class="instructions__title"><?= $field['label'] ?></div>
-      <div class="instructions__body"><?= implode(', ', $instructions) ?></div>
+      <div class="instructions__body"><?= implode(', ', $file_restrictions) ?></div>
     </div>
 
     <?php echo ob_get_clean();

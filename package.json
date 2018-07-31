@@ -34,6 +34,7 @@
     "uglifyjs-folder": "^1.1.0"
   },
   "dependencies": {
-    "autosize": "^4.0.2"
+    "autosize": "^4.0.2",
+    "feather-icons": "^4.7.3"
   }
 }

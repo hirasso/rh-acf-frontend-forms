@@ -1,6 +1,10 @@
-/**
- * Styles should be defined in the theme – they will change all the time, anyways :)
- */
+@import './inc/_vars';
+@import './inc/_image-drop';
+@import './inc/_error-message';
+
+.acf-input {
+  position: relative;
+}
 .acf-form.rah-is-locked {
   pointer-events: none;
 }

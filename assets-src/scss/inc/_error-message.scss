@@ -1,0 +1,25 @@
+@import './_vars';
+
+.acf-error-message {
+  background: $red;
+  display: block;
+  padding: 0.35em 0.7em 0.3em;
+  color: $white;
+}
+.acf-error-message.-dismiss {
+  display: none;
+}
+.acf-temp-remove {
+  display: none;
+}
+.acf-error-message p {
+  margin: 0;
+  font-size: 0.7em;
+  letter-spacing: 0.05em;
+}
+.acf-input .acf-error-message {
+  display: block;
+  pointer-events: none;
+  z-index: 4;
+  margin-bottom: 0.5em;
+}

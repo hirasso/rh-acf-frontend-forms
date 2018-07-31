@@ -6,8 +6,9 @@
 
 global.jQuery = $ = window.jQuery;
 
-import './app/modules/acf-autofill';
-import ACFFrontendForm from './app/acf-frontend-form';
+import './modules/acf-autofill';
+import ACFFrontendForm from './modules/acf-frontend-form';
+import ImageDrop from './modules/image-drop';
 
 window.rah = window.rah || {};
 
@@ -34,9 +35,13 @@ class App {
   setup() {
     
     // add initialized class to fields on initialization
-    acf.addAction('new_field', function( field ) {
+    acf.addAction('new_field', ( field ) => {
       field.$el.addClass('rah-is-initialized');
     });
+
+    acf.addAction('new_field/type=image', ( field ) => {
+      new ImageDrop( field );
+    })
 
     // functions
     acf.validation.show_spinner = acf.validation.showSpinner = function() {

@@ -7,9 +7,7 @@
 global.jQuery = $ = window.jQuery;
 
 import autosize from 'autosize';
-
-import ImageDrop from './modules/image-drop';
-import MaxInputLength from './modules/max-input-length';
+import MaxInputLength from './max-input-length';
 
 export default class ACFFrontendForm {
 
@@ -44,17 +42,19 @@ export default class ACFFrontendForm {
 
     this.$form = $form;
 
+    acf.doAction('append', $form);
+    acf.validation.enable();
     
-    this.$form.find('.acf-field').find('input,textarea,select').trigger('change');
+    this.$form.find('.acf-field input').each((i, el) => {
+      this.adjustHasValueClass( $(el) );
+    })
 
     this.initTextAreasAutosize();
     this.createAjaxResponse();
     this.setupForm();
     this.setupInputs();
-    this.initImageDrops();
     this.hideConditionalFields();
     this.initMaxInputLengths();
-    this.lateInitializeFields();
 
     this.$form.data('RAHFrontendForm', this);
   }
@@ -75,18 +75,6 @@ export default class ACFFrontendForm {
       $(this).click();
     });
 
-  }
-  
-  /**
-   * Initialize fields that aren't initialized already
-   */
-  lateInitializeFields() {
-    let $fields = acf.findFields();
-    $fields.each((i, el) => {
-      if( typeof acf.getInstance( $(el) ) === 'undefined' ) {
-        acf.newField( $(el) );
-      }
-    })
   }
 
   doAjaxSubmit() {
@@ -155,7 +143,7 @@ export default class ACFFrontendForm {
   }
 
   initImageDrops() {
-    $('[data-type="image"] .acf-input').each((i, el) => {
+    $('.acf-field-image').each((i, el) => {
       new ImageDrop( $(el) );
     });
   }
@@ -172,18 +160,33 @@ export default class ACFFrontendForm {
 
   setupInputs() {
     let selector = 'input,textarea,select';
-    this.$form.on( 'keyup keydown change', selector, e => this.adjustFieldClasses( $(e.currentTarget) ) );
+    this.$form.on( 'keyup keydown change', selector, e => this.adjustHasValueClass( $(e.currentTarget) ) );
     this.$form.on( 'change', selector, e => this.maybeSubmitForm() );
     this.$form.on( 'focus', selector, e => this.onInputFocus( e.currentTarget ) );
     this.$form.on( 'blur', selector, e => this.onInputBlur( e.currentTarget ) );
       
   }
-  adjustFieldClasses( $el ) {
+  adjustHasValueClass( $input ) {
 
-    let $field = $el.parents('.acf-field:first');
-    let type = $el.attr('type');
-    let val = $el.val();
+    let $field = $input.parents('.acf-field:first');
+    let field = acf.getInstance( $field );
+    if( typeof field === 'undefined' ) {
+      return;
+    }
+    let type = $input.attr('type');
+    let val = $input.val();
 
+    let enabledInputs = [
+      'text',
+      'password',
+      'url',
+      'email',
+      'texarea',
+      'select',
+    ];
+    if( $.inArray( field.get('type'), enabledInputs ) === -1 ) {
+      return;
+    }
     if( type === 'checkbox' ) {
       val = $el.prop('checked');
     }
