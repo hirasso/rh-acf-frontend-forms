@@ -7,6 +7,13 @@
  * Author URI: https://rassohilber.com
 **/
 
+require 'vendor/plugin-update-checker/plugin-update-checker.php';
+$MyUpdateChecker = \Puc_v4_Factory::buildUpdateChecker(
+  'https://rassohilber.com/wp-updates/?action=get_metadata&slug=rah-acf-frontend-forms', //Metadata URL.
+  __FILE__, //Full path to the main plugin file.
+  'rah-acf-frontend-forms' //Plugin slug. Usually it's the same as the name of the directory.
+);
+
 class RahAcfFrontendForms {
 
   function __construct() {
