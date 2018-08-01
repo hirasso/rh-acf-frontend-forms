@@ -90,11 +90,10 @@ class RahAcfFrontendForms {
     );
     $hints = array();
 
-    $mime_types = acf_maybe_get( $field, 'mime_types', array() );
+    $mime_types = acf_maybe_get( $field, 'mime_types', '' );
     $max_size = acf_maybe_get( $field, 'max_size', null );
 
-
-    if( is_array($mime_types) && count( $mime_types ) ) {
+    if( $mime_types ) {
       $mime_types = explode( ',', $mime_types );
       $glued_mime_types = $this->glue_last_two( $mime_types );
       $settings->restrictions['mime_types'] = array(
