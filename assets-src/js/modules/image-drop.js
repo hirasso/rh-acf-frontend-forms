@@ -26,6 +26,7 @@ export default class ImageDrop {
 
     this.$el.addClass('image-drop');
     this.setupEvents();
+    this.renderImage( this.$image.attr('src') );
     
   }
 
@@ -161,6 +162,9 @@ export default class ImageDrop {
   }
 
   validateMimeType( file ) {
+    if( !this.mimeTypes.length ) {
+      return true;
+    }
     let extension = file.name.split('.').pop().toLowerCase();  // file extension from input file
     let isValidMimeType = $.inArray( extension, this.mimeTypes ) > -1;  // is extension in acceptable types
     return isValidMimeType;
