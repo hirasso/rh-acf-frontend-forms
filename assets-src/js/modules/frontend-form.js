@@ -172,7 +172,11 @@ export default class ACFFrontendForm {
       'email',
       'textarea',
       'select',
-      'true_false'
+      'true_false',
+      'date_picker',
+      'time_picker',
+      'date_time_picker',
+      'oembed'
     ];
     if( $.inArray( field.get('type'), enabledInputs ) === -1 ) {
       return;
