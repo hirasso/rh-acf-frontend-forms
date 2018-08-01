@@ -14,9 +14,9 @@
     "build:css": "postcss assets/css/*.css --use autoprefixer --replace",
     "build": "npm run build:js; npm run uglify:js; npm run scss; npm run build:css;",
     "watch": "npm run mkdirs; npm run watch:js | npm run scss | npm run scss -- --watch | npm run browser-sync",
-    "zip:create": "zip -r rah-acf-frontend-forms.zip .",
+    "zip:create": "rsync -av --progress . temp; zip -r rah-acf-frontend-forms.zip temp",
     "zip:upload": "scp -r rah-acf-frontend-forms.zip ssh-335846-rah@rassohilber.com:/kunden/335846_10999/webseiten/rassohilber/wp-updates/packages",
-    "zip:delete": "rm -f rah-acf-frontend-forms.zip",
+    "zip:delete": "rm -rf rah-acf-frontend-forms.zip temp",
     "deploy": "npm run zip:create; npm run zip:upload; npm run zip:delete;"
   },
   "babel": {
