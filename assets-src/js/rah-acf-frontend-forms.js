@@ -14,8 +14,9 @@ import autosize from 'autosize';
 
 window.rah = window.rah || {};
 
-window.rah.acfFrontendForm = function( $form, options = {} ) {
-  return new ACFFrontendForm( $form, options );
+window.rah.acfForm = function( $form, options = {} ) {
+  let instance = $form.data('RAHFrontendForm');
+  return instance || new ACFFrontendForm( $form, options );
 }
 
 class App {
