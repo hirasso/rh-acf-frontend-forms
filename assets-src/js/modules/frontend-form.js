@@ -170,14 +170,15 @@ export default class ACFFrontendForm {
       'password',
       'url',
       'email',
-      'texarea',
+      'textarea',
       'select',
+      'true_false'
     ];
     if( $.inArray( field.get('type'), enabledInputs ) === -1 ) {
       return;
     }
     if( type === 'checkbox' ) {
-      val = $el.prop('checked');
+      val = $input.prop('checked');
     }
     
     if( val ) {
