@@ -75,6 +75,7 @@
   top: 0;
   right: 0;
   background: none !important;
+  transform: translate3d( 50%, -50%, 0 );
 }
 .image-drop [data-name="remove"] svg {
   position: absolute;

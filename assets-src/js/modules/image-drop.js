@@ -95,8 +95,8 @@ export default class ImageDrop {
         paddingBottom: `${paddingBottom}%`,
       })
 
-      this.acfField.render({ url: src });
-      this.acfField.$control().addClass('has-value');
+      this.$image.attr('src', src);
+      this.$imageUploader.addClass('has-value');
 
       $(document).trigger('rah/acf-form-resized');
 
@@ -135,7 +135,7 @@ export default class ImageDrop {
         this.acfField.removeError();
       } else {
         this.clear( errors );
-        // this.renderImage( this.currentImageSrc );
+        this.renderImage( this.currentImageSrc );
       }
     }
     reader.readAsDataURL( file );
