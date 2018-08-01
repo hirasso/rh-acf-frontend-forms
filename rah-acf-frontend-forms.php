@@ -85,39 +85,73 @@ class RahAcfFrontendForms {
     if( is_admin() ) {
       return $field;
     }
-    $file_restrictions = array();
-    $mime_types = array();
-
-    if( !empty($field['mime_types']) ) {
-      $mime_types = explode(',', $field['mime_types']);
-      // glue together last 2 types
-      if( count($mime_types) > 1 ) {
-        
-        $last1 = array_pop($mime_types);
-        $last2 = array_pop($mime_types);
-        
-        $mime_types[] = $last2 . ' ' . __('or', 'acf') . ' ' . $last1;
-        
-      }
-      $file_restrictions = array_merge( $file_restrictions, $mime_types );
-    }
-    if( !empty($field['max_size']) ) {
-      $file_restrictions[] = "<span class='max-size-wrap'>max <span class='max-size'>{$field['max_size']}</span> MB</span>";
-    }
-    $data_settings = array(
-      'mime_types' => $mime_types,
-      'max_size' => $field['max_size']
+    $settings = (object) array(
+      'restrictions' => array()
     );
+    $hints = array();
+
+    $mime_types = acf_maybe_get( $field, 'mime_types', array() );
+    $max_size = acf_maybe_get( $field, 'max_size', null );
+
+    if( count( $mime_types ) ) {
+      $mime_types = explode( ',', $mime_types );
+      $glued_mime_types = $this->glue_last_two( $mime_types );
+      $settings->restrictions['mime_types'] = array(
+        'value' => $mime_types,
+        'error' => sprintf(__('File type must be %s.', 'acf'), implode(', ', $glued_mime_types) ),
+      );
+      $hints[] = implode( ', ', $glued_mime_types );
+    }
+    
+    if( $max_size ) {
+      $settings->restrictions['max_size'] = array(
+        'value' => $max_size,
+        'error' => sprintf(__('File size must must not exceed %s.', 'acf'), acf_format_filesize($max_size) ),
+      );
+      $hints[] = 'max ' . acf_format_filesize($max_size);
+    }
+    
     ob_start(); ?>
     
-    <div class="instructions" data-settings='<?= json_encode($data_settings) ?>'>
-      <div class="instructions__title"><?= __('Select or drop image') ?></div>
-      <div class="instructions__body"><?= implode(', ', $file_restrictions) ?></div>
+    <div class="instructions" data-settings='<?= json_encode($settings) ?>'>
+      <div class="instructions__title"><?= $field['label'] ?></div>
+      <div class="instructions__body"><?= implode(', ', $hints) ?></div>
     </div>
 
     <?php echo ob_get_clean();
     return $field;
   }
+
+  function glue_last_two( $array ) {
+    // glue together last 2 types
+    if( count($array) > 1 ) {
+      
+      $last1 = array_pop($array);
+      $last2 = array_pop($array);
+      
+      $array[] = $last2 . ' ' . __('or', 'acf') . ' ' . $last1;
+      
+    }
+    return $array;
+  }
+
+  function get_mime_types_error_message( $mime_types ) {
+    // glue together last 2 types
+    if( count($mime_types) > 1 ) {
+      
+      $last1 = array_pop($mime_types);
+      $last2 = array_pop($mime_types);
+      
+      $mime_types[] = $last2 . ' ' . __('or', 'acf') . ' ' . $last1;
+      
+    }
+    return sprintf(__('File type must be %s.', 'acf'), implode(', ', $mime_types) );
+  }
+
+  function get_max_size_error_message( ) {
+    return 'test 123';
+  }
+
 
   /**
    * Checks if the page is called via ajax, even if not in admin-ajax.php

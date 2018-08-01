@@ -22,7 +22,6 @@ export default class ImageDrop {
     this.$instructions.appendTo( this.$imageUploader );
     this.dataSettings = this.$instructions.data('settings');
     this.maxFileSize = this.maybeGet( 'max_size', this.dataSettings, false );
-    this.mimeTypes = this.maybeGet( 'mime_types', this.dataSettings, false );
 
     this.$el.addClass('image-drop');
     this.setupEvents();
@@ -143,31 +142,25 @@ export default class ImageDrop {
 
   getErrors( file ) {
     let errors = [];
-    if( !this.validateMaxFileSize( file ) ) {
-      errors.push( `The image must be smaller than ${this.maxFileSize} MB` );
+
+    // Check for max size
+    let maxSize = this.maybeGet( 'max_size', this.dataSettings.restrictions, false )
+    if( maxSize && file.size / 1000000 > maxSize.value ) {
+      errors.push( maxSize.error );
     }
-    if( !this.validateMimeType( file ) ) {
-      if( this.mimeTypes.length < 2 ) {
-        errors.push( `File type must be ${this.mimeTypes.join(', ')}` );
-      } else {
-        errors.push( `File type must be ${this.mimeTypes.slice(0, -1).join(', ')} or ${this.mimeTypes.slice(-1)}` );
+
+    // Check for mime type
+    let mimeTypes = this.maybeGet( 'mime_types', this.dataSettings.restrictions, false )
+    if( mimeTypes ) {
+      let extension = file.name.split('.').pop().toLowerCase();  // file extension from input file
+      let isValidMimeType = $.inArray( extension, mimeTypes.value ) > -1;  // is extension in acceptable types
+      if( !isValidMimeType ) {
+        errors.push( mimeTypes.error );
       }
-      
     }
+
     return errors.length ? errors : false;
   }
 
-  validateMaxFileSize( file ) {
-    return !this.maxFileSize || file.size / 1000000 <= this.maxFileSize;
-  }
-
-  validateMimeType( file ) {
-    if( !this.mimeTypes.length ) {
-      return true;
-    }
-    let extension = file.name.split('.').pop().toLowerCase();  // file extension from input file
-    let isValidMimeType = $.inArray( extension, this.mimeTypes ) > -1;  // is extension in acceptable types
-    return isValidMimeType;
-  }
   
 }
