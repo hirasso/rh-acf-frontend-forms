@@ -28,7 +28,8 @@ export default class ACFFrontendForm {
 
     let defaultOptions = {
       ajaxSubmit: true,
-      resetAfterSubmit: 1000,
+      waitAfterSubmit: 1000,
+      resetAfterSubmit: true,
       submitOnChange: false
     };
 
@@ -110,10 +111,10 @@ export default class ACFFrontendForm {
       this.$form.removeClass('show-ajax-response');
       acf.validation.unlockForm( this.$form );
       this.$form.removeClass('rah-is-locked');
-      if( this.options.resetAfterSubmit !== false ) {
+      if( this.options.resetAfterSubmit ) {
         this.resetForm();
       }
-    }, this.options.resetAfterSubmit );
+    }, this.options.waitAfterSubmit );
   }
 
   createAjaxResponse() {
