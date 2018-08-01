@@ -6,9 +6,11 @@
 
 global.jQuery = $ = window.jQuery;
 
-import './modules/acf-autofill';
-import ACFFrontendForm from './modules/acf-frontend-form';
+import './modules/autofill';
+import ACFFrontendForm from './modules/frontend-form';
 import ImageDrop from './modules/image-drop';
+import MaxLength from './modules/maxlength';
+import autosize from 'autosize';
 
 window.rah = window.rah || {};
 
@@ -37,10 +39,15 @@ class App {
     // add initialized class to fields on initialization
     acf.addAction('new_field', ( field ) => {
       field.$el.addClass('rah-is-initialized');
+      this.initMaxInputInfo( field );
     });
 
     acf.addAction('new_field/type=image', ( field ) => {
       new ImageDrop( field );
+    })
+
+    acf.addAction('new_field/type=textarea', ( field ) => {
+      this.initAutosize( field );
     })
 
     // functions
@@ -100,6 +107,22 @@ class App {
     return $form.data('RAHFrontendForm');
   }
 
+  initMaxInputInfo( field ) {
+    let $info = field.$el.find('.maxlength-info');
+    if( $info.length ) {
+      new MaxLength( field );
+    }
+  }
+
+  initAutosize( field ) {
+    let $input = field.$input();
+    
+    $input.each(function(){
+      autosize(this);
+    }).on('autosize:resized', function(){
+      $(document).trigger('rah/acf-form-resized');
+    });
+  }
 }
 
 new App();

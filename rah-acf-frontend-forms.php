@@ -14,9 +14,7 @@ class RahAcfFrontendForms {
     $this->hooks();
     // always set acf validation to true, so that the form 
     // also works if the page is loaded via AJAX
-    if( isset($_GET['force_validation']) ) {
-      acf_localize_data( array( 'validation' => 1 ) );
-    }
+    acf_localize_data( array( 'validation' => 1 ) );
   }
   /**
    * Setup action and filter hooks
@@ -29,6 +27,7 @@ class RahAcfFrontendForms {
     // internal hooks
     add_action( 'wp_enqueue_scripts', array( $this, 'assets' ), 100 );
     add_filter( 'acf/prepare_field/type=image', array( $this, 'prepare_image_field' ) );
+    add_filter( 'acf/validate_value', array( $this, 'validate_value' ), 9, 3 );
     add_filter( 'acf/render_field/type=image', array( $this, 'render_image_field' ) );
     add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length' ) );
     add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length' ) );
@@ -112,7 +111,7 @@ class RahAcfFrontendForms {
     ob_start(); ?>
     
     <div class="instructions" data-settings='<?= json_encode($data_settings) ?>'>
-      <div class="instructions__title"><?= $field['label'] ?></div>
+      <div class="instructions__title"><?= __('Select or drop image') ?></div>
       <div class="instructions__body"><?= implode(', ', $file_restrictions) ?></div>
     </div>
 
@@ -166,13 +165,29 @@ class RahAcfFrontendForms {
       return;
     }
     ob_start(); ?>
-    <div class="maxlength-info">
-      <span class="remaining-count"><?= $field['maxlength'] ?></span> characters remaining
+    <div class="maxlength-info" data-maxlength="<?= $field['maxlength'] ?>">
+      <span class="remaining-count"></span> characters remaining
     </div>
     <?php echo ob_get_clean();
 
   }
-  
+
+  function validate_value( $valid, $value, $field ) {
+    if( !$field['required'] || $valid ) {
+      return $valid;
+    }
+    $message = __('Please fill out this field');
+    switch( $field['type'] ) {
+      case 'radio':
+      $message = __('Please select an option');
+      break;
+      case 'image':
+      $message = __('Please add an image');
+      break;
+    }
+    
+    return $message;
+  }
 }
 new RahAcfFrontendForms();
 

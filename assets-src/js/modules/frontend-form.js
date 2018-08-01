@@ -6,9 +6,6 @@
 
 global.jQuery = $ = window.jQuery;
 
-import autosize from 'autosize';
-import MaxInputLength from './max-input-length';
-
 export default class ACFFrontendForm {
 
   constructor( $form, jsOptions = {} ) {
@@ -49,12 +46,10 @@ export default class ACFFrontendForm {
       this.adjustHasValueClass( $(el) );
     })
 
-    this.initTextAreasAutosize();
     this.createAjaxResponse();
     this.setupForm();
     this.setupInputs();
     this.hideConditionalFields();
-    this.initMaxInputLengths();
 
     this.$form.data('RAHFrontendForm', this);
   }
@@ -152,12 +147,6 @@ export default class ACFFrontendForm {
     this.$form.find('.acf-field.hidden-by-conditional-logic').hide();
   }
 
-  initMaxInputLengths() {
-    this.$form.find('.acf-field:has(.maxlength-info)').each((i, el) => {
-      new MaxInputLength( $(el) );
-    })
-  }
-
   setupInputs() {
     let selector = 'input,textarea,select';
     this.$form.on( 'keyup keydown change', selector, e => this.adjustHasValueClass( $(e.currentTarget) ) );
@@ -211,16 +200,6 @@ export default class ACFFrontendForm {
   $field( input ) {
     return $(input).parents('.acf-field:first');
   }
-
-  initTextAreasAutosize() {
-    this.$form.find('textarea').each(function(){
-      autosize(this);
-    }).on('autosize:resized', function(){
-      $(document).trigger('rah/acf-form-resized')
-    });
-  }
-
-
 
 }
 

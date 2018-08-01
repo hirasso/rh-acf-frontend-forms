@@ -3,7 +3,7 @@
 .image-drop {
   position: relative;
 }
-.image-drop .acf-input.is-dragover:after {
+.image-drop .acf-image-uploader.is-dragover:after {
   content: "";
   display: block;
   position: absolute;
@@ -15,7 +15,7 @@
   background: rgba(0,0,0,0.1);
   pointer-events: none;
 }
-.image-drop .acf-input {
+.image-drop .acf-image-uploader {
   position: relative;
   height: 0;
   padding-bottom: 63%;

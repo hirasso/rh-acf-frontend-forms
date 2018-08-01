@@ -1,10 +1,8 @@
 @import './_vars';
 
 .acf-error-message {
-  background: $red;
-  display: block;
-  padding: 0.35em 0.7em 0.3em;
-  color: $white;
+  
+  
 }
 .acf-error-message.-dismiss {
   display: none;
@@ -13,13 +11,26 @@
   display: none;
 }
 .acf-error-message p {
+  background: $red;
   margin: 0;
-  font-size: 0.7em;
+  font-size: 0.8em;
   letter-spacing: 0.05em;
+  padding: 0.55em 0.7em 0.55em;
+  color: $white;
 }
 .acf-input .acf-error-message {
   display: block;
   pointer-events: none;
   z-index: 4;
   margin-bottom: 0.5em;
+}
+.acf-input .acf-error-message:after {
+  content: "";
+  display: block;
+  width: 0.5em;
+  height: 0.5em;
+  background: $red;
+  transform: rotate(-45deg);
+  margin-top: -0.25em;
+  margin-left: 1.5em;
 }

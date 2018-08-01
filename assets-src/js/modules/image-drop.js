@@ -10,7 +10,6 @@ export default class ImageDrop {
     this.acfField = acfField;
 
     this.$el = acfField.$el;
-    this.$acfInput = this.$el.find('.acf-input');
     
     this.$input = this.$el.find('input[type="file"]');
     this.$imagePreview = this.$el.find('.image-wrap');
@@ -18,7 +17,10 @@ export default class ImageDrop {
     this.$clear = this.$el.find('[data-name="remove"]');
     this.$clear.html(feather.icons['x-circle'].toSvg());
     
-    this.dataSettings = this.$el.find('.instructions').data('settings');
+    this.$imageUploader = this.$el.find('.acf-image-uploader');
+    this.$instructions = this.$el.find('.instructions');
+    this.$instructions.appendTo( this.$imageUploader );
+    this.dataSettings = this.$instructions.data('settings');
     this.maxFileSize = this.maybeGet( 'max_size', this.dataSettings, false );
     this.mimeTypes = this.maybeGet( 'mime_types', this.dataSettings, false );
 
@@ -41,18 +43,18 @@ export default class ImageDrop {
       $.event.props.push('dataTransfer');
     }
 
-    this.$acfInput.on('dragover', (e) => {
+    this.$imageUploader.on('dragover', (e) => {
       e.preventDefault();
-      this.$acfInput.addClass('is-dragover');
+      this.$imageUploader.addClass('is-dragover');
     });
 
-    this.$acfInput.on('dragleave', () => {
-      this.$acfInput.removeClass('is-dragover');
+    this.$imageUploader.on('dragleave', () => {
+      this.$imageUploader.removeClass('is-dragover');
     });
 
-    this.$acfInput.on('drop', (e) => {
+    this.$imageUploader.on('drop', (e) => {
       e.preventDefault();
-      this.$acfInput.removeClass('is-dragover');
+      this.$imageUploader.removeClass('is-dragover');
       this.$input.get(0).files = e.dataTransfer.files;
       this.$input.trigger('change');
       // this.parseFile( e.dataTransfer.files[0] );
@@ -88,7 +90,7 @@ export default class ImageDrop {
         return;
       }
       let paddingBottom = Math.floor( ratio * 100 );
-      this.$acfInput.css({
+      this.$imageUploader.css({
         paddingBottom: `${paddingBottom}%`,
       })
 
@@ -105,7 +107,7 @@ export default class ImageDrop {
     this.acfField.removeAttachment();
     this.$input.val('');
     this.lastInputVal = this.$input.val();
-    this.$acfInput.css({ paddingBottom: '' });
+    this.$imageUploader.css({ paddingBottom: '' });
     if( errors ) {
       this.acfField.showError( errors.join('<br>') );
     }

@@ -1,8 +1,6 @@
 
 global.jQuery = $ = window.jQuery;
 
-import autosize from 'autosize';
-
 window.acfAutoFill = function( id = 0 ) {
 
   let $forms = $('.acf-form');
@@ -10,8 +8,6 @@ window.acfAutoFill = function( id = 0 ) {
   if( !$forms.length ) {
     return;
   }
-
-  autosize( $('textarea') );
 
   let values = window.acfAutofillValues;
   if( typeof values !== 'object' ) {
@@ -28,10 +24,20 @@ window.acfAutoFill = function( id = 0 ) {
 
     $form.find('.fill-password-suggestion').click();
     fillFields( $form, values );
+    
+    $form.find('textarea').each((i, ta) => {
+      $(ta).trigger('maxlength:update');
+      var evt = document.createEvent('Event');
+      evt.initEvent('autosize:update', true, false);
+      ta.dispatchEvent(evt);
+    });
+
     $form.trigger('autofilled');
+
   });
 
-  autosize.update($('textarea'));
+  
+  
 
   $('html,body').animate({
     scrollTop: scrollTop
@@ -76,7 +82,7 @@ window.acfAutoFill = function( id = 0 ) {
  
           let $inputs = $field.find('input, select, checkbox, textarea');
           fillField( $inputs, value );
- 
+          
         }
  
       });
