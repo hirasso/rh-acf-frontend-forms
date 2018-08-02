@@ -1,20 +1,20 @@
-#!/usr/bin/osascript
-
-# parameter $1: path to deploy to
-
+# parameter $1: remote SSH path
 
 name=${PWD##*/}
+green='\e[38;5;49m'
+gold='\e[38;5;220m'
+nocolor='\e[0m'
 # - creates subfolder with all the files of CWD
-echo -e "\e[38;5;49mcreating tmp dir...";
-rsync -q -av --progress --exclude-from=.deploy/exclude.lst . ./tmp;
+echo -e "${green}creating tmp dir...";
+rsync -q -av --progress --exclude-from=.deploy/exclude.lst . $name;
 # - zips the subfolder
-echo -e "\e[38;5;49mcreating zip from tmp dir..."; 
-zip -r -q $name.zip ./tmp;
+echo -e "creating zip from tmp dir..."; 
+zip -r -q $name.zip $name;
 # - uploads it to the path provided
-echo -e "\e[38;5;49muploading to server..."; 
+echo -e "uploading to server...${nocolor}"; 
 scp -r $name.zip $1;
 # - deletes the subfolder and the .zip
-echo -e "\e[38;5;49mdeleting .zip and tmp dir..."; 
-# rm -rf $name.zip ./tmp;
+echo -e "${green}deleting .zip and tmp dir..."; 
+rm -rf $name.zip $name;
 # - echoes success message
-echo -e "👏  \e[38;5;49msuccessfully deployed to \e[38;5;169m$1\e[0m";
+echo -e "👏  successfully deployed to ${gold}$1";

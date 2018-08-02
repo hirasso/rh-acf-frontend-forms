@@ -1,4 +1,4 @@
-# parameter $1: path to deploy to
+# parameter $1: remote SSH path
 
 echo (basename $PWD)
 exit 0
