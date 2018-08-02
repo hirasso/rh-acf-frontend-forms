@@ -1,6 +1,2 @@
-.git/
-.gitignore
-.deploy/
-package.json
 package-lock.json
 node_modules/

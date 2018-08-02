@@ -14,8 +14,7 @@
     "build:css": "postcss assets/css/*.css --use autoprefixer --replace",
     "build": "npm run build:js; npm run uglify:js; npm run scss; npm run build:css;",
     "watch": "npm run mkdirs; npm run watch:js | npm run scss | npm run scss -- --watch | npm run browser-sync",
-    "deploy": "bash .deploy/deploy.sh $npm_package_config_deploy_path",
-    "echo_path": "echo $npm_package_config_deploy_path"
+    "deploy": "bash .deploy/deploy.sh $npm_package_config_deploy_path"
   },
   "config": {
     "deploy": {
