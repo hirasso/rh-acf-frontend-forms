@@ -14,22 +14,27 @@
     "build:css": "postcss assets/css/*.css --use autoprefixer --replace",
     "build": "npm run build:js; npm run uglify:js; npm run scss; npm run build:css;",
     "watch": "npm run mkdirs; npm run watch:js | npm run scss | npm run scss -- --watch | npm run browser-sync",
-    "zip:create": "rsync -av --progress . temp; zip -r rah-acf-frontend-forms.zip temp",
-    "zip:upload": "scp -r rah-acf-frontend-forms.zip ssh-335846-rah@rassohilber.com:/kunden/335846_10999/webseiten/rassohilber/wp-updates/packages",
-    "zip:delete": "rm -rf rah-acf-frontend-forms.zip temp",
-    "deploy": "npm run zip:create; npm run zip:upload; npm run zip:delete;"
+    "deploy": "bash .deploy/deploy.sh $npm_package_config_deploy_path",
+    "echo_path": "echo $npm_package_config_deploy_path"
+  },
+  "config": {
+    "deploy": {
+      "path": "ssh-335846-rah@rassohilber.com:/kunden/335846_10999/webseiten/rassohilber/wp-updates/packages"
+    }
   },
   "babel": {
     "presets": [
-      "es2015"
+      "env"
     ]
   },
   "author": "Rasso Hilber",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^7.1.2",
-    "babel-preset-es2015": "^6.24.1",
-    "babelify": "^7.3.0",
+    "babel-core": "^6.26.3",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "*",
+    "babelify": "^8.0.0",
     "browser-sync": "^2.24.6",
     "globify": "^2.1.0",
     "modernizr": "^3.5.0",
