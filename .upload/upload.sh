@@ -6,7 +6,7 @@ gold='\e[38;5;220m'
 nocolor='\e[0m'
 # - creates subfolder with all the files of CWD
 echo -e "${green}creating tmp dir...";
-rsync -q -av --progress --exclude-from=.deploy/exclude.lst . $name;
+rsync -q -av --progress --exclude-from=.upload/exclude.lst . $name;
 # - zips the subfolder
 echo -e "creating zip from tmp dir..."; 
 zip -r -q $name.zip $name;
@@ -17,4 +17,4 @@ scp -r $name.zip $1;
 echo -e "${green}deleting .zip and tmp dir..."; 
 rm -rf $name.zip $name;
 # - echoes success message
-echo -e "👏  successfully deployed to ${gold}$1";
+echo -e "👏  successfully uploaded to ${gold}$1";

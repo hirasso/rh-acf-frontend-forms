@@ -14,10 +14,10 @@
     "build:css": "postcss assets/css/*.css --use autoprefixer --replace",
     "build": "npm run build:js; npm run uglify:js; npm run scss; npm run build:css;",
     "watch": "npm run mkdirs; npm run watch:js | npm run scss | npm run scss -- --watch | npm run browser-sync",
-    "deploy": "bash .deploy/deploy.sh $npm_package_config_deploy_path"
+    "upload": "npm run build; bash .upload/upload.sh $npm_package_config_upload_path"
   },
   "config": {
-    "deploy": {
+    "upload": {
       "path": "ssh-335846-rah@rassohilber.com:/kunden/335846_10999/webseiten/rassohilber/wp-updates/packages"
     }
   },
