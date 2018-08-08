@@ -58,32 +58,14 @@ class App {
     acf.validation.hide_spinner = acf.validation.hideSpinner = function() {
       $('html').removeClass('is-loading-form');
     }
-    acf.addAction('remove', function( $target ) {
-      $target.remove();
-      $(document).trigger('rah/acf-form-resized');
+    acf.addAction('remove', ( $el ) => {
+      let $repeater = $el.closest('.acf-repeater')
+      $el.remove();
+      this.adjustRepeater( $el, $repeater, 'remove' );
     });
 
-    acf.addAction( 'append', function( $el ) {
-      let $repeater = $el.parents('.acf-repeater');
-      if( !$repeater.length ) {
-        return;
-      }
-      // adjust disabled class
-      let o = acf.get_data( $repeater );
-      let count = $repeater.find('.acf-row').length - 1;
-      if( o.max > 0 && count >= o.max ) {
-        $el.find('[data-event="add-row"]').addClass('is-disabled');
-      }
-      // focus the first input of the new row
-      setTimeout(() => {
-        let $input = $el.find('input:first');
-        if( !$input.length ) {
-          return;
-        }
-        $input.focus();
-      }, 1);
-
-      $(document).trigger('rah/acf-form-resized');
+    acf.addAction( 'append', ( $el ) => {
+      this.adjustRepeater( $el, $el.closest('.acf-repeater'), 'append' );
     });
   }
 
@@ -124,6 +106,40 @@ class App {
       $(document).trigger('rah/acf-form-resized');
     });
   }
+
+  adjustRepeater( $el, $repeater, action ) {
+    if( !$repeater.length ) {
+      return;
+    }
+    // adjust disabled class
+    let o = acf.get_data( $repeater );
+    let $rows = $repeater.find('.acf-row:not(.acf-clone)');
+    let $lastRow = $rows.last();
+    let $addRow = $lastRow.find('[data-event="add-row"]');
+    $addRow.toggleClass('is-disabled', o.max > 0 && $rows.length >= o.max);
+
+    switch( action ) {
+      case 'append':
+      this.focusFirstInput( $lastRow );
+      break;
+      case 'remove':
+      break;
+    }
+
+    $(document).trigger('rah/acf-form-resized');
+  }
+
+  focusFirstInput( $el ) {
+    // focus the first input of the new row
+    setTimeout(() => {
+      let $input = $el.find('input:first');
+      if( !$input.length ) {
+        return;
+      }
+      $input.focus();
+    }, 1);
+  }
+
 }
 
 new App();
