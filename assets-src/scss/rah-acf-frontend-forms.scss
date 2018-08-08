@@ -11,3 +11,9 @@
 .acf-field textarea {
   resize: none;
 }
+.acf-ajax-response {
+  background: $green;
+}
+.acf-ajax-response.is--error {
+  background: $red;
+}

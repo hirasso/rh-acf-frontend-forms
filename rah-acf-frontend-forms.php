@@ -191,7 +191,7 @@ class RahAcfFrontendForms {
     if( $success ) {
       wp_send_json_success( array('message' => $form['updated_message']) );
     } else {
-      wp_send_json_error( array( 'message' => $submit_error_message ) );
+      wp_send_json_error( array( 'message' => $error_message ) );
     }
   }
 
