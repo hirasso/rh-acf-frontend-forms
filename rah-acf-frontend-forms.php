@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: RAH ACF Frontend Forms
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
@@ -79,6 +79,9 @@ class RahAcfFrontendForms {
    * @return array $field
    */
   function prepare_image_field( $field ) {
+    if( is_admin() ) {
+      return $field;
+    }
     $field['preview_size'] = 'large';
     return $field;
   }
