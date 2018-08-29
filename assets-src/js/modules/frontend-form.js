@@ -107,6 +107,9 @@ export default class ACFFrontendForm {
   handleAjaxResponse( response ) {
     acf.validation.hideSpinner();
     this.showAjaxResponse( response );
+    if( !response.success ) {
+      return;
+    }
     setTimeout( () => {
       this.$form.removeClass('show-ajax-response');
       acf.validation.unlockForm( this.$form );
@@ -123,7 +126,12 @@ export default class ACFFrontendForm {
   }
 
   showAjaxResponse( response ) {
-    let message = response.data.message;
+    let message = ((response || {}).data || {}).message;
+    if( !message ) {
+      console.warn('[rah-acf-frontend-forms] No response message found in AJAX response');
+      return;
+    }
+    this.$form.trigger('rah/show-ajax-response', response);
     this.$ajaxResponse
       .text( message )
       .toggleClass('is--error', response.success === false);
