@@ -6,15 +6,17 @@ window.acfAutoFill = function( id = 0 ) {
   let $forms = $('.acf-form');
   
   if( !$forms.length ) {
-    return;
+    return false;
   }
-
+  
   let values = window.acfAutofillValues;
   if( typeof values !== 'object' ) {
     console.warn('window.acfAutofillValues is not defined');
-    return;
+    return false;
   }
   values = values[id];
+
+  console.log('Autofilling form...');
 
   let scrollTop = $(document).scrollTop();
 
@@ -33,6 +35,7 @@ window.acfAutoFill = function( id = 0 ) {
     });
 
     $form.trigger('autofilled');
+    
 
   });
 
@@ -91,10 +94,15 @@ window.acfAutoFill = function( id = 0 ) {
   }
  
   function fillField( $inputs, value ) {
-
+    
     $inputs.each((i, el) => {
       let $input = $(el);
       let type = $input.attr('type');
+      let currentValue = $input.val();
+      if( currentValue ) {
+        console.log('ACFAutoFill: Field already has value, skipping...');
+        return true;
+      }
  
       if( type === 'hidden'
           || $input.hasClass('select2-search__field')
