@@ -1,5 +1,5 @@
 .DS_Store
 npm-debug.log
-node_modules/
-/assets-src/**/acf-autofill-values.js
+node_modules
+assets
 package-lock.json
