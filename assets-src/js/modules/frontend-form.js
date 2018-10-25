@@ -178,6 +178,7 @@ export default class ACFFrontendForm {
       'password',
       'url',
       'email',
+      'number',
       'textarea',
       'select',
       'true_false',
