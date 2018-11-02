@@ -38,26 +38,16 @@ window.acfAutoFill = function( id = 0 ) {
     
 
   });
-
-  
   
 
   $('html,body').animate({
     scrollTop: scrollTop
   }, 0);
  
-  function leadingZero( number ) {
-    if( number < 10 ) {
-      return '0'+number;
-    }
-    return number;
-  }
- 
  
   function fillFields( $wrap, values ) {
     $.each( values, (key, value) => {
       let $fields = $wrap.find(`.acf-field[data-name="${key}"]`);
-
 
       if( !$fields.length ) {
         return true;
@@ -84,7 +74,8 @@ window.acfAutoFill = function( id = 0 ) {
         } else {
  
           let $inputs = $field.find('input, select, checkbox, textarea');
-          fillField( $inputs, value );
+          
+          fillField( $inputs, value, key );
           
         }
  
@@ -93,18 +84,19 @@ window.acfAutoFill = function( id = 0 ) {
     })
   }
  
-  function fillField( $inputs, value ) {
+  function fillField( $inputs, value, fieldName ) {
     
     $inputs.each((i, el) => {
       let $input = $(el);
       let type = $input.attr('type');
       let currentValue = $input.val();
       
+      console.log( fieldName, value );
+
       if( currentValue && value !== true ) {
         console.log('ACFAutoFill: Field already has value, skipping...');
         return true;
       }
-      
       
 
       if( type === 'hidden'
