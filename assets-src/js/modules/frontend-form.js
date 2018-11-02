@@ -89,7 +89,7 @@ export default class ACFFrontendForm {
     // Re-enable empty file $fileInputs
     $fileInputs.prop('disabled', false);
 
-    acf.validation.lockForm( this.$form );
+    acf.lockForm( this.$form );
     this.$form.addClass('rah-is-locked');
 
     $.ajax({
@@ -112,7 +112,8 @@ export default class ACFFrontendForm {
     }
     setTimeout( () => {
       this.$form.removeClass('show-ajax-response');
-      acf.validation.unlockForm( this.$form );
+      acf.unlockForm( this.$form );
+      acf.validation.reset( this.$form );
       this.$form.removeClass('rah-is-locked');
       if( this.options.resetAfterSubmit ) {
         this.resetForm();

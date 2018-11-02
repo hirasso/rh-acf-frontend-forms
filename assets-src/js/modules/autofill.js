@@ -89,22 +89,26 @@ window.acfAutoFill = function( id = 0 ) {
     $inputs.each((i, el) => {
       let $input = $(el);
       let type = $input.attr('type');
-      let currentValue = $input.val();
+      let currentValue = type === 'checkbox' ? $input.prop('checked') : $input.val();
       
-      console.log( fieldName, value );
+      let debugInfo = {
+        $input: el,
+        currentValue: currentValue,
+        fieldName: fieldName,
+        autofillValue: value
+      };
 
-      if( currentValue && value !== true ) {
-        console.log('ACFAutoFill: Field already has value, skipping...');
-        return true;
-      }
-      
-
-      if( type === 'hidden'
-          || $input.hasClass('select2-search__field')
+      if( type === 'hidden' 
           || type === 'file'
+          || $input.hasClass('select2-search__field')
           || $input.parents('.acf-clone').length 
         ) {
-         
+        return true;
+      }
+
+      if( currentValue ) {
+        console.log('[ACFAutoFill] Field already has value, skipping:', debugInfo);
+        
         return true;
       }
  

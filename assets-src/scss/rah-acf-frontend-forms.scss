@@ -17,3 +17,6 @@
 .acf-ajax-response.is--error {
   background: $red;
 }
+.acf-field-repeater > .acf-input > .acf-notice.-warning.-dismiss {
+  display: none;
+}

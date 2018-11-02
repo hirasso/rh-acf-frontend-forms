@@ -81,11 +81,11 @@ class App {
   setupAjaxSubmit() {
 
     acf.addAction('submit', ( $form ) => {
-
+      
       if( !$form.hasClass('is-ajax-submit') ) {
         return true;
       }
-
+      
       this.getInstance( $form ).doAjaxSubmit();
 
     });
