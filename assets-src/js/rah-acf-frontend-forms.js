@@ -30,6 +30,12 @@ class App {
     
     this.setup();
     this.setupAjaxSubmit();
+    
+    // $(document).ready(() => {
+    //   setTimeout(() => {
+    //     window.acfAutoFill();
+    //   })
+    // })
   }
 
   /**
@@ -52,10 +58,10 @@ class App {
     })
 
     // functions
-    acf.validation.show_spinner = acf.validation.showSpinner = function() {
+    acf.showSpinner = function() {
       $('html').addClass('is-loading-form');
     }
-    acf.validation.hide_spinner = acf.validation.hideSpinner = function() {
+    acf.hideSpinner = function() {
       $('html').removeClass('is-loading-form');
     }
     acf.addAction('remove', ( $el ) => {

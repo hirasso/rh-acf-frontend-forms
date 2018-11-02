@@ -99,11 +99,14 @@ window.acfAutoFill = function( id = 0 ) {
       let $input = $(el);
       let type = $input.attr('type');
       let currentValue = $input.val();
-      if( currentValue ) {
+      
+      if( currentValue && value !== true ) {
         console.log('ACFAutoFill: Field already has value, skipping...');
         return true;
       }
- 
+      
+      
+
       if( type === 'hidden'
           || $input.hasClass('select2-search__field')
           || type === 'file'
@@ -119,14 +122,10 @@ window.acfAutoFill = function( id = 0 ) {
         }).trigger('change');
         return true;
       }
-
+      
       switch( type ) {
  
         case 'checkbox':
-        $input.prop('checked', value).trigger('change');
-        return true;
-        break;
-        case 'true_false':
         $input.prop('checked', value).trigger('change');
         return true;
         break;
