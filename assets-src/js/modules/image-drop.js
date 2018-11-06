@@ -30,7 +30,7 @@ export default class ImageDrop {
   }
 
   maybeGet( key, object, fallback ) {
-    let value = object[key];
+    let value = (object || {})[key];
     if( typeof value === 'undefined' ) {
       value = fallback;
     }

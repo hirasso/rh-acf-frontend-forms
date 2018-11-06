@@ -6,10 +6,14 @@
 
 global.jQuery = $ = window.jQuery;
 
+import plugin from './plugin';
+
 export default class ACFFrontendForm {
 
-  constructor( $form, jsOptions = {} ) {
+  constructor( el, options = {} ) {
 
+    let $form = $(el);
+    
     // return if there is no form element
     if( !$form.length ) {
       console.warn( 'Form element doesn\'t exist' );
@@ -26,16 +30,9 @@ export default class ACFFrontendForm {
     }
     $form.addClass('rah-is-initialized');
 
-    let defaultOptions = {
-      ajaxSubmit: true,
-      waitAfterSubmit: 1000,
-      resetAfterSubmit: true,
-      submitOnChange: false
-    };
-
     let dataOptions = $form.data('rah-options') || {};
 
-    this.options = $.extend( defaultOptions, dataOptions, jsOptions );
+    this.options = $.extend( dataOptions, options );
 
     this.$form = $form;
 
@@ -218,3 +215,18 @@ export default class ACFFrontendForm {
 
 }
 
+/**
+ * Defaults
+ * @type {{color: string, status: number}}
+ */
+ACFFrontendForm.DEFAULTS = {
+  ajaxSubmit: true,
+  waitAfterSubmit: 1000,
+  resetAfterSubmit: true,
+  submitOnChange: false
+};
+
+/**
+ * make jQuery Plugin
+ */
+plugin('acfFrontendForm', ACFFrontendForm, true);

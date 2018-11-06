@@ -31,11 +31,6 @@ class App {
     this.setup();
     this.setupAjaxSubmit();
     
-    // $(document).ready(() => {
-    //   setTimeout(() => {
-    //     window.acfAutoFill();
-    //   })
-    // })
   }
 
   /**

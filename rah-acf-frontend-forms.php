@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: RAH ACF Frontend Forms
- * Version: 1.2.9
+ * Version: 1.3.0
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
