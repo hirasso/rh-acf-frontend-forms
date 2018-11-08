@@ -25,13 +25,15 @@ var jQuery = $ = global.jQuery;
 
 export default function plugin(pluginName, className, shortHand = false) {
 	let dataName = `${pluginName}`;
+	let dataOptionsName = `${dataName.toLowerCase()}-options`;
 	let old = $.fn[pluginName];
 
 	$.fn[pluginName] = function (option) {
 		return this.each(function () {
 			let $this = $(this);
 			let data = $this.data(dataName);
-			let options = $.extend({}, className.DEFAULTS, $this.data(), typeof option === 'object' && option);
+			let dataOptions = $this.data(dataOptionsName);
+			let options = $.extend({}, className.DEFAULTS, dataOptions, typeof option === 'object' && option);
 
 			if (!data) {
 				$this.data(dataName, (data = new className(this, options)));

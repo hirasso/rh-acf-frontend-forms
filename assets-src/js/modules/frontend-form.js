@@ -30,9 +30,7 @@ export default class ACFFrontendForm {
     }
     $form.addClass('rah-is-initialized');
 
-    let dataOptions = $form.data('rah-options') || {};
-
-    this.options = $.extend( dataOptions, options );
+    this.options = options;
 
     this.$form = $form;
 
@@ -138,6 +136,7 @@ export default class ACFFrontendForm {
   }
 
   resetForm() {
+    console.log( 'resetForm' );
     this.$form.get(0).reset();
     this.$form.find('.acf-field').find('input,textarea,select').trigger('change');
     this.$form.find('.acf-field').removeClass('has-value has-focus');
@@ -154,9 +153,10 @@ export default class ACFFrontendForm {
   }
 
   setupInputs() {
+    
     let selector = 'input,textarea,select';
     this.$form.on( 'keyup keydown change', selector, e => this.adjustHasValueClass( $(e.currentTarget) ) );
-    this.$form.on( 'change', selector, e => this.maybeSubmitForm() );
+    this.$form.on( 'change', selector, e => this.maybeSubmitForm(e) );
     this.$form.on( 'focus', selector, e => this.onInputFocus( e.currentTarget ) );
     this.$form.on( 'blur', selector, e => this.onInputBlur( e.currentTarget ) );
       
@@ -198,9 +198,10 @@ export default class ACFFrontendForm {
       $field.removeClass('has-value');
     }
   }
-  maybeSubmitForm() {
+  maybeSubmitForm( e ) {
     if( this.options.submitOnChange ) {
       this.$form.find('[type="submit"]').click();
+      this.$form.submit();
     }
   }
   onInputFocus( el ) {

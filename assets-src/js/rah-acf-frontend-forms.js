@@ -12,12 +12,12 @@ import ImageDrop from './modules/image-drop';
 import MaxLength from './modules/maxlength';
 import autosize from 'autosize';
 
-window.rah = window.rah || {};
+// window.rah = window.rah || {};
 
-window.rah.acfForm = function( $form, options = {} ) {
-  let instance = $form.data('RAHFrontendForm');
-  return instance || new ACFFrontendForm( $form, options );
-}
+// window.rah.acfForm = function( $form, options = {} ) {
+//   let instance = $form.data('RAHFrontendForm');
+//   return instance || new ACFFrontendForm( $form, options );
+// }
 
 class App {
   
