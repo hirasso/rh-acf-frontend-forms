@@ -244,7 +244,7 @@ function brower_sync_snippet() {
       document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.3'><\/script>".replace("HOST", location.hostname));
   //]]></script>
 <?php }
-add_action( 'wp_footer', __NAMESPACE__ . '\\brower_sync_snippet', 9999 );
+// add_action( 'wp_footer', __NAMESPACE__ . '\\brower_sync_snippet', 9999 );
 
 
 
