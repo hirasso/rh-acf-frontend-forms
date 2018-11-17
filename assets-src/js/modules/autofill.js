@@ -111,13 +111,6 @@ window.acfAutoFill = function( id = 0 ) {
         
         return true;
       }
- 
-      if( typeof $input.data('select2') !== 'undefined' ) {
-        $input.select2("trigger", "select", {
-            data: value
-        }).trigger('change');
-        return true;
-      }
       
       switch( type ) {
  
