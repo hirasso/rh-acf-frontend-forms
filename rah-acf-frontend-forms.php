@@ -229,6 +229,7 @@ class RahAcfFrontendForms {
       $message = __('Please add an image');
       break;
     }
+    $message = apply_filters('rah/acf_error_message', $message);
     
     return $message;
   }
