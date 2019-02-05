@@ -128,6 +128,7 @@ export default class ACFFrontendForm {
       return;
     }
     this.$form.trigger('rah/show-ajax-response', response);
+    this.$form.trigger('rah/acf-frontend-form/response', response);
     this.$ajaxResponse
       .text( message )
       .toggleClass('is--error', response.success === false);
@@ -136,7 +137,6 @@ export default class ACFFrontendForm {
   }
 
   resetForm() {
-    console.log( 'resetForm' );
     this.$form.get(0).reset();
     this.$form.find('.acf-field').find('input,textarea,select').trigger('change');
     this.$form.find('.acf-field').removeClass('has-value has-focus');
