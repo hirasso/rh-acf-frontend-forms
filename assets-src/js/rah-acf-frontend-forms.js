@@ -14,11 +14,6 @@ import autosize from 'autosize';
 
 // window.rah = window.rah || {};
 
-// window.rah.acfForm = function( $form, options = {} ) {
-//   let instance = $form.data('RAHFrontendForm');
-//   return instance || new ACFFrontendForm( $form, options );
-// }
-
 class App {
   
   constructor() {
@@ -68,6 +63,8 @@ class App {
     acf.addAction( 'append', ( $el ) => {
       this.adjustRepeater( $el, $el.closest('.acf-repeater'), 'append' );
     });
+
+    
   }
 
   /**
@@ -75,13 +72,16 @@ class App {
    */
   setupAjaxSubmit() {
 
-    acf.addAction('submit', ( $form ) => {
-      
+    acf.addAction('submit', $form => {
+
       if( !$form.hasClass('is-ajax-submit') ) {
         return true;
       }
+      $form.one('submit', e => { 
+        e.preventDefault();
+      })
       
-      this.getInstance( $form ).doAjaxSubmit();
+      $form.acfFrontendForm('doAjaxSubmit');
 
     });
 

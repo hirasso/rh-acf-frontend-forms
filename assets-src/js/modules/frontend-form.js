@@ -13,6 +13,8 @@ export default class ACFFrontendForm {
   constructor( el, options = {} ) {
 
     let $form = $(el);
+    this.options = options;
+    this.$form = $form;
     
     // return if there is no form element
     if( !$form.length ) {
@@ -29,10 +31,6 @@ export default class ACFFrontendForm {
       return;
     }
     $form.addClass('rah-is-initialized');
-
-    this.options = options;
-
-    this.$form = $form;
 
     acf.doAction('append', $form);
     acf.validation.enable();
@@ -53,9 +51,9 @@ export default class ACFFrontendForm {
     
     if( this.options.ajaxSubmit ) {
       this.$form.addClass('is-ajax-submit');
-      this.$form.on('submit', (e) => {
-        e.preventDefault();
-      });
+      // this.$form.on('submit', (e) => {
+      //   e.preventDefault();
+      // });
     }
 
     this.$form.find('[data-event="add-row"]').removeClass('acf-icon');
