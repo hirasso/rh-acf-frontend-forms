@@ -97,7 +97,7 @@ export default class ImageDrop {
       this.$image.attr('src', src);
       this.$imageUploader.addClass('has-value');
 
-      $(document).trigger('rah/acf-form-resized');
+      $(document).trigger('rh/acf-form-resized');
 
     }
     img.src = src;

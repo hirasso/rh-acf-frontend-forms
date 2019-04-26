@@ -19,7 +19,7 @@
   },
   "config": {
     "upload": {
-      "path": "ssh-335846-rah@rassohilber.com:/kunden/335846_10999/webseiten/rassohilber/wp-updates/packages"
+      "path": "ssh-335846-rh@rassohilber.com:/kunden/335846_10999/webseiten/rassohilber/wp-updates/packages"
     }
   },
   "babel": {

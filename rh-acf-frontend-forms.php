@@ -1,20 +1,21 @@
 <?php
 /**
- * Plugin Name: RAH ACF Frontend Forms
- * Version: 1.3.5
+ * Plugin Name: RH ACF Frontend Forms
+ * Version: 2.0.0
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
 **/
 
-require 'vendor/plugin-update-checker/plugin-update-checker.php';
-$MyUpdateChecker = \Puc_v4_Factory::buildUpdateChecker(
-  'https://rassohilber.com/wp-updates/?action=get_metadata&slug=rah-acf-frontend-forms', //Metadata URL.
-  __FILE__, //Full path to the main plugin file.
-  'rah-acf-frontend-forms' //Plugin slug. Usually it's the same as the name of the directory.
-);
+namespace RH;
 
-class RahAcfFrontendForms {
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+if( class_exists('\RH_Bitbucket_Updater') ) {
+  new \RH_Bitbucket_Updater( __FILE__ );
+}
+
+class RH_ACF_Frontend_Forms {
 
   function __construct() {
     // setup hooks
@@ -48,10 +49,10 @@ class RahAcfFrontendForms {
   function assets() {
 
     // enqueue plugin script
-    wp_enqueue_script( 'rah-acf-frontend-forms', $this->asset_uri('assets/js/rah-acf-frontend-forms.js'), array('jquery'), null, true );
+    wp_enqueue_script( 'rh-acf-frontend-forms', $this->asset_uri('assets/js/rh-acf-frontend-forms.js'), array('jquery'), null, true );
 
     // enqueue plugin styles
-    wp_enqueue_style( 'rah-acf-frontend-forms', $this->asset_uri('assets/css/rah-acf-frontend-forms.css'), array(), 'all');
+    wp_enqueue_style( 'rh-acf-frontend-forms', $this->asset_uri('assets/css/rh-acf-frontend-forms.css'), array(), 'all');
 
     // Removes the default ACF styles
     wp_deregister_style('acf-global');
@@ -173,8 +174,8 @@ class RahAcfFrontendForms {
    * Runs after form submit
    */
   function on_submit_form( $form, $post_id ) {
-    $success = apply_filters("rah/acf_form_success", true, $post_id );
-    $success = apply_filters("rah/acf_form_success/id={$form['id']}", true, $post_id );
+    $success = apply_filters("rh/acf_form_success", true, $post_id );
+    $success = apply_filters("rh/acf_form_success/id={$form['id']}", true, $post_id );
     
     $this->send_ajax_submit_response( $form, $success );
   }
@@ -186,10 +187,10 @@ class RahAcfFrontendForms {
     if( $custom_return || !$this->is_ajax_call() ) {
       return;
     }
-    $error_message = __('Something went wrong, please reload the page and try again', 'rah-acf-frontend-forms');
+    $error_message = __('Something went wrong, please reload the page and try again', 'rh-acf-frontend-forms');
     
-    $error_message = apply_filters("rah/acf_form_error_message", $error_message );
-    $error_message = apply_filters("rah/acf_form_error_message/id={$form['id']}", $error_message );
+    $error_message = apply_filters("rh/acf_form_error_message", $error_message );
+    $error_message = apply_filters("rh/acf_form_error_message/id={$form['id']}", $error_message );
 
     if( $success ) {
       wp_send_json_success( array('message' => $form['updated_message']) );
@@ -229,31 +230,9 @@ class RahAcfFrontendForms {
       $message = __('Please add an image');
       break;
     }
-    $message = apply_filters('rah/acf_error_message', $message);
+    $message = apply_filters('rh/acf_error_message', $message);
     
     return $message;
   }
 }
-new RahAcfFrontendForms();
-
-
-function brower_sync_snippet() {
-  if( !defined('WP_ENV') || "development" !== WP_ENV ) {
-    return;
-  } ?>
-  <script id="__bs_script__">//<![CDATA[
-      document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.3'><\/script>".replace("HOST", location.hostname));
-  //]]></script>
-<?php }
-// add_action( 'wp_footer', __NAMESPACE__ . '\\brower_sync_snippet', 9999 );
-
-
-
-
-
-
-
-
-
-
-
+new RH_ACF_Frontend_Forms();

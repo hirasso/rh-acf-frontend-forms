@@ -12,7 +12,7 @@ import ImageDrop from './modules/image-drop';
 import MaxLength from './modules/maxlength';
 import autosize from 'autosize';
 
-// window.rah = window.rah || {};
+// window.rh = window.rh || {};
 
 class App {
   
@@ -35,7 +35,7 @@ class App {
     
     // add initialized class to fields on initialization
     acf.addAction('new_field', ( field ) => {
-      field.$el.addClass('rah-is-initialized');
+      field.$el.addClass('rh-is-initialized');
       this.initMaxInputInfo( field );
     });
 
@@ -88,7 +88,7 @@ class App {
   }
 
   getInstance( $form ) {
-    return $form.data('RAHFrontendForm');
+    return $form.data('RHFrontendForm');
   }
 
   initMaxInputInfo( field ) {
@@ -104,7 +104,7 @@ class App {
     $input.each(function(){
       autosize(this);
     }).on('autosize:resized', function(){
-      $(document).trigger('rah/acf-form-resized');
+      $(document).trigger('rh/acf-form-resized');
     });
   }
 
@@ -127,7 +127,7 @@ class App {
       break;
     }
 
-    $(document).trigger('rah/acf-form-resized');
+    $(document).trigger('rh/acf-form-resized');
   }
 
   focusFirstInput( $el ) {

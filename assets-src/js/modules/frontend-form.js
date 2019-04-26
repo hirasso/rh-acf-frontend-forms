@@ -27,10 +27,10 @@ export default class ACFFrontendForm {
       return;
     }
     // return if form has already been initialized
-    if( $form.hasClass('rah-is-initialized') ) {
+    if( $form.hasClass('rh-is-initialized') ) {
       return;
     }
-    $form.addClass('rah-is-initialized');
+    $form.addClass('rh-is-initialized');
 
     acf.doAction('append', $form);
     acf.validation.enable();
@@ -44,7 +44,7 @@ export default class ACFFrontendForm {
     this.setupInputs();
     this.hideConditionalFields();
 
-    this.$form.data('RAHFrontendForm', this);
+    this.$form.data('RHFrontendForm', this);
   }
 
   setupForm() {
@@ -83,7 +83,7 @@ export default class ACFFrontendForm {
     $fileInputs.prop('disabled', false);
 
     acf.lockForm( this.$form );
-    this.$form.addClass('rah-is-locked');
+    this.$form.addClass('rh-is-locked');
 
     $.ajax({
       url: window.location.href,
@@ -107,7 +107,7 @@ export default class ACFFrontendForm {
       this.$form.removeClass('show-ajax-response');
       acf.unlockForm( this.$form );
       acf.validation.reset( this.$form );
-      this.$form.removeClass('rah-is-locked');
+      this.$form.removeClass('rh-is-locked');
       if( this.options.resetAfterSubmit ) {
         this.resetForm();
       }
@@ -122,11 +122,11 @@ export default class ACFFrontendForm {
   showAjaxResponse( response ) {
     let message = ((response || {}).data || {}).message;
     if( !message ) {
-      console.warn('[rah-acf-frontend-forms] No response message found in AJAX response');
+      console.warn('[rh-acf-frontend-forms] No response message found in AJAX response');
       return;
     }
-    this.$form.trigger('rah/show-ajax-response', response);
-    this.$form.trigger('rah/acf-frontend-form/response', response);
+    this.$form.trigger('rh/show-ajax-response', response);
+    this.$form.trigger('rh/acf-frontend-form/response', response);
     this.$ajaxResponse
       .text( message )
       .toggleClass('is--error', response.success === false);
