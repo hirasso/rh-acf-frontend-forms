@@ -62,15 +62,19 @@ class RH_ACF_Frontend_Forms {
   }
 
   /**
-   * Gets asset URIs with file creation time as version query parameter
-   * @param  string $path The path of the file, relative to the plugin's directory
-   * @return string $path 
+   * Helper function to get versioned asset urls
+   *
+   * @param [type] $path
+   * @return void
    */
-  function asset_uri( $path ) {
-    $file_uri = plugins_url( $path, __FILE__ );
-    $file_path = plugin_dir_path( __FILE__ ) . $path;
-    $file_version = filemtime( $file_path );
-    return "$file_uri?v=$file_version";
+  private function asset_uri( $path ) {
+    $uri = plugins_url( $path, __FILE__ );
+    $file = plugin_dir_path( __FILE__ ) . $path;
+    if( file_exists( $file ) ) {
+      $version = filemtime( $file );
+      $uri .= "?v=$version";
+    }
+    return $uri;
   }
 
   
