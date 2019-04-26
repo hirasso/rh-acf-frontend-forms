@@ -103,6 +103,7 @@ export default class ACFFrontendForm {
     if( !response.success ) {
       return;
     }
+    acf.unload.disable();
     setTimeout( () => {
       this.$form.removeClass('show-ajax-response');
       acf.unlockForm( this.$form );
