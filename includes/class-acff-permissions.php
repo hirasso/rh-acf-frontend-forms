@@ -8,8 +8,8 @@ class RH_ACFF_Permissions {
 
   private $prefix = 'rh_acf_ff';
   private $textdomain = 'rh-acf-ff';
-  private $hook_allowed_fields = 'rh/acf-ff/allowed-fields-for-non-admins';
-  private $hook_setting_capability = 'rh/acf-ff/settings/capability';
+  private $hook_allowed_fields = 'rh/acff/allowed-fields-for-non-admins';
+  private $hook_setting_capability = 'rh/acff/settings/capability';
 
   public function __construct() {
     
@@ -59,7 +59,7 @@ class RH_ACFF_Permissions {
     
     acf_add_options_page([
       'page_title'    => __('Frontend Forms Settings', $this->textdomain),
-      'menu_title'    => __('ACF FF Settings', $this->textdomain),
+      'menu_title'    => __('ACFF Settings', $this->textdomain),
       'menu_slug'     => $settings_page_slug,
       'capability'    => 'manage_options',
       'redirect'      => false,
