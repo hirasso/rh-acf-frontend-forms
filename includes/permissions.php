@@ -39,6 +39,8 @@ class Permissions {
     add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
     add_filter('gettext', [$this, 'rename_custom_fields'], 10, 3);
 
+    add_filter('acf/settings/save_json', [$this, 'acf_save_json'] );
+
     // disabled in favour of custom edit view
     // add_filter('manage_edit-acf-field-group_columns',			array($this, 'field_group_columns'), 11);
     // add_action('manage_acf-field-group_posts_custom_column',	array($this, 'field_group_columns_html'), 10, 2);
@@ -622,6 +624,29 @@ class Permissions {
         $q->set( 'orderby', 'meta_value' );
         break;
     }
+  }
+
+  /**
+   * Don't save frontend form field groups 
+   *
+   * @param [string] $path
+   * @return mixed
+   */
+  function acf_save_json( $path ) {
+    
+    $field_group = acf_maybe_get( $_POST, 'acf_field_group' );
+    if( !$field_group ) {
+      return $path;
+    }
+    $key = acf_maybe_get( $field_group, 'key' );
+    $is_frontend_form = acf_maybe_get( $field_group, 'is_frontend_form' );
+    if( $is_frontend_form ) {
+      remove_filter('acf/settings/save_json', [$this, 'acf_save_json']);
+      acf_delete_json_field_group( $key );
+      add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
+      return false;
+    }
+    return $path;
   }
 
 }
