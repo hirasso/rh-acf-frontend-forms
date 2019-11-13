@@ -1,6 +1,6 @@
 <?php 
 
-namespace R;
+namespace ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -35,6 +35,7 @@ class Permissions {
 
     add_action("acf/prepare_field/name={$this->prefix}_allowed_fields", [$this, 'prepare_field_allowed_fields']);
     add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
+    add_filter('gettext', [$this, 'rename_custom_fields'], 10, 3);
 
   }
 
@@ -294,8 +295,11 @@ class Permissions {
     }
     $args['capabilities']['delete_post'] = 'manage_options';
     $args['capabilities']['delete_posts'] = 'manage_options';
+    $args['capabilities']['create_posts'] = 'manage_options';
     return $args;
   }
+
+  
 
   /**
    * Checks if a post is an ACF field group for submissions
@@ -315,7 +319,7 @@ class Permissions {
   /*
   *  admin_menu
   *
-  *  This function will remove the ACF submenu items for non-administrators
+  *  This function will replace the ACF admin menu item with a simpler one for non-admins
   *
   *  @type	action (admin_menu)
   *
@@ -324,12 +328,14 @@ class Permissions {
   */
   public function remove_acf_submenu_pages() {
     $slug = 'edit.php?post_type=acf-field-group';
+    $cap = acf_get_setting('capability');
     if( $this->is_acf_super_admin() ) {
       return;
     }
-    remove_submenu_page($slug, 'acf-tools');
-    remove_submenu_page($slug, 'acf-settings-updates');
-    
+    // remove the default menu item
+    remove_menu_page($slug);
+    // add a custom menu item with acff=1 appended, so that submenus won't be added
+    add_menu_page(__("Forms"), __("Forms"), $cap, "$slug&acff=1", false, 'dashicons-welcome-widgets-menus');
   }
 
   public function row_actions( $actions, $post ) {
@@ -451,6 +457,13 @@ class Permissions {
     $q->set('meta_query', $meta_query);
     
     return $q;
+  }
+
+  public function rename_custom_fields( $text, $context, $textdomain ) {
+    if( $textdomain === 'acf' && !$this->is_acf_super_admin() ) {
+      $text = str_replace('Custom Fields', 'Frontend Forms', $text);
+    }
+    return $text;
   }
 
 }

@@ -1,6 +1,6 @@
 <?php 
 
-namespace R;
+namespace ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -243,7 +243,7 @@ class ACFF {
 
     acf_add_options_page([
       'page_title'    => __('Frontend Forms Settings'),
-      'menu_title'    => __('ACFF Settings'),
+      'menu_title'    => __('ACFF Admin'),
       'menu_slug'     => $settings_page->slug,
       'capability'    => 'manage_options',
       'redirect'      => false,

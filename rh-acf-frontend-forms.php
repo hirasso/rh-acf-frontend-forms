@@ -7,7 +7,7 @@
  * Author URI: https://rassohilber.com
 **/
 
-namespace R;
+namespace ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
