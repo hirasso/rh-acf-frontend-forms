@@ -7,7 +7,7 @@
  * Author URI: https://rassohilber.com
 **/
 
-namespace RH\ACF\FF;
+namespace R;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -26,5 +26,69 @@ add_action('plugins_loaded', function() {
   }
 });
 
-require_once( __DIR__  . '/includes/class-acff.php' );
-require_once( __DIR__  . '/includes/class-acff-permissions.php' );
+
+/**
+ * acf_get_path
+ *
+ * Returns the plugin path to a specified file.
+ *
+ * @date	28/9/13
+ * @since	5.0.0
+ *
+ * @param	string $filename The specified file.
+ * @return	string
+ */
+function get_path( $filename = '' ) {
+	return plugin_dir_path( __FILE__ ) . ltrim($filename, '/');
+}
+
+/*
+ * acff_include
+ *
+ * Includes a file within the ACF plugin.
+ *
+ * @date	10/3/14
+ * @since	5.0.0
+ *
+ * @param	string $filename The specified file.
+ * @return	void
+ */
+function acff_include( $filename = '' ) {
+	$file_path = get_path($filename);
+	if( file_exists($file_path) ) {
+		include_once($file_path);
+	}
+}
+
+/**
+ * Returns the prefix for the plugin.
+ *
+ * @return void
+ */
+function get_prefix() {
+  return 'rh_acff';
+}
+
+/**
+ * Returns settings page info
+ *
+ * @return void
+ */
+function get_settings_page_info() {
+  $prefix = get_prefix();
+  $id = "{$prefix}_settings";
+  return (object) [
+    'id' => $id,
+    'slug' => str_replace('_', '-', $id)
+  ];
+}
+
+foreach([
+  'acff',
+  'permissions'
+] as $filename) {
+  acff_include("includes/$filename.php");
+}
+
+$acff = new ACFF();
+new Permissions( $acff );

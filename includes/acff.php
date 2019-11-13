@@ -1,17 +1,23 @@
 <?php 
 
-namespace RH\ACF\FF;
+namespace R;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-class RH_ACFF {
+class ACFF {
+
+  private $prefix;
 
   function __construct() {
+
+    $this->prefix = get_prefix();
+
     // setup hooks
     $this->hooks();
     // always set acf validation to true, so that the form 
     // also works if the page is loaded via AJAX
     acf_localize_data( array( 'validation' => 1 ) );
+    // register settings page
   }
   /**
    * Setup action and filter hooks
@@ -26,9 +32,12 @@ class RH_ACFF {
     add_filter( 'acf/prepare_field/type=image', array( $this, 'prepare_image_field' ) );
     add_filter( 'acf/validate_value', array( $this, 'validate_value' ), 9, 3 );
     add_filter( 'acf/render_field/type=image', array( $this, 'render_image_field' ) );
-    add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length' ) );
-    add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length' ) );
+    add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length_info' ) );
+    add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length_info' ) );
     add_action( 'acf/submit_form', array( $this, 'on_submit_form' ), 10, 2 );
+
+    // add the settings page
+    add_action('acf/init', [$this, 'add_settings_page']);
 
   }
 
@@ -197,7 +206,7 @@ class RH_ACFF {
    * @param  array $field
    * @return array $field
    */
-  function render_max_length( $field ) {
+  function render_max_length_info( $field ) {
 
     if( !$field['maxlength'] || is_admin() ) {
       return;
@@ -227,5 +236,38 @@ class RH_ACFF {
     
     return $message;
   }
+
+  function add_settings_page() {
+    
+    $settings_page = get_settings_page_info();
+
+    acf_add_options_page([
+      'page_title'    => __('Frontend Forms Settings'),
+      'menu_title'    => __('ACFF Settings'),
+      'menu_slug'     => $settings_page->slug,
+      'capability'    => 'manage_options',
+      'redirect'      => false,
+      'post_id'       => $settings_page->id,
+      'parent_slug'   => 'edit.php?post_type=acf-field-group',
+    ]);
+
+    $field_group_title = __('Frontend Form Settings');
+
+    // hack to let us get around the acf-field-group #title check on submit
+    $title_hack = '<div class="rh-acf-title-hack hidden" id="titlewrap"><input id="title" value="noop" readonly></input></div>';
+
+    acf_add_local_field_group(array (
+      'key' => "group_$settings_page->id",
+      'title' => "$field_group_title $title_hack",
+      'location' => array (
+        array (
+          array (
+            'param' => 'options_page',
+            'operator' => '==',
+            'value' => $settings_page->slug,
+          ),
+        ),
+      ),
+    ));
+  }
 }
-new RH_ACFF();

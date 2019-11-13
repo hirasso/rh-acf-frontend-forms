@@ -1,17 +1,18 @@
 <?php 
 
-namespace RH\ACF\FF;
+namespace R;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-class RH_ACFF_Permissions {
+class Permissions {
 
-  private $prefix = 'rh_acf_ff';
-  private $textdomain = 'rh-acf-ff';
+  private $prefix;
   private $hook_allowed_fields = 'rh/acff/allowed-fields-for-non-admins';
   private $hook_setting_capability = 'rh/acff/settings/capability';
 
-  public function __construct() {
+  public function __construct( $prefix ) {
+
+    $this->prefix = get_prefix();
     
     add_filter('pre_get_posts', [$this, 'pre_get_posts'], 999);
     add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
@@ -30,7 +31,7 @@ class RH_ACFF_Permissions {
     add_filter('views_edit-acf-field-group', [$this, 'restrict_edit_views'], 20, 1);
     add_filter('bulk_actions-edit-acf-field-group', [$this, 'restrict_bulk_actions'], 20, 1);
     add_action('save_post_acf-field-group', [$this, 'save_field_group'], 20);
-    add_action('acf/init', [$this, 'add_settings_page']);
+    add_action('acf/init', [$this, 'add_settings_page_fields']);
 
     add_action("acf/prepare_field/name={$this->prefix}_allowed_fields", [$this, 'prepare_field_allowed_fields']);
     add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
@@ -53,47 +54,16 @@ class RH_ACFF_Permissions {
    *
    * @return void
    */
-  public function add_settings_page() {
-    $settings_page_id = $this->get_settings_page_id();
-    $settings_page_slug = str_replace('_', '-', $settings_page_id);
-    
-    acf_add_options_page([
-      'page_title'    => __('Frontend Forms Settings', $this->textdomain),
-      'menu_title'    => __('ACFF Settings', $this->textdomain),
-      'menu_slug'     => $settings_page_slug,
-      'capability'    => 'manage_options',
-      'redirect'      => false,
-      'post_id'       => $settings_page_id,
-      'parent_slug'   => 'edit.php?post_type=acf-field-group',
-    ]);
+  public function add_settings_page_fields() {
+    $settings_page = get_settings_page_info();
 
-    
-    $field_group_title = __('Frontend Form Settings', $this->textdomain);
-
-    // hack to let us get around the acf-field-group #title check on submit
-    $title_hack = '<div class="rh-acf-title-hack hidden" id="titlewrap"><input id="title" value="noop" readonly></input></div>';
-
-    acf_add_local_field_group(array (
-      'key' => "group_$settings_page_id",
-      'title' => "$field_group_title $title_hack",
-      'location' => array (
-        array (
-          array (
-            'param' => 'options_page',
-            'operator' => '==',
-            'value' => $settings_page_slug,
-          ),
-        ),
-      ),
-    )); 
-    
     acf_add_local_field(array(
       'key' => "field_{$this->prefix}_allowed_fields",
       'label' => 'Allowed fields for non-admins',
       'name' => "{$this->prefix}_allowed_fields",
       'type' => 'checkbox',
       'choices' => $this->get_acf_field_types(),
-      'parent' => "group_$settings_page_id"
+      'parent' => "group_$settings_page->id"
     ));
     
   }
@@ -124,7 +94,7 @@ class RH_ACFF_Permissions {
 
     // show allowed fields
     acf_render_field_wrap(array(
-      'label'			=> __('Allowed fields for non-admins', $this->textdomain),
+      'label'			=> __('Allowed fields for non-admins'),
       'instructions' => 'Remove the filter <em style="-webkit-user-select: all; user-select:all;">rh/acf-ff/allowed-fields-for-non-admins</em> to edit fields manually.',
       'type'			=> 'textarea',
       'readonly'  => true,
@@ -170,7 +140,7 @@ class RH_ACFF_Permissions {
   public function render_field_allowed_fields( $field ) {
 
     acf_render_field_wrap(array(
-      'label'			=> __('Code Snippet', $this->textdomain),
+      'label'			=> __('Code Snippet'),
       'instructions'	=> 'Put this code snippet in your theme to filter allowed fields programatically',
       'type'			=> 'textarea',
       'readonly'  => true,
@@ -484,4 +454,3 @@ class RH_ACFF_Permissions {
   }
 
 }
-new RH_ACFF_Permissions();
