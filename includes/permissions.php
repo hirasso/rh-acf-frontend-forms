@@ -14,7 +14,8 @@ class Permissions {
 
     $this->prefix = get_prefix();
     
-    add_filter('pre_get_posts', [$this, 'pre_get_posts'], 999);
+    add_filter('pre_get_posts', [$this, 'query_frontend_forms_only'], 999);
+    // add_filter('pre_get_posts', [$this, 'sort_field_groups'], 999);
     add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
     add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin'] );
     add_filter('acf/get_field_types', [$this, 'restrict_field_types']);
@@ -29,7 +30,7 @@ class Permissions {
     // add_filter('user_has_cap', [$this, 'user_has_cap'], 10, 3);
     add_filter('map_meta_cap', [$this, 'map_meta_cap'], 10, 4 );
     add_filter('register_post_type_args', [$this, 'register_post_type_args'], 999, 2);
-    add_filter('views_edit-acf-field-group', [$this, 'restrict_edit_views'], 20, 1);
+    add_filter('views_edit-acf-field-group', [$this, 'field_group_edit_views'], 20, 1);
     add_filter('bulk_actions-edit-acf-field-group', [$this, 'restrict_bulk_actions'], 20, 1);
     add_action('acf/update_field_group', [$this, 'update_field_group'], 10);
     add_action('acf/init', [$this, 'add_settings_page_fields']);
@@ -38,8 +39,11 @@ class Permissions {
     add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
     add_filter('gettext', [$this, 'rename_custom_fields'], 10, 3);
 
-    add_filter('manage_edit-acf-field-group_columns',			array($this, 'field_group_columns'), 11, 1);
-    add_action('manage_acf-field-group_posts_custom_column',	array($this, 'field_group_columns_html'), 11, 2);
+    // disabled in favour of custom edit view
+    // add_filter('manage_edit-acf-field-group_columns',			array($this, 'field_group_columns'), 11);
+    // add_action('manage_acf-field-group_posts_custom_column',	array($this, 'field_group_columns_html'), 10, 2);
+    // add_filter('manage_edit-acf-field-group_sortable_columns',	array($this, 'field_group_sortable_columns'), 10);
+    
 
   }
 
@@ -243,16 +247,55 @@ class Permissions {
   }
 
   /**
-   * Removes acf field group edit views for non-admins
+   * Field group edit views
    *
    * @param [type] $views
    * @return array
    */
-  public function restrict_edit_views( $views ) {
+  public function field_group_edit_views( $views ) {
+    $views = $this->add_edit_view_frontend_forms( $views );
     if( !$this->is_acf_super_admin() ) {
       return [];
     }
     return $views;
+  }
+
+  /**
+   * Adds Frontend Forms to field group edit views
+   *
+   * @param [type] $views
+   * @return array $views
+   */
+  private function add_edit_view_frontend_forms( $views ) {
+    $count = $this->count_frontend_forms();
+    $class = false;
+    if( $this->is_edit_view_frontend_forms() ) {
+      $class = ' class="current"';
+    }
+    if( !$count ) {
+      return $views;
+    }
+    $url = add_query_arg([
+      'meta_key' => 'is-frontend-form',
+      'meta_value' => '1'
+    ], admin_url('edit.php?post_type=acf-field-group'));
+    $views['frontend_forms'] = "<a $class href='$url'>Frontend Forms <span class='count'>($count)</span></a>";
+    return $views;
+  }
+
+  /**
+   * Counts ACF Frontend Forms
+   *
+   * @return int
+   */
+  private function count_frontend_forms() {
+    $posts = get_posts([
+      'post_type' => 'acf-field-group',
+      'fields' => 'ids',
+      'meta_key' => '_is_frontend_form',
+      'meta_value' => '1'
+    ]);
+    return count( $posts );
   }
 
   /**
@@ -452,27 +495,38 @@ class Permissions {
   }
 
   /**
+   * Detect meta query in edit.php
+   *
+   * @return boolean
+   */
+  private function is_edit_view_frontend_forms() {
+    $meta_key = $this->get_var('meta_key', $_GET);
+    $meta_value = intval( $this->get_var('meta_value', $_GET, 0) );
+    $is_frontend_form_query = $meta_key === 'is-frontend-form' && $meta_value === 1;
+    return $is_frontend_form_query;
+  }
+
+  /**
    * Filter acf_field_groups for editors
    *
    * @param [WP_Query] $q
    * @return $query
    */
-  public function pre_get_posts( $q ) {
-    if( !is_admin() || !$q->is_main_query() ) {
+  public function query_frontend_forms_only( $q ) {
+    if( !is_admin() || !$q->is_main_query() || $q->get('post_type') !== 'acf-field-group' ) {
       return $q;
     }
-    if( $this->is_acf_super_admin() ) {
+    
+    if( $this->is_acf_super_admin() && !$this->is_edit_view_frontend_forms() ) {
       return $q;
     }
-    if( get_current_screen()->id !== 'edit-acf-field-group' ) {
-      return $q;
-    }
+    
     $meta_query = $q->get('meta_query');
     $meta_query = [
       [
         'key' => '_is_frontend_form',
-        'value' => 1,
-        'type' => 'NUMERIC'
+        'value' => '1',
+        // 'type' => 'NUMERIC'
       ]
     ];
     $q->set('meta_query', $meta_query);
@@ -494,7 +548,10 @@ class Permissions {
    * @return array
    */
   public function field_group_columns( $columns ) {
-    $columns['acff-is-frontend-form'] = __('Frontend Form');
+    if( !$this->is_acf_super_admin() ) {
+      return $columns;  
+    }
+    $columns['acff-is-frontend-form'] = __('Is Frontend Form');
     return $columns;
   }
 
@@ -509,6 +566,60 @@ class Permissions {
     switch( $column ) {
       case 'acff-is-frontend-form':
         echo $this->is_acf_frontend_form($post_id) ? 'yes' : 'no';
+        break;
+    }
+  }
+
+  /**
+   * Make field groups sortable by frontend forms
+   *
+   * @param [array] $columns
+   * @return void
+   */
+  public function field_group_sortable_columns( $columns ) {
+    $columns['acff-is-frontend-form'] = 'is-frontend-form';
+    return $columns;
+  }
+
+  /**
+   * Get a variable from an array
+   *
+   * @param [type] $name
+   * @param [type] $arr
+   * @param [type] $fallback
+   * @return void
+   */
+  private function get_var( $name, $arr, $fallback = false ) {
+    return !empty($arr[$name]) ? $arr[$name] : $fallback;
+  }
+
+  /**
+   * Sort field groups by custom setting
+   *
+   * @param [type] $q
+   * @return void
+   */
+  public function sort_field_groups( $q ) {
+    if( !is_admin() || $q->is_main_query() || $q->get('post_type') !== 'acf-field-group' ) {
+      return $q;
+    }
+    $orderby = $this->get_var('orderby', $_GET );
+    switch( $orderby ) {
+      case 'is-frontend-form':
+        $meta_query = [
+          'relation' => 'OR',
+          [
+            'key' => '_is_frontend_form',
+            'compare' => 'NOT EXISTS', // see note above
+          ],
+          [
+            'key' => '_is_frontend_form',
+            'type' => 'NUMERIC'
+          ],
+        ];
+
+        $q->set( 'meta_query', $meta_query );
+        $q->set( 'orderby', 'meta_value' );
         break;
     }
   }
