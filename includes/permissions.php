@@ -16,6 +16,7 @@ class Permissions {
     
     add_filter('pre_get_posts', [$this, 'pre_get_posts'], 999);
     add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
+    add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin'] );
     add_filter('acf/get_field_types', [$this, 'restrict_field_types']);
     add_action('admin_init', [$this, 'grant_frontend_form_cap_to_admins']);
     
@@ -27,15 +28,18 @@ class Permissions {
     // Disabled: fires too late (after meta caps have been mapped already)
     // add_filter('user_has_cap', [$this, 'user_has_cap'], 10, 3);
     add_filter('map_meta_cap', [$this, 'map_meta_cap'], 10, 4 );
-    add_filter('register_post_type_args', [$this, 'register_post_type_args'], 10, 2);
+    add_filter('register_post_type_args', [$this, 'register_post_type_args'], 999, 2);
     add_filter('views_edit-acf-field-group', [$this, 'restrict_edit_views'], 20, 1);
     add_filter('bulk_actions-edit-acf-field-group', [$this, 'restrict_bulk_actions'], 20, 1);
-    add_action('save_post_acf-field-group', [$this, 'save_field_group'], 20);
+    add_action('acf/update_field_group', [$this, 'update_field_group'], 10);
     add_action('acf/init', [$this, 'add_settings_page_fields']);
 
     add_action("acf/prepare_field/name={$this->prefix}_allowed_fields", [$this, 'prepare_field_allowed_fields']);
     add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
     add_filter('gettext', [$this, 'rename_custom_fields'], 10, 3);
+
+    add_filter('manage_edit-acf-field-group_columns',			array($this, 'field_group_columns'), 11, 1);
+    add_action('manage_acf-field-group_posts_custom_column',	array($this, 'field_group_columns_html'), 11, 2);
 
   }
 
@@ -193,14 +197,27 @@ class Permissions {
 
   
   /**
-   * Filter ACF Global Settings
+   * Filter ACF Global Setting 'capability'
    *
-   * @param [type] $settings
-   * @return void
+   * @param [string] $setting
+   * @return $setting
    */
   public function acf_setting_capability($setting) {
     $cap = $this->get_frontend_forms_cap();
     return $cap;
+  }
+
+  /**
+   * Filter ACF Global setting 'show_admin'
+   *
+   * @param [string] $setting
+   * @return $setting
+   */
+  public function acf_setting_show_admin( $setting ) {
+    if( !$this->is_acf_super_admin() ) {
+      return false;
+    }
+    return $setting;
   }
 
   /**
@@ -296,6 +313,11 @@ class Permissions {
     $args['capabilities']['delete_post'] = 'manage_options';
     $args['capabilities']['delete_posts'] = 'manage_options';
     $args['capabilities']['create_posts'] = 'manage_options';
+    if( !$this->is_acf_super_admin() ) {
+      $args['show_in_menu'] = true;
+      $args['menu_icon'] = 'dashicons-welcome-widgets-menus';
+      $args['menu_position'] = 1000;  
+    }
     return $args;
   }
 
@@ -333,9 +355,9 @@ class Permissions {
       return;
     }
     // remove the default menu item
-    remove_menu_page($slug);
+    // remove_menu_page($slug);
     // add a custom menu item with acff=1 appended, so that submenus won't be added
-    add_menu_page(__("Forms"), __("Forms"), $cap, "$slug&acff=1", false, 'dashicons-welcome-widgets-menus');
+    // add_menu_page(__("Forms"), __("Forms"), $cap, "$slug&acff=1", false, 'dashicons-welcome-widgets-menus');
   }
 
   public function row_actions( $actions, $post ) {
@@ -383,16 +405,15 @@ class Permissions {
 
 
   /**
-   * Save field group setting in post meta
+   * Save field group setting as post meta
    *
    * @param [type] $post_id
    * @return void
    */
-  public function save_field_group( $post_id ) {
-    $field_group = acf_get_field_group($post_id);
-    if( isset($field_group['is_frontend_form']) ) {
-      $is_frontend_form = !empty($field_group['is_frontend_form']) ? $field_group['is_frontend_form'] : false;
-      update_post_meta($post_id, '_is_frontend_form', $is_frontend_form);
+  public function update_field_group( $field_group ) {
+    if( $this->is_acf_super_admin() ) {
+      $is_frontend_form = !empty($field_group['is_frontend_form']) ? $field_group['is_frontend_form'] : 0;
+      update_post_meta($field_group['ID'], '_is_frontend_form', $is_frontend_form);
     }
   }
 
@@ -417,7 +438,7 @@ class Permissions {
    */
   public function render_field_group_settings( $field_group ) {
     if( !$this->is_acf_super_admin() ) {
-      return $field_group;
+      return;
     }
     acf_render_field_wrap(array(
       'label'			=> __('Is frontend form', 'acf'),
@@ -425,7 +446,7 @@ class Permissions {
       'type'			=> 'true_false',
       'name'			=> 'is_frontend_form',
       'prefix'		=> 'acf_field_group',
-      'value'			=> $field_group['is_frontend_form'] ?? false,
+      'value'			=> $field_group['is_frontend_form'],
       'ui'			=> 1,
     ));
   }
@@ -461,9 +482,35 @@ class Permissions {
 
   public function rename_custom_fields( $text, $context, $textdomain ) {
     if( $textdomain === 'acf' && !$this->is_acf_super_admin() ) {
-      $text = str_replace('Custom Fields', 'Frontend Forms', $text);
+      $text = str_replace(['Custom Field', 'Field Group'], 'Frontend Form', $text);
     }
     return $text;
+  }
+
+  /**
+   * Add columns to edit.php
+   *
+   * @param [array] $columns
+   * @return array
+   */
+  public function field_group_columns( $columns ) {
+    $columns['acff-is-frontend-form'] = __('Frontend Form');
+    return $columns;
+  }
+
+  /**
+  * Fill custom columns on edit.php
+  *
+  * @param [string] $column
+  * @param [int] $post_id
+  * @return void
+  */
+  public function field_group_columns_html($column, $post_id) {
+    switch( $column ) {
+      case 'acff-is-frontend-form':
+        echo $this->is_acf_frontend_form($post_id) ? 'yes' : 'no';
+        break;
+    }
   }
 
 }
