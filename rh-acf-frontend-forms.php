@@ -70,6 +70,22 @@ function get_prefix() {
 }
 
 /**
+ * Helper function to get versioned asset urls
+ *
+ * @param [type] $path
+ * @return void
+ */
+function acff_asset_uri( $path ) {
+  $uri = plugins_url( $path, __FILE__ );
+  $file = plugin_dir_path( __FILE__ ) . $path;
+  if( file_exists( $file ) ) {
+    $version = filemtime( $file );
+    $uri .= "?v=$version";
+  }
+  return $uri;
+}
+
+/**
  * Returns settings page info
  *
  * @return void

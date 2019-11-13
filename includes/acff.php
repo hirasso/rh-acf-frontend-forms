@@ -47,32 +47,16 @@ class ACFF {
   function assets() {
 
     // enqueue plugin script
-    wp_enqueue_script( 'rh-acf-frontend-forms', $this->asset_uri('assets/js/rh-acf-frontend-forms.js'), array('jquery'), null, true );
+    wp_enqueue_script( 'rh-acf-frontend-forms', acff_asset_uri('assets/js/rh-acf-frontend-forms.js'), array('jquery'), null, true );
 
     // enqueue plugin styles
-    wp_enqueue_style( 'rh-acf-frontend-forms', $this->asset_uri('assets/css/rh-acf-frontend-forms.css'), array(), 'all');
+    wp_enqueue_style( 'rh-acf-frontend-forms', acff_asset_uri('assets/css/rh-acf-frontend-forms.css'), array(), 'all');
 
     // Removes the default ACF styles
     wp_deregister_style('acf-global');
     wp_deregister_style('acf-input');
     wp_deregister_style('acf-field-group');
 
-  }
-
-  /**
-   * Helper function to get versioned asset urls
-   *
-   * @param [type] $path
-   * @return void
-   */
-  private function asset_uri( $path ) {
-    $uri = plugins_url( $path, __FILE__ );
-    $file = plugin_dir_path( __FILE__ ) . $path;
-    if( file_exists( $file ) ) {
-      $version = filemtime( $file );
-      $uri .= "?v=$version";
-    }
-    return $uri;
   }
 
   
