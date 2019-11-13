@@ -638,15 +638,20 @@ class Permissions {
     if( !$field_group ) {
       return $path;
     }
-    $key = acf_maybe_get( $field_group, 'key' );
+    // Bail early if this is no frontend form
     $is_frontend_form = acf_maybe_get( $field_group, 'is_frontend_form' );
-    if( $is_frontend_form ) {
+    if( !$is_frontend_form ) {
+      return $path;
+    }
+    // delete previously saved frontend form json
+    $key = acf_maybe_get( $field_group, 'key' );
+    if( $key ) {
       remove_filter('acf/settings/save_json', [$this, 'acf_save_json']);
       acf_delete_json_field_group( $key );
       add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
-      return false;
     }
-    return $path;
+    // return nothing, the field group won't be saved
+    return false;
   }
 
 }
