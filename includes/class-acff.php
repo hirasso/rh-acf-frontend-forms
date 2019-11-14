@@ -29,7 +29,7 @@ class ACFF {
 
     // internal hooks
     add_action('wp_enqueue_scripts', [$this, 'frontend_assets'], 100 );
-    add_action('admin_print_styles', [$this, 'admin_styles'], 999);
+    add_action('admin_enqueue_scripts', [$this, 'admin_styles'], 1);
     add_filter('acf/prepare_field/type=image', [$this, 'prepare_image_field'] );
     add_filter('acf/validate_value', [$this, 'validate_value'], 9, 3 );
     add_filter('acf/render_field/type=image', [$this, 'render_image_field'] );

@@ -486,7 +486,9 @@ class Permissions {
    */
   public function update_field_group( $field_group ) {
     $is_frontend_form = $this->is_frontend_form( $field_group['ID'] );
-    update_post_meta($field_group['ID'], '_is_frontend_form', $is_frontend_form);
+    if( $is_frontend_form && $this->is_acf_super_admin() ) {
+      update_post_meta($field_group['ID'], '_is_frontend_form', $is_frontend_form);
+    }
   }
 
   /**
