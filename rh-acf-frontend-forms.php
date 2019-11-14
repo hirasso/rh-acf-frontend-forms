@@ -110,8 +110,8 @@ function get_settings_page_info() {
 }
 
 foreach([
-  'acff',
-  'permissions',
+  'class-acff',
+  'class-permissions',
 ] as $filename) {
   acff_include("includes/$filename.php");
 }
