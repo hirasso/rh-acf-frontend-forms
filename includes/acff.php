@@ -37,6 +37,9 @@ class ACFF {
     add_filter('acf/render_field/type=textarea', [$this, 'render_max_length_info'] );
     add_action('acf/submit_form', [$this, 'on_submit_form'], 10, 2 );
 
+    add_action('acf/include_field_types', [$this, 'include_field_frontend_form']);
+    add_filter('acf/fields/post_object/query/name=frontend_form', [$this, 'query_frontend_forms'], 10, 3);
+
     // add the settings page
     add_action('acf/init', [$this, 'add_settings_page']);
 
@@ -263,5 +266,29 @@ class ACFF {
         ),
       ),
     ));
+  }
+
+  /**
+   * Query a frontend form
+   *
+   * @param [type] $args
+   * @param [type] $field
+   * @param [type] $post_id
+   * @return void
+   */
+  public function query_frontend_forms( $args, $field, $post_id ) {
+    $args['post_type'] = 'acf-field-group';
+    $args['meta_query'] = [
+      [
+        'key' => '_is_frontend_form',
+        'value' => '1',
+        // 'type' => 'NUMERIC'
+      ]
+    ];
+    return $args;
+  }
+
+  public function include_field_frontend_form() {
+    acff_include("includes/fields/class-acf-field-frontend_form.php");
   }
 }

@@ -53,9 +53,10 @@ function get_path( $filename = '' ) {
  * @param	string $filename The specified file.
  * @return	void
  */
-function acff_include( $filename = '' ) {
+function acff_include( $filename = '', $debug = false ) {
 	$file_path = get_path($filename);
 	if( file_exists($file_path) ) {
+    if( $debug ) pre_dump( $file_path );
 		include_once($file_path);
 	}
 }
@@ -110,10 +111,11 @@ function get_settings_page_info() {
 
 foreach([
   'acff',
-  'permissions'
+  'permissions',
 ] as $filename) {
   acff_include("includes/$filename.php");
 }
+
 
 $acff = new ACFF();
 new Permissions( $acff );

@@ -1,9 +1,0 @@
-{
-	"version": 3,
-	"file": "acff-admin.css",
-	"sources": [
-		"../../assets-src/scss/acff-admin.scss"
-	],
-	"names": [],
-	"mappings": "AAAA;;EAEE;AACF,AAAA,cAAc,CAAC;EACb,YAAY,EAAE,CAAC,GAChB;;AACD,AAAA,cAAc,CAAC,aAAa,CAAC;EAC3B,OAAO,EAAE,IAAI,GACd;;AAED,AACE,uBADqB,AAAA,0BAA0B,CAC/C,0BAA0B;AAD5B,uBAAuB,AAAA,0BAA0B,CAE/C,wBAAwB,CAAC;EACvB,OAAO,EAAE,eAAe,GACzB"
-}
