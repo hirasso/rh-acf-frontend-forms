@@ -55,10 +55,12 @@ class ACFF {
     // enqueue plugin styles
     wp_enqueue_style( 'rh-acff', asset_uri('assets/css/acff.css'), array(), 'all');
 
-    // Removes the default ACF styles
-    wp_deregister_style('acf-global');
-    wp_deregister_style('acf-input');
-    wp_deregister_style('acf-field-group');
+    if( apply_filters('rh/acff/deregister-acf-styles', true ) ) {
+      // Removes the default ACF styles
+      wp_deregister_style('acf-global');
+      wp_deregister_style('acf-input');
+      wp_deregister_style('acf-field-group');
+    }
 
   }
 

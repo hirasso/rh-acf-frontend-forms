@@ -408,6 +408,7 @@ class Permissions {
     if( !$field_group ) {
       return false;
     }
+    
     $is_frontend_form = !empty($field_group['is_frontend_form']) ? (bool) $field_group['is_frontend_form'] : false;
     return $is_frontend_form;
   }
