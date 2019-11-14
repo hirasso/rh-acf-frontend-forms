@@ -86,7 +86,7 @@ class Permissions {
       'label' => 'Allowed fields for non-admins',
       'name' => "{$this->prefix}_allowed_fields",
       'type' => 'checkbox',
-      'choices' => $this->get_acf_field_types(),
+      'choices' => $this->get_allowed_field_types_choices(),
       'parent' => "group_$settings_page->id"
     ));
     
@@ -97,12 +97,15 @@ class Permissions {
    *
    * @return void
    */
-  private function get_acf_field_types() {
+  private function get_allowed_field_types_choices() {
+    $choices = [];
+    $never_allow = ['frontend_form'];
     $field_types = acf_get_field_types_info();
     foreach( $field_types as $key => $field ) {
-      $field_types[$key] = $field['label'];
+      if( in_array($key, $never_allow) ) continue;
+      $choices[$key] = $field['label'];
     }
-    return $field_types;
+    return $choices;
   }
 
   /**
