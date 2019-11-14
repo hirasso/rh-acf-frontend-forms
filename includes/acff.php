@@ -25,16 +25,17 @@ class ACFF {
   function hooks() {
 
     // Always initializes the form_head in the frontend
-    add_action( 'template_redirect', 'acf_form_head');
+    add_action('template_redirect', 'acf_form_head');
 
     // internal hooks
-    add_action( 'wp_enqueue_scripts', array( $this, 'assets' ), 100 );
-    add_filter( 'acf/prepare_field/type=image', array( $this, 'prepare_image_field' ) );
-    add_filter( 'acf/validate_value', array( $this, 'validate_value' ), 9, 3 );
-    add_filter( 'acf/render_field/type=image', array( $this, 'render_image_field' ) );
-    add_filter( 'acf/render_field/type=text', array( $this, 'render_max_length_info' ) );
-    add_filter( 'acf/render_field/type=textarea', array( $this, 'render_max_length_info' ) );
-    add_action( 'acf/submit_form', array( $this, 'on_submit_form' ), 10, 2 );
+    add_action('wp_enqueue_scripts', [$this, 'frontend_assets'], 100 );
+    add_action('admin_print_styles', [$this, 'admin_styles'], 999);
+    add_filter('acf/prepare_field/type=image', [$this, 'prepare_image_field'] );
+    add_filter('acf/validate_value', [$this, 'validate_value'], 9, 3 );
+    add_filter('acf/render_field/type=image', [$this, 'render_image_field'] );
+    add_filter('acf/render_field/type=text', [$this, 'render_max_length_info'] );
+    add_filter('acf/render_field/type=textarea', [$this, 'render_max_length_info'] );
+    add_action('acf/submit_form', [$this, 'on_submit_form'], 10, 2 );
 
     // add the settings page
     add_action('acf/init', [$this, 'add_settings_page']);
@@ -44,19 +45,28 @@ class ACFF {
   /**
    * Enqueue and dequeue assets
    */
-  function assets() {
+  function frontend_assets() {
 
     // enqueue plugin script
-    wp_enqueue_script( 'rh-acf-frontend-forms', acff_asset_uri('assets/js/rh-acf-frontend-forms.js'), array('jquery'), null, true );
+    wp_enqueue_script( 'rh-acff', asset_uri('assets/js/acff.js'), array('jquery'), null, true );
 
     // enqueue plugin styles
-    wp_enqueue_style( 'rh-acf-frontend-forms', acff_asset_uri('assets/css/rh-acf-frontend-forms.css'), array(), 'all');
+    wp_enqueue_style( 'rh-acff', asset_uri('assets/css/acff.css'), array(), 'all');
 
     // Removes the default ACF styles
     wp_deregister_style('acf-global');
     wp_deregister_style('acf-input');
     wp_deregister_style('acf-field-group');
 
+  }
+
+  /**
+   * Enqueue Admin Styles
+   *
+   * @return void
+   */
+  public function admin_styles() {
+    wp_enqueue_style( "rh-acff-admin", asset_uri('assets/css/acff-admin.css') );
   }
 
   

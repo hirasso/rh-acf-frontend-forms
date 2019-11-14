@@ -75,7 +75,7 @@ function get_prefix() {
  * @param [type] $path
  * @return void
  */
-function acff_asset_uri( $path ) {
+function asset_uri( $path ) {
   $uri = plugins_url( $path, __FILE__ );
   $file = plugin_dir_path( __FILE__ ) . $path;
   if( file_exists( $file ) ) {
@@ -83,6 +83,15 @@ function acff_asset_uri( $path ) {
     $uri .= "?v=$version";
   }
   return $uri;
+}
+
+/**
+ * Checks if we are in a development environment
+ *
+ * @return boolean
+ */
+function is_dev() {
+  return defined('WP_ENV') && WP_ENV === 'development';
 }
 
 /**

@@ -1,0 +1,16 @@
+/*
+* ACF Field Groups Screen
+*/
+.acf-columns-2 {
+  margin-right: 0;
+}
+.acf-columns-2 .acf-column-2 {
+  display: none;
+}
+
+.is-not-acf-super-admin.post-type-acf-field-group {
+  #acf-field-group-locations,
+  #acf-field-group-options {
+    display: none !important;
+  }
+}
