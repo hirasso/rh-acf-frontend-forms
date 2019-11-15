@@ -59,7 +59,7 @@ class acf_field_frontend_form extends acf_field_select {
       'fields' => 'ids',
       'meta_query' => [
         [
-          'key' => '_is_frontend_form',
+          'key' => '_acff_is_frontend_form',
           'value' => '1',
           // 'type' => 'NUMERIC'
         ],
