@@ -1,3 +1,12 @@
-.acf-columns-2{margin-right:0}.acf-columns-2 .acf-column-2{display:none}.is-not-acf-super-admin.post-type-acf-field-group #acf-field-group-locations,.is-not-acf-super-admin.post-type-acf-field-group #acf-field-group-options{display:none !important}
+/*
+* ACF Field Groups Screen
+*/
+.acf-columns-2 {
+  margin-right: 0; }
 
-/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFjZmYtYWRtaW4uY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLGVBQWUsY0FBYyxDQUFDLDZCQUE2QixZQUFZLENBQUMsd0pBQXdKLHVCQUF1QixDQUFDIiwiZmlsZSI6ImFjZmYtYWRtaW4uY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmFjZi1jb2x1bW5zLTJ7bWFyZ2luLXJpZ2h0OjB9LmFjZi1jb2x1bW5zLTIgLmFjZi1jb2x1bW4tMntkaXNwbGF5Om5vbmV9LmlzLW5vdC1hY2Ytc3VwZXItYWRtaW4ucG9zdC10eXBlLWFjZi1maWVsZC1ncm91cCAjYWNmLWZpZWxkLWdyb3VwLWxvY2F0aW9ucywuaXMtbm90LWFjZi1zdXBlci1hZG1pbi5wb3N0LXR5cGUtYWNmLWZpZWxkLWdyb3VwICNhY2YtZmllbGQtZ3JvdXAtb3B0aW9uc3tkaXNwbGF5Om5vbmUgIWltcG9ydGFudH1cbiJdfQ== */
+.acf-columns-2 .acf-column-2 {
+  display: none; }
+
+.is-not-acf-super-admin.post-type-acf-field-group #acf-field-group-locations,
+.is-not-acf-super-admin.post-type-acf-field-group #acf-field-group-options {
+  display: none !important; }

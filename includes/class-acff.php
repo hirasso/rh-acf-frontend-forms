@@ -267,6 +267,22 @@ class ACFF {
         ),
       ),
     ));
+
+    // It seems to not be possible to add field groups to acf-field-groups
+    // acf_add_local_field_group(array (
+    //   'key' => "group_acff_settings",
+    //   'title' => 'ACFF',
+    //   'location' => array (
+    //     array (
+    //       array (
+    //         'param' => 'post_type',
+    //         'operator' => '==',
+    //         'value' => 'acf-field-group',
+    //       ),
+    //     ),
+    //   ),
+    // ));
+
   }
 
   

@@ -8,14 +8,13 @@ class Permissions {
 
   private $prefix;
   private $hook_allowed_fields = 'rh/acff/allowed-fields-for-non-admins';
-  private $hook_setting_capability = 'rh/acff/settings/capability';
 
   public function __construct( $prefix ) {
 
     $this->prefix = get_prefix();
     
     add_filter('pre_get_posts', [$this, 'query_frontend_forms_only'], 999);
-    add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
+    // add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
     add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin'] );
     add_filter('acf/get_field_types', [$this, 'restrict_field_types']);
     add_action('admin_init', [$this, 'grant_frontend_form_cap_to_admins']);
@@ -37,7 +36,7 @@ class Permissions {
 
     add_action("acf/prepare_field/name={$this->prefix}_allowed_fields", [$this, 'prepare_field_allowed_fields']);
     add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
-    add_filter('gettext', [$this, 'rename_custom_fields'], 10, 3);
+    // add_filter('gettext', [$this, 'rename_custom_fields'], 10, 3);
 
     add_filter('acf/settings/save_json', [$this, 'acf_save_json'] );
 
@@ -203,7 +202,8 @@ class Permissions {
    * @return boolean
    */
   private function is_acf_super_admin() {
-    return current_user_can('administrator');
+    $cap = acf_get_setting('capability');
+    return current_user_can( $cap );
   }
 
   /**
@@ -261,7 +261,7 @@ class Permissions {
    * @return string cap
    */
   private function get_frontend_forms_cap() {
-    return apply_filters($this->hook_setting_capability, 'manage_options');
+    return apply_filters('rh/acff/settings/capability', 'manage_options');
   }
 
   /**
@@ -381,17 +381,23 @@ class Permissions {
    * @return array $args
    */
   public function register_post_type_args( $args, $pt ) {
-    if( $pt !== 'acf-field-group' ) {
+    if( $pt !== 'acf-field-group' || $this->is_acf_super_admin() ) {
       return $args;
     }
-    $args['capabilities']['delete_post'] = 'manage_options';
-    $args['capabilities']['delete_posts'] = 'manage_options';
-    $args['capabilities']['create_posts'] = 'manage_options';
-    if( !$this->is_acf_super_admin() ) {
-      $args['show_in_menu'] = true;
-      $args['menu_icon'] = 'dashicons-welcome-widgets-menus';
-      $args['menu_position'] = 1000;  
+    foreach( $args['labels'] as $key => $label ) {
+      $args['labels'][$key] = str_replace(['Custom Field', 'Field Group'], 'Frontend Form', $label);
     }
+    $super_cap = acf_get_setting( 'capability' );
+    $acff_cap = $this->get_frontend_forms_cap();
+    $args['capabilities']['edit_post'] = $acff_cap;
+    $args['capabilities']['edit_posts'] = $acff_cap;
+    $args['capabilities']['create_posts'] = $super_cap;
+    
+    $args['show_in_menu'] = true;
+    $args['menu_icon'] = 'dashicons-welcome-widgets-menus';
+    $args['menu_position'] = 1000;
+    
+    // pre_dump( $args );
     return $args;
   }
 
@@ -516,16 +522,44 @@ class Permissions {
     // if( !$this->is_acf_super_admin() ) {
     //   return;
     // }
-    $value = !empty($field_group['is_frontend_form']) ? $field_group['is_frontend_form'] : false;
+    $is_frontend_form = !empty($field_group['is_frontend_form']) ? $field_group['is_frontend_form'] : false;
+    
     acf_render_field_wrap(array(
-      'label'			=> __('Is frontend form', 'acf'),
+      'id'       => 'acff_is_frontend_form',
+      'label'			=> __('Allow as Frontend Form', 'acf'),
       'instructions'	=> 'Will this form be used in the frontend?',
       'type'			=> 'true_false',
       'name'			=> 'is_frontend_form',
       'prefix'		=> 'acf_field_group',
-      'value'			=> $value,
+      'value'			=> $is_frontend_form,
       'ui'			=> 1,
     ));
+
+    $post_type = !empty($field_group['acff_for_post_type']) ? $field_group['acff_for_post_type'] : false;
+    acf_render_field_wrap(array(
+      'label'			=> __('Frontend Form for', 'acf'),
+      'instructions'	=> 'Which post type should this frontend form create?',
+      'type'			=> 'select',
+      'name'			=> 'acff_for_post_type',
+      'prefix'		=> 'acf_field_group',
+      'value'			=> $post_type,
+      'ui'			  => 0,
+      'choices'   => $this->get_post_type_select_choices(),
+      'conditional_logic' => [
+        'field'     => 'acf_field_group-is_frontend_form',
+        'operator'  => '==',
+        'value'     => '1'
+      ]
+    ));
+  }
+
+  private function get_post_type_select_choices() {
+    $post_types = get_post_types([], 'objects');
+    $choices = [];
+    foreach( $post_types as $pt => $pt_object ) {
+      $choices[$pt] = "{$pt_object->labels->name} ({$pt})";
+    }
+    return $choices;
   }
 
   /**
