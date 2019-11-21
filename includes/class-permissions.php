@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Permissions {
 
   private $prefix;
-  private $hook_allowed_fields = 'rh/acff/allowed-fields-for-non-admins';
+  private $hook_allowed_fields = 'rh/acff/allowed-fields';
 
   public function __construct( $prefix ) {
 
@@ -119,7 +119,7 @@ class Permissions {
     // show allowed fields
     acf_render_field_wrap(array(
       'label'			=> __('Allowed fields for frontend forms'),
-      'instructions' => 'Remove the filter <em style="-webkit-user-select: all; user-select:all;">rh/acf-ff/allowed-fields-for-non-admins</em> to edit fields manually.',
+      'instructions' => "Remove the filter <em style='-webkit-user-select: all; user-select:all;'>$this->hook_allowed_fields</em> to edit fields manually.",
       'type'			=> 'textarea',
       'readonly'  => true,
       'rows'      => 2,
