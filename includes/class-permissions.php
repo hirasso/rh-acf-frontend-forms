@@ -119,7 +119,7 @@ class Permissions {
     // show allowed fields
     acf_render_field_wrap(array(
       'label'			=> __('Allowed fields for frontend forms'),
-      'instructions' => "Remove the filter <em style='-webkit-user-select: all; user-select:all;'>$this->hook_allowed_fields</em> to edit fields manually.",
+      'instructions' => "Remove the filter <em style='-webkit-user-select: all; user-select:all;'>$this->hook_allowed_fields</em> from your theme to edit fields manually.",
       'type'			=> 'textarea',
       'readonly'  => true,
       'rows'      => 2,
