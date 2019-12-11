@@ -14,3 +14,13 @@
     display: none !important;
   }
 }
+// hide default field settings for field "form-review"
+.acf-field-object-form-review {
+  tr[data-name="name"], 
+  tr[data-name="instructions"], 
+  tr[data-name="required"],
+  tr[data-name="conditional_logic"],
+  tr[data-name="wrapper"] {
+    display: none !important;
+  }
+}

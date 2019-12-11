@@ -293,5 +293,6 @@ class ACFF {
    */
   public function include_field_frontend_form() {
     acff_include("includes/fields/class-acf-field-frontend_form.php");
+    acff_include("includes/fields/class-acf-field-form_review.php");
   }
 }

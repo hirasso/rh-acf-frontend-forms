@@ -101,7 +101,8 @@ class Permissions {
     $field_types = acf_get_field_types_info();
     foreach( $field_types as $key => $field ) {
       if( in_array($key, $never_allow) ) continue;
-      $choices[$key] = $field['label'];
+      
+      $choices[$key] = "{$field['label']}";
     }
     return $choices;
   }
