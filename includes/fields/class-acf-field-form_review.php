@@ -39,11 +39,6 @@ class acf_field_form_review extends acf_field_message {
   function render_field( $field ) {
     // hook into 'acf/render_field/type=form_review' from your theme to display the review here.
   }
-
-  function prepare_field( $field ) {
-    $field['label'] = false;
-    return $field;
-  }
 	
 }
 
