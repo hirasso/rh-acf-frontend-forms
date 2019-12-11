@@ -36,6 +36,12 @@ class acf_field_form_review extends acf_field_message {
     
   }
 
+  function prepare_field( $field ) {
+    // don't display form reviews on admin
+    if( is_admin() ) return false;
+    return $field;
+  }
+
   function render_field( $field ) {
     // hook into 'acf/render_field/type=form_review' from your theme to display the review here.
   }
