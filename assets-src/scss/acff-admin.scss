@@ -13,6 +13,11 @@
   #acf-field-group-options {
     display: none !important;
   }
+  // hide field setting 'layout' for repeaters and groups
+  .acf-field-object-group .acf-field-setting-layout,
+  .acf-field-object-repeater .acf-field-setting-layout {
+    display: none !important;
+  }
 }
 // hide default field settings for field "form-review"
 .acf-field-object-form-review {
