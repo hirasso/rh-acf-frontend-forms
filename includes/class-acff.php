@@ -300,6 +300,9 @@ class ACFF {
     if( !$is_frontend_form ) {
       return $field;
     }
+    if( in_array($field['type'], ['repeater', 'group']) ) {
+      $field['layout'] = 'block';
+    }
     if( !empty($field['value']) ) {
       $field['wrapper']['class'] .= ' has-value';
     }
