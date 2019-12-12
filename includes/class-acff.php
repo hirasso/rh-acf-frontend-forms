@@ -37,7 +37,9 @@ class ACFF {
     add_filter('acf/render_field/type=textarea', [$this, 'render_max_length_info'] );
     add_action('acf/submit_form', [$this, 'on_submit_form'], 10, 2 );
 
-    add_action('acf/include_field_types', [$this, 'include_field_frontend_form']);
+    add_action('acf/include_field_types', [$this, 'include_field_types']);
+
+    add_filter('acf/prepare_field', [$this, 'prepare_field']);
 
     // add the settings page
     add_action('acf/init', [$this, 'add_settings_page']);
@@ -285,13 +287,32 @@ class ACFF {
 
   }
 
+  /**
+   * Adds 'has-value' to wrapper, if field has a value
+   *
+   * @param [type] $field
+   * @return void
+   */
+  public function prepare_field( $field ) {
+    $field_group_id = $field['parent'];
+    $field_group = acf_get_field_group( $field_group_id );
+    $is_frontend_form = $field_group['acff_is_frontend_form'] ?? false;
+    if( !$is_frontend_form ) {
+      return $field;
+    }
+    if( !empty($field['value']) ) {
+      $field['wrapper']['class'] .= ' has-value';
+    }
+    return $field;
+  }
+
   
   /**
    * Include 'Frontend Forrm' Field Type
    *
    * @return void
    */
-  public function include_field_frontend_form() {
+  public function include_field_types() {
     acff_include("includes/fields/class-acf-field-frontend_form.php");
     acff_include("includes/fields/class-acf-field-form_review.php");
   }
