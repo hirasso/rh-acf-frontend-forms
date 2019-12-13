@@ -294,7 +294,12 @@ class ACFF {
    * @return void
    */
   public function prepare_field( $field ) {
-    $field_group_id = $field['parent'];
+    $ancestors = get_post_ancestors($field['ID']);
+    $root = count($ancestors)-1;
+    $field_group_id = $ancestors[$root] ?? false;
+    if( !$field_group_id ) {
+      return $field;
+    }
     $field_group = acf_get_field_group( $field_group_id );
     $is_frontend_form = $field_group['acff_is_frontend_form'] ?? false;
     if( !$is_frontend_form ) {
