@@ -41,6 +41,7 @@ class ACFF {
     add_action('acf/render_field_settings', [$this, 'render_field_settings'], 11 );
 
     add_filter('acf/prepare_field', [$this, 'prepare_field']);
+    add_filter('acf/format_value', [$this, 'format_value'], 10, 3);
 
     // add the settings page
     add_action('acf/init', [$this, 'add_settings_page']);
@@ -332,6 +333,9 @@ class ACFF {
     if( in_array($field['type'], ['textarea']) ) {
       $field['rows'] = '2';
     }
+    if( in_array($field['type'], ['file']) ) {
+      $field['return_format'] = 'id';
+    }
     if( in_array( $field['type'], ['true_false'] ) ) {
       if( $rich_text_message = $field['rich_text_message'] ?? false ) {
         $field['message'] = strip_tags( apply_filters('the_content', $rich_text_message), '<a>' );
@@ -341,6 +345,27 @@ class ACFF {
       $field['wrapper']['class'] .= ' has-value';
     }
     return $field;
+  }
+
+  /**
+   * Format some values
+   *
+   * @param [type] $value
+   * @param [type] $post_id
+   * @param [type] $field
+   * @return void
+   */
+  public function format_value( $value, $post_id, $field ) {
+    if( !$value || !$this->is_frontend_form_field($field) ) {
+      return $value;
+    }
+    if( in_array($field['type'], ['file'] ) ) {
+      $file_id = get_field($field['name'], $post_id, false);
+      $file_url = wp_get_attachment_url($file_id);
+      $value = "<a href='$file_url'>$file_url</a>";
+    }
+    
+    return $value;
   }
 
   /**
@@ -363,6 +388,8 @@ class ACFF {
         break;
     }
   }
+
+  
   
   /**
    * Include 'Frontend Forrm' Field Type
