@@ -9,8 +9,9 @@ class Permissions {
   private $prefix;
   private $hook_allowed_fields = 'rh/acff/allowed-fields';
 
-  public function __construct( $prefix ) {
+  public function __construct( $acff ) {
 
+    $this->acff = $acff;
     $this->prefix = get_prefix();
     
     add_filter('pre_get_posts', [$this, 'query_frontend_forms_only'], 999);
@@ -48,9 +49,13 @@ class Permissions {
    * @return string
    */
   public function admin_body_class($class) {
+    global $pagenow;
     $screen = get_current_screen();
-    if( $screen->id !== 'acf-field-group' ) {
+    if( $pagenow !== 'post.php' || $screen->id !== 'acf-field-group' ) {
       return $class;
+    }
+    if( $this->acff->is_frontend_form( acf_maybe_get_GET('post') ) ) {
+      $class .= ' is-edit-acf-frontend-form';
     }
     if( $this->is_acf_super_admin() ) {
       $class .= ' is-acf-super-admin';
@@ -213,7 +218,7 @@ class Permissions {
    */
   public function restrict_field_types( $groups ) {
 
-    if( !$this->is_frontend_form( acf_maybe_get_GET( 'post') ) ) {
+    if( !$this->acff->is_frontend_form( acf_maybe_get_GET( 'post') ) ) {
       return $groups;
     }
     $allowed = $this->get_allowed_frontend_fields();
@@ -365,7 +370,7 @@ class Permissions {
       return $user_caps;
     }
     
-    if( !$this->is_frontend_form( $post ) ) {
+    if( !$this->acff->is_frontend_form( $post ) ) {
       $user_caps[] = 'do_not_allow';
     }
     
@@ -401,24 +406,6 @@ class Permissions {
     
     // pre_dump( $args );
     return $args;
-  }
-
-  
-
-  /**
-   * Checks if a post is an ACF field group for submissions
-   *
-   * @param [type] $post
-   * @return boolean
-   */
-  private function is_frontend_form( $post = 0 ) {
-    $field_group = acf_get_field_group( $post );
-    if( !$field_group ) {
-      return false;
-    }
-    
-    $is_frontend_form = !empty($field_group['acff_is_frontend_form']) ? (bool) $field_group['acff_is_frontend_form'] : false;
-    return $is_frontend_form;
   }
 
   /*
@@ -494,8 +481,8 @@ class Permissions {
    * @return void
    */
   public function update_field_group( $field_group ) {
-    $is_frontend_form = $this->is_frontend_form( $field_group['ID'] );
-    if( $is_frontend_form && $this->is_acf_super_admin() ) {
+    $is_frontend_form = $this->acff->is_frontend_form( $field_group['ID'] );
+    if( $this->is_acf_super_admin() ) {
       update_post_meta($field_group['ID'], '_acff_is_frontend_form', $is_frontend_form);
     }
   }

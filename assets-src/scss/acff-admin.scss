@@ -13,19 +13,32 @@
   #acf-field-group-options {
     display: none !important;
   }
-  // hide field setting 'layout' for repeaters and groups
+}
+.is-edit-acf-frontend-form {
+  // hide built-in field settings for some fields
   .acf-field-object-group .acf-field-setting-layout,
-  .acf-field-object-repeater .acf-field-setting-layout {
+  .acf-field-object-repeater .acf-field-setting-layout,
+  .acf-field-object-textarea .acf-field-setting-rows,
+  // .acf-field-object-true_false .acf-field-setting-message,
+  .acf-field-setting-ui {
     display: none !important;
   }
-}
-// hide default field settings for field "form-review"
-.acf-field-object-form-review {
-  tr[data-name="name"], 
-  tr[data-name="instructions"], 
-  tr[data-name="required"],
-  tr[data-name="conditional_logic"],
-  tr[data-name="wrapper"] {
-    display: none !important;
+  // hide text editor buttons
+  .acf-field .ed_button:not([value="link"]) {
+    display: none;
+  }
+  // hide setting 'message' if we have a setting 'rich_text_message'
+  .acf-field-setting-rich_text_message + .acf-field-setting-message {
+    display: none;
+  }
+  // hide default field settings for field "form-review"
+  .acf-field-object-form-review {
+    .acf-field-setting-name, 
+    .acf-field-setting-instructions, 
+    .acf-field-setting-required,
+    .acf-field-setting-conditional_logic,
+    .acf-field-setting-wrapper {
+      display: none !important;
+    }
   }
 }

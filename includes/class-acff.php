@@ -38,6 +38,7 @@ class ACFF {
     add_action('acf/submit_form', [$this, 'on_submit_form'], 10, 2 );
 
     add_action('acf/include_field_types', [$this, 'include_field_types']);
+    add_action('acf/render_field_settings', [$this, 'render_field_settings'], 11 );
 
     add_filter('acf/prepare_field', [$this, 'prepare_field']);
 
@@ -219,7 +220,19 @@ class ACFF {
 
   }
 
+
+  /**
+   * Validate values of a text field
+   *
+   * @param [type] $valid
+   * @param [type] $value
+   * @param [type] $field
+   * @return void
+   */
   function validate_value( $valid, $value, $field ) {
+    if( is_admin() ) {
+      return $valid;
+    }
     if( !$field['required'] || $valid ) {
       return $valid;
     }
@@ -270,21 +283,35 @@ class ACFF {
       ),
     ));
 
-    // It seems to not be possible to add field groups to acf-field-groups
-    // acf_add_local_field_group(array (
-    //   'key' => "group_acff_settings",
-    //   'title' => 'ACFF',
-    //   'location' => array (
-    //     array (
-    //       array (
-    //         'param' => 'post_type',
-    //         'operator' => '==',
-    //         'value' => 'acf-field-group',
-    //       ),
-    //     ),
-    //   ),
-    // ));
+  }
 
+
+  /**
+   * Checks if a post is an ACF field group for submissions
+   *
+   * @param [type] $post
+   * @return boolean
+   */
+  public function is_frontend_form( $post_id = 0 ) {
+    $field_group = acf_get_field_group( $post_id );
+    $is_frontend_form = $field_group['acff_is_frontend_form'] ?? false;
+    return $is_frontend_form;
+  }
+
+  /**
+   * Checks if a field is part of a frontend form
+   *
+   * @param [type] $field
+   * @return boolean
+   */
+  private function is_frontend_form_field( $field ) {
+    $ancestors = get_post_ancestors($field['ID']);
+    $root = count($ancestors)-1;
+    $field_group_id = $ancestors[$root] ?? false;
+    if( !$field_group_id ) {
+      return false;
+    }
+    return $this->is_frontend_form( $field_group_id );
   }
 
   /**
@@ -294,19 +321,19 @@ class ACFF {
    * @return void
    */
   public function prepare_field( $field ) {
-    $ancestors = get_post_ancestors($field['ID']);
-    $root = count($ancestors)-1;
-    $field_group_id = $ancestors[$root] ?? false;
-    if( !$field_group_id ) {
-      return $field;
-    }
-    $field_group = acf_get_field_group( $field_group_id );
-    $is_frontend_form = $field_group['acff_is_frontend_form'] ?? false;
-    if( !$is_frontend_form ) {
+    if( !$this->is_frontend_form_field($field) ) {
       return $field;
     }
     if( in_array($field['type'], ['repeater', 'group']) ) {
       $field['layout'] = 'block';
+    }
+    if( in_array($field['type'], ['textarea']) ) {
+      $field['rows'] = '2';
+    }
+    if( in_array( $field['type'], ['true_false'] ) ) {
+      if( $rich_text_message = $field['rich_text_message'] ?? false ) {
+        $field['message'] = strip_tags( apply_filters('the_content', $rich_text_message), '<a>' );
+      }
     }
     if( !empty($field['value']) ) {
       $field['wrapper']['class'] .= ' has-value';
@@ -314,6 +341,26 @@ class ACFF {
     return $field;
   }
 
+  /**
+   * Renders additional field settings
+   *
+   * @return void
+   */
+  public function render_field_settings( $field ) {
+    switch( $field['type'] ) {
+     case 'true_false':
+        acf_render_field_setting($field, array(
+          'label'			=> __('Message','acf'),
+          'instructions'	=> "Displays text alongside the checkbox",
+          'type'			=> 'wysiwyg',
+          'name'			=> 'rich_text_message',
+          'class'			=> 'field-rich-text-message',
+          'tabs'			=> 'text',
+          'media_upload' 	=> 0,
+        ), true);
+        break;
+    }
+  }
   
   /**
    * Include 'Frontend Forrm' Field Type
