@@ -179,7 +179,6 @@ class ACFF {
   function on_submit_form( $form, $post_id ) {
     $success = apply_filters("rh/acf_form_success", true, $post_id );
     $success = apply_filters("rh/acf_form_success/id={$form['id']}", true, $post_id );
-    
     $this->send_ajax_submit_response( $form, $success );
   }
   /**
@@ -196,9 +195,12 @@ class ACFF {
     $error_message = apply_filters("rh/acf_form_error_message/id={$form['id']}", $error_message );
 
     if( $success ) {
-      wp_send_json_success( array('message' => $form['updated_message']) );
+      wp_send_json_success([
+        'message' => $form['updated_message'],
+        'redirect' => $form['return'] ?? ''
+      ]);
     } else {
-      wp_send_json_error( array( 'message' => $error_message ) );
+      wp_send_json_error(['message' => $error_message]);
     }
   }
 
