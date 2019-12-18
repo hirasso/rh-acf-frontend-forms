@@ -233,7 +233,7 @@ class ACFF {
    * @return void
    */
   function validate_value( $valid, $value, $field ) {
-    if( is_admin() ) {
+    if( !$this->is_frontend_form_field($field) ) {
       return $valid;
     }
     if( !$field['required'] || $valid ) {
