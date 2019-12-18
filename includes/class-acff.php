@@ -318,13 +318,13 @@ class ACFF {
   }
 
   /**
-   * Adds 'has-value' to wrapper, if field has a value
+   * Prepare fields for frontend forms
    *
    * @param [type] $field
    * @return void
    */
   public function prepare_field( $field ) {
-    if( !$this->is_frontend_form_field($field) ) {
+    if( is_admin() && !$this->is_frontend_form_field($field) ) {
       return $field;
     }
     if( in_array($field['type'], ['repeater', 'group']) ) {
