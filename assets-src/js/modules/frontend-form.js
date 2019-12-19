@@ -94,6 +94,7 @@ export default class ACFFrontendForm {
       contentType: false
     }).done(response => {
       this.handleAjaxResponse( response );
+      this.options.onSuccess( response );
     });
   }
 
@@ -223,7 +224,8 @@ ACFFrontendForm.DEFAULTS = {
   ajaxSubmit: true,
   waitAfterSubmit: 1000,
   resetAfterSubmit: true,
-  submitOnChange: false
+  submitOnChange: false,
+  onSuccess: () => {}
 };
 
 /**
