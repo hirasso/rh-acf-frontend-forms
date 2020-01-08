@@ -341,7 +341,7 @@ class ACFF {
         $field['message'] = strip_tags( apply_filters('the_content', $rich_text_message), '<a>' );
       }
     }
-    if( !empty($field['value']) ) {
+    if( !in_array($field['type'], ['repeater', 'group', 'flexible_content']) && !empty($field['value']) ) {
       $field['wrapper']['class'] .= ' has-value';
     }
     return $field;
