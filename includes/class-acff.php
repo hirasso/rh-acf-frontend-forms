@@ -346,6 +346,7 @@ class ACFF {
           break;
       }
       $field['message'] = $message;
+      $field['wrapper']['class'] .= ' has-message';  
     }
     
     if( !in_array($field['type'], ['repeater', 'group', 'flexible_content']) && !empty($field['value']) ) {
