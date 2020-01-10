@@ -336,11 +336,18 @@ class ACFF {
     if( in_array($field['type'], ['file']) ) {
       $field['return_format'] = 'id';
     }
-    if( in_array( $field['type'], ['true_false', 'message'] ) ) {
-      if( $rich_text_message = $field['rich_text_message'] ?? false ) {
-        $field['message'] = strip_tags( apply_filters('the_content', $rich_text_message), '<a>' );
+    
+    
+    if( $message = $field['rich_text_message'] ?? false ) {
+      $message = apply_filters('the_content', $message);
+      switch( $field['type'] ) {
+        case 'true_false':
+          $message = strip_tags($message, '<a>');
+          break;
       }
+      $field['message'] = $message;
     }
+    
     if( !in_array($field['type'], ['repeater', 'group', 'flexible_content']) && !empty($field['value']) ) {
       $field['wrapper']['class'] .= ' has-value';
     }
