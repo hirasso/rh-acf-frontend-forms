@@ -386,6 +386,15 @@ class ACFF {
           'media_upload' 	=> 0,
         ), true);
         break;
+      case 'message':
+        acf_render_field_setting($field, array(
+          'label'			=> __('Message','acf'),
+          'type'			=> 'wysiwyg',
+          'name'			=> 'rich_text_message',
+          'class'			=> 'field-rich-text-message',
+          'media_upload' 	=> 0,
+        ), true);
+        break;
     }
   }
 
