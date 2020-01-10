@@ -336,7 +336,7 @@ class ACFF {
     if( in_array($field['type'], ['file']) ) {
       $field['return_format'] = 'id';
     }
-    if( in_array( $field['type'], ['true_false'] ) ) {
+    if( in_array( $field['type'], ['true_false', 'message'] ) ) {
       if( $rich_text_message = $field['rich_text_message'] ?? false ) {
         $field['message'] = strip_tags( apply_filters('the_content', $rich_text_message), '<a>' );
       }
