@@ -349,7 +349,7 @@ class ACFF {
       $field['wrapper']['class'] .= ' has-message';  
     }
     
-    if( !in_array($field['type'], ['repeater', 'group', 'flexible_content']) && !empty($field['value']) ) {
+    if( !in_array($field['type'], ['repeater', 'group', 'flexible_content', 'file', 'image']) && !empty($field['value']) ) {
       $field['wrapper']['class'] .= ' has-value';
     }
     return $field;
