@@ -32,7 +32,8 @@ class ACFF {
     add_action('admin_enqueue_scripts', [$this, 'admin_styles'], 999);
     add_filter('acf/prepare_field/type=image', [$this, 'prepare_image_field'] );
     add_filter('acf/validate_value', [$this, 'validate_value'], 9, 3 );
-    add_filter('acf/render_field/type=image', [$this, 'render_image_field'] );
+    add_filter('acf/render_field/type=image', [$this, 'render_upload_instructions'] );
+    add_filter('acf/render_field/type=file', [$this, 'render_upload_instructions'] );
     add_filter('acf/render_field/type=text', [$this, 'render_max_length_info'] );
     add_filter('acf/render_field/type=textarea', [$this, 'render_max_length_info'] );
     add_action('acf/submit_form', [$this, 'on_submit_form'], 10, 2 );
@@ -96,7 +97,7 @@ class ACFF {
    * @param  array $field
    * @return array $field
    */
-  function render_image_field( $field ) {
+  function render_upload_instructions( $field ) {
     if( is_admin() ) {
       return $field;
     }
@@ -236,20 +237,61 @@ class ACFF {
     if( !$this->is_frontend_form_field($field) ) {
       return $valid;
     }
-    if( !$field['required'] || $valid ) {
-      return $valid;
+
+    if( $field['required'] && empty($value) ) {
+      $valid = __('Please fill out this field');
+      switch( $field['type'] ) {
+        case 'radio':
+        $valid = __('Please select an option');
+        break;
+        case 'image':
+        $valid = __('Please add an image');
+        break;
+        case 'file':
+        $valid = __('Please add a file');
+        break;
+      }  
     }
-    $message = __('Please fill out this field');
-    switch( $field['type'] ) {
-      case 'radio':
-      $message = __('Please select an option');
-      break;
-      case 'image':
-      $message = __('Please add an image');
-      break;
-    }
-    $message = apply_filters('rh/acf_error_message', $message);
     
+    $valid = apply_filters('rh/acf_error_message', $valid);
+    
+    return $valid;
+  }
+
+  /**
+   * Validate upload size
+   *
+   * @param [type] $field
+   * @param [type] $default_message
+   * @return string
+   */
+  private function validate_upload($field, $message) {
+    if( !isset($_FILES['acf']) ) {
+      return $message;
+    }
+    $file = [
+      'size' => $_FILES['acf']['size'][$field['key']]
+    ];
+    // file size
+    if( $file['size'] ) {
+
+      $min_size = acf_maybe_get($field, 'min_size', 0);
+      $max_size = acf_maybe_get($field, 'max_size', 0);
+
+      if( $min_size && $file['size'] < acf_get_filesize($min_size) ) {
+
+        // min width
+        $message = sprintf(__('File size must be at least %s.', 'acf'), acf_format_filesize($min_size) );
+
+      } elseif( $max_size && $file['size'] > acf_get_filesize($max_size) ) {
+
+        // min width
+        $message = sprintf(__('File size must must not exceed %s.', 'acf'), acf_format_filesize($max_size) );
+
+      }
+  
+    }
+
     return $message;
   }
 

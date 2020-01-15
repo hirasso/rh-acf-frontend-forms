@@ -3,28 +3,23 @@ global.jQuery = $ = window.jQuery;
 
 import feather from 'feather-icons';
 
-export default class ImageDrop {
+export default class FileInput {
   
   constructor( acfField ) {
     // vars
     this.acfField = acfField;
-
     this.$el = acfField.$el;
-    
+
     this.$input = this.$el.find('input[type="file"]');
-    this.$imagePreview = this.$el.find('.image-wrap');
-    this.$image = this.$imagePreview.find('img');
     this.$clear = this.$el.find('[data-name="remove"]');
     this.$clear.html(feather.icons['x-circle'].toSvg());
     
-    this.$imageUploader = this.$el.find('.acf-image-uploader');
+    this.$uploader = this.$el.find('.acf-file-uploader');
     this.$instructions = this.$el.find('.instructions');
-    this.$instructions.appendTo( this.$imageUploader );
+    this.$instructions.appendTo( this.$uploader );
     this.dataSettings = this.$instructions.data('settings');
 
-    this.$el.addClass('image-drop');
     this.setupEvents();
-    this.renderImage( this.$image.attr('src') );
     
   }
 
@@ -42,18 +37,18 @@ export default class ImageDrop {
       $.event.props.push('dataTransfer');
     }
 
-    this.$imageUploader.on('dragover', (e) => {
+    this.$uploader.on('dragover', (e) => {
       e.preventDefault();
-      this.$imageUploader.addClass('is-dragover');
+      this.$uploader.addClass('is-dragover');
     });
 
-    this.$imageUploader.on('dragleave', () => {
-      this.$imageUploader.removeClass('is-dragover');
+    this.$uploader.on('dragleave', () => {
+      this.$uploader.removeClass('is-dragover');
     });
 
-    this.$imageUploader.on('drop', (e) => {
+    this.$uploader.on('drop', (e) => {
       e.preventDefault();
-      this.$imageUploader.removeClass('is-dragover');
+      this.$uploader.removeClass('is-dragover');
       this.$input.get(0).files = e.dataTransfer.files;
       this.$input.trigger('change');
       // this.parseFile( e.dataTransfer.files[0] );
@@ -65,54 +60,22 @@ export default class ImageDrop {
       this.clear();
     })
 
-    this.currentImageSrc = this.$image.attr('src');
 
     this.lastInputVal = this.$input.val();
     this.$input.change( e => this.onInputChange( this.$input ) );
-  }
-  
-
-  renderImage( src ) {
-
-    if( typeof src === 'undefined' || !src.length ) {
-      return;
-    }
-
-    let img = new Image;
-    img.onload = () => {
-      let ratio = img.height / img.width;
-      if( ratio < 0.5 ) {
-        this.clear( [`The image can't be more than twice the width of it's height`] );
-        return;
-      } else if( ratio > 2 ) {
-        this.clear( [`The image can't be more than twice the height of it's width`] );
-        return;
-      }
-      let paddingBottom = Math.floor( ratio * 100 );
-      this.$imageUploader.css({
-        paddingBottom: `${paddingBottom}%`,
-      })
-
-      this.$image.attr('src', src);
-      this.$imageUploader.addClass('has-value');
-
-      $(document).trigger('rh/acf-form-resized');
-
-    }
-    img.src = src;
   }
 
   clear( errors = false ) {
     this.acfField.removeAttachment();
     this.$input.val('');
     this.lastInputVal = this.$input.val();
-    this.$imageUploader.css({ paddingBottom: '' });
     if( errors ) {
       this.acfField.showError( errors.join('<br>') );
     }
   }
 
   onInputChange( $input ) {
+  
     if( this.lastInputVal === $input.val() ) {
       return;
     }
@@ -129,11 +92,9 @@ export default class ImageDrop {
     reader.onload = (e) => {
       let errors = this.getErrors( file );
       if( !errors ) {
-        this.renderImage( e.target.result );
         this.acfField.removeError();
       } else {
         this.clear( errors );
-        this.renderImage( this.currentImageSrc );
       }
     }
     reader.readAsDataURL( file );

@@ -9,6 +9,7 @@ global.jQuery = $ = window.jQuery;
 import './modules/autofill';
 import ACFFrontendForm from './modules/frontend-form';
 import ImageDrop from './modules/image-drop';
+import FileInput from './modules/file-input';
 import MaxLength from './modules/maxlength';
 import autosize from 'autosize';
 
@@ -45,6 +46,10 @@ class App {
 
     acf.addAction('new_field/type=textarea', ( field ) => {
       this.initAutosize( field );
+    })
+
+    acf.addAction('new_field/type=file', field => {
+      new FileInput( field );
     })
 
     // functions
