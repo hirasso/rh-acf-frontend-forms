@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: RH ACF Frontend Forms
- * Version: 3.0.9
+ * Version: 3.1.0
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com

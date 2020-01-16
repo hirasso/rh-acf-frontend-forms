@@ -111,6 +111,7 @@ class ACFF {
 
     if( $mime_types ) {
       $mime_types = explode( ',', $mime_types );
+      $mime_types = array_map('trim', $mime_types);
       $glued_mime_types = $this->glue_last_two( $mime_types );
       $settings->restrictions['mime_types'] = array(
         'value' => $mime_types,
