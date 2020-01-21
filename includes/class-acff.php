@@ -443,6 +443,7 @@ class ACFF {
           'type'			=> 'wysiwyg',
           'name'			=> 'rich_text_message',
           'class'			=> 'field-rich-text-message',
+          'tabs'			=> 'text',
           'media_upload' 	=> 0,
         ), true);
         break;

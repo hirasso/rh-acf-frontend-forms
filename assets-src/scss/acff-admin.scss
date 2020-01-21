@@ -24,8 +24,15 @@
     display: none !important;
   }
   // hide text editor buttons
-  .acf-field .ed_button:not([value="link"]) {
+  .acf-field .ed_button {
     display: none;
+  }
+  .acf-field .ed_button[value="link"],
+  .acf-field .ed_button[value="ul"],
+  .acf-field .ed_button[value="li"],
+  .acf-field .ed_button[value="/li"],
+  .acf-field .ed_button[value="close tags"] {
+    display: inline-block;
   }
   // hide setting 'message' if we have a setting 'rich_text_message'
   .acf-field-setting-rich_text_message + .acf-field-setting-message {
