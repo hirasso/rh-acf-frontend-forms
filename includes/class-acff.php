@@ -351,6 +351,9 @@ class ACFF {
    * @return boolean
    */
   private function is_frontend_form_field( $field ) {
+    if( !$field ) {
+      return $field;
+    }
     $ancestors = get_post_ancestors($field['ID']);
     $root = count($ancestors)-1;
     $field_group_id = $ancestors[$root] ?? false;
