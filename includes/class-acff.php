@@ -58,7 +58,7 @@ class ACFF {
     wp_enqueue_script( 'rh-acff', asset_uri('assets/js/acff.js'), array('jquery'), null, true );
 
     // enqueue plugin styles
-    wp_enqueue_style( 'rh-acff', asset_uri('assets/css/acff.css'), array(), 'all');
+    wp_enqueue_style( 'rh-acff', asset_uri('assets/css/acff.css'), [], null, 'all');
 
     if( apply_filters('rh/acff/deregister-acf-styles', true ) ) {
       // Removes the default ACF styles

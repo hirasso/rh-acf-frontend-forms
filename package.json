@@ -5,6 +5,7 @@
   "description": "Build process for frontend assets",
   "main": "index.js",
   "scripts": {
+    "preinstall": "git config core.hooksPath .githooks",
     "mkdirs": "rm -rf \"assets/js\" | rm -rf \"assets/css\"; mkdir -p \"assets/js\" | mkdir -p \"assets/css\"",
     "browser-sync": "browser-sync start -f \"assets/js/*.js, assets/css/*.css, **/*.php, **/*.json, !node_modules/**\" --no-notify",
     "js": "globify --debug \"assets-src/js/*.js\" -t babelify -o assets/js",
@@ -35,15 +36,15 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "*",
     "babelify": "^8.0.0",
-    "browser-sync": "^2.24.6",
-    "globify": "^2.1.0",
-    "modernizr": "^3.5.0",
-    "node-sass": "^4.5.3",
+    "browser-sync": "^2.26.7",
+    "globify": "^2.3.9",
+    "modernizr": "^3.11.1",
+    "node-sass": "^4.14.1",
     "postcss-cli": "^4.1.0",
-    "uglifyjs-folder": "^1.1.0"
+    "uglifyjs-folder": "^1.5.4"
   },
   "dependencies": {
     "autosize": "^4.0.2",
-    "feather-icons": "^4.7.3"
+    "feather-icons": "^4.28.0"
   }
 }
