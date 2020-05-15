@@ -32,6 +32,8 @@ class ACFF {
     add_action('admin_enqueue_scripts', [$this, 'admin_styles'], 999);
     add_filter('acf/prepare_field/type=image', [$this, 'prepare_image_field'] );
     add_filter('acf/validate_value', [$this, 'validate_value'], 9, 3 );
+    add_filter('acf/update_value', [$this, 'update_value'], 10, 3);
+
     add_filter('acf/render_field/type=image', [$this, 'render_upload_instructions'] );
     add_filter('acf/render_field/type=file', [$this, 'render_upload_instructions'] );
     add_filter('acf/render_field/type=text', [$this, 'render_max_length_info'] );
@@ -239,6 +241,10 @@ class ACFF {
       return $valid;
     }
 
+    if( in_array($field['type'], ['text', 'textarea']) ) {
+      $valid = $this->validate_maxlength( $value, $field );
+    }
+
     if( $field['required'] && empty($value) ) {
       $valid = __('Please fill out this field');
       switch( $field['type'] ) {
@@ -257,6 +263,50 @@ class ACFF {
     $valid = apply_filters('rh/acf_error_message', $valid);
     
     return $valid;
+  }
+
+  /**
+   * Validate maxlength, convert &amp; to & before doing so
+   *
+   * @param [type] $value
+   * @param [type] $field
+   * @return void
+   */
+  public function validate_maxlength( $value, $field ) {
+
+    $value = wp_unslash($this->maybe_reconvert_ampersands($value));
+    // Check maxlength
+    if( $field['maxlength'] && mb_strlen($value) > $field['maxlength'] ) {
+      return sprintf( __('Value must not exceed %d characters', 'acf'), $field['maxlength'] );
+    }
+
+    return true;
+  }
+
+  /**
+   * Load a value
+   *
+   * @param [type] $value
+   * @param [type] $post_id
+   * @param [type] $field
+   * @return void
+   */
+  public function update_value( $value, $post_id, $field ) {
+    $value = $this->maybe_reconvert_ampersands($value);
+    return $value;
+  }
+
+  /**
+   * Re-convert "&amp;" to "&" in strings
+   * 
+   * previously converted by 
+   * @see wp_kses_normalize_entities 
+  **/
+  private function maybe_reconvert_ampersands( $value ) {
+    if( is_string( $value ) ) {
+      $value = str_replace( '&amp;', '&', $value );
+    }
+    return $value;
   }
 
   /**
