@@ -1,3 +1,7 @@
+## 3.2.2
+
+- Fix missing frontend forms menu item in some cases
+
 ## 3.2.0
 
 - Plugin Cleanup, fix loading of frontend forms in admin

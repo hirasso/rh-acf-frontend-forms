@@ -307,8 +307,9 @@ class ACFF_Permissions {
     if( $cap !== $this->get_frontend_forms_cap() || ACFF()->is_super_admin() ) {
       return $user_caps;
     }
-    
-    if( !ACFF()->is_frontend_form( $post ) ) {
+
+    // deny access to acf field groups that aren't frontend forms
+    if( get_post_type($post) === 'acf-field-group' && !ACFF()->is_frontend_form( $post ) ) {
       $user_caps[] = 'do_not_allow';
     }
     
