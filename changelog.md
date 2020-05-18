@@ -1,3 +1,7 @@
+## 3.2.0
+
+- Plugin Cleanup, fix loading of frontend forms in admin
+
 ## 3.1.5
 
 - fix maxlength problems with special chars

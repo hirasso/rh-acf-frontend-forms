@@ -54,20 +54,9 @@ class acf_field_frontend_form extends acf_field_select {
   }
 	
   function get_choices() {
-    $posts = get_posts([
-      'post_type' => 'acf-field-group',
-      'fields' => 'ids',
-      'meta_query' => [
-        [
-          'key' => '_acff_is_frontend_form',
-          'value' => '1',
-          // 'type' => 'NUMERIC'
-        ],
-      ],
-    ]);
     
     $choices = [];
-    foreach( $posts as $id ) {
+    foreach( R\ACFF()->get_frontend_forms_ids() as $id ) {
       $choices[$id] = get_the_title($id);
     }
     return $choices;

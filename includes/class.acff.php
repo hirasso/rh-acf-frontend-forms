@@ -1,17 +1,14 @@
 <?php 
 
-namespace ACFF;
+namespace R;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-class ACFF {
+class ACFF extends RHSingleton {
 
-  private $prefix;
+  private $prefix = 'rh_acff';
 
   function __construct() {
-
-    $this->prefix = get_prefix();
-
     // setup hooks
     $this->hooks();
     // always set acf validation to true, so that the form 
@@ -19,6 +16,16 @@ class ACFF {
     acf_localize_data( array( 'validation' => 1 ) );
     // register settings page
   }
+
+  /**
+   * Returns the prefix for the plugin.
+   *
+   * @return void
+   */
+  public function get_prefix() {
+    return $this->prefix;
+  }
+
   /**
    * Setup action and filter hooks
    */
@@ -37,6 +44,9 @@ class ACFF {
     add_filter( 'acf/validate_value/type=textarea', [$this, 'fix_acf_length_validation'], 20, 4 );
 
     add_filter('acf/update_value', [$this, 'update_value'], 10, 3);
+
+    add_filter('pre_get_posts', [$this, 'query_frontend_forms_only'], 999);
+    add_filter('views_edit-acf-field-group', [$this, 'field_group_edit_views'], 20, 1);
 
     add_filter('acf/render_field/type=image', [$this, 'render_upload_instructions'] );
     add_filter('acf/render_field/type=file', [$this, 'render_upload_instructions'] );
@@ -61,10 +71,10 @@ class ACFF {
   function frontend_assets() {
 
     // enqueue plugin script
-    wp_enqueue_script( 'rh-acff', asset_uri('assets/js/acff.js'), array('jquery'), null, true );
+    wp_enqueue_script( 'rh-acff', $this->asset_uri('assets/js/acff.js'), array('jquery'), null, true );
 
     // enqueue plugin styles
-    wp_enqueue_style( 'rh-acff', asset_uri('assets/css/acff.css'), [], null, 'all');
+    wp_enqueue_style( 'rh-acff', $this->asset_uri('assets/css/acff.css'), [], null, 'all');
 
     if( apply_filters('rh/acff/deregister-acf-styles', true ) ) {
       // Removes the default ACF styles
@@ -81,9 +91,35 @@ class ACFF {
    * @return void
    */
   public function admin_styles() {
-    wp_enqueue_style( "rh-acff-admin", asset_uri('assets/css/acff-admin.css') );
+    wp_enqueue_style( "rh-acff-admin", $this->asset_uri('assets/css/acff-admin.css') );
   }
 
+  /**
+   * Helper function to get versioned asset urls
+   *
+   * @param [type] $path
+   * @return void
+   */
+  function asset_uri( $path ) {
+    $uri = plugins_url( $path, ACFF_ROOT );
+    $file = $this->get_file_path( $path );
+    if( file_exists( $file ) ) {
+      $version = filemtime( $file );
+      $uri .= "?v=$version";
+    }
+    return $uri;
+  }
+
+  /**
+   * Gets the path of a file
+   *
+   * @return void
+   */
+  function get_file_path( $path ) {
+    $path = ltrim( $path, '/' );
+    $file = plugin_dir_path( ACFF_ROOT ) . $path;
+    return $file;
+  }
   
   /**
    * Prepares image fields
@@ -315,7 +351,7 @@ class ACFF {
   **/
   private function maybe_reconvert_ampersands( $value ) {
     if( is_string( $value ) ) {
-      $value = str_replace( '&amp;', '&', $value );
+      $value = wp_specialchars_decode( $value );
     }
     return $value;
   }
@@ -357,9 +393,27 @@ class ACFF {
     return $message;
   }
 
+  /**
+   * Returns settings page info
+   *
+   * @return void
+   */
+  public function get_settings_page_info() {
+    $id = "{$this->prefix}_settings";
+    return (object) [
+      'id' => $id,
+      'slug' => str_replace('_', '-', $id)
+    ];
+  }
+
+  /**
+   * Adds the ACFF Settings page
+   *
+   * @return void
+   */
   function add_settings_page() {
     
-    $settings_page = get_settings_page_info();
+    $settings_page = $this->get_settings_page_info();
 
     acf_add_options_page([
       'page_title'    => __('Frontend Forms Settings'),
@@ -513,8 +567,6 @@ class ACFF {
         break;
     }
   }
-
-  
   
   /**
    * Include 'Frontend Forrm' Field Type
@@ -525,4 +577,112 @@ class ACFF {
     acff_include("includes/fields/class-acf-field-frontend_form.php");
     acff_include("includes/fields/class-acf-field-form_review.php");
   }
+
+  /**
+   * Field group edit views
+   *
+   * @param [type] $views
+   * @return array
+   */
+  public function field_group_edit_views( $views ) {
+    $views = $this->add_edit_view_frontend_forms( $views );
+    if( !$this->is_super_admin() ) {
+      return [];
+    }
+    return $views;
+  }
+  
+  /**
+   * Checks if current user can access all ACF settings and fields
+   *
+   * @return boolean
+   */
+  public function is_super_admin() {
+    return current_user_can( 'administrator' );
+  }
+  
+  /**
+   * Adds Frontend Forms to field group edit views
+   *
+   * @param [type] $views
+   * @return array $views
+   */
+  private function add_edit_view_frontend_forms( $views ) {
+    $count = $this->count_frontend_forms();
+    $class = false;
+    if( $this->is_edit_view_frontend_forms() ) {
+      $class = ' class="current"';
+    }
+    if( !$count ) {
+      return $views;
+    }
+    $url = add_query_arg([
+      'meta_key' => 'is-frontend-form',
+      'meta_value' => '1'
+    ], admin_url('edit.php?post_type=acf-field-group'));
+    $views['frontend_forms'] = "<a $class href='$url'>Frontend Forms <span class='count'>($count)</span></a>";
+    return $views;
+  }
+
+  /**
+   * Counts ACF Frontend Forms
+   *
+   * @return int
+   */
+  private function count_frontend_forms() {
+    return count($this->get_frontend_forms());
+  }
+
+  /**
+   * Get all frontend forms
+   *
+   * @return array
+   */
+  public function get_frontend_forms() {
+    return array_filter(acf_get_field_groups(), function($field_group) {
+      return $field_group['acff_is_frontend_form'] ?? 0 === 1;
+    });
+  }
+
+  /**
+   * Get the ids of all frontend forms
+   *
+   * @return void
+   */
+  public function get_frontend_forms_ids() {
+    return array_column($this->get_frontend_forms(), 'ID');
+  }
+
+  /**
+   * Filter acf_field_groups for editors
+   *
+   * @param [WP_Query] $q
+   * @return $query
+   */
+  public function query_frontend_forms_only( $q ) {
+    if( !is_admin() || !$q->is_main_query() || $q->get('post_type') !== 'acf-field-group' ) {
+      return $q;
+    }
+
+    if( !$this->is_super_admin() || $this->is_edit_view_frontend_forms() ) {
+      $q->set('post__in', $this->get_frontend_forms_ids());
+    }
+    
+
+    return $q;
+  }
+
+  /**
+   * Detect meta query in edit.php
+   *
+   * @return boolean
+   */
+  private function is_edit_view_frontend_forms() {
+    global $pagenow, $post_type;
+    if( $pagenow !== 'edit.php' || $post_type !== 'acf-field-group' ) return false;
+    $meta_key = acf_maybe_get_GET('meta_key');
+    $meta_value = intval( acf_maybe_get_GET('meta_value', 0) );
+    return $meta_key === 'is-frontend-form' && $meta_value === 1;
+  }
+
 }

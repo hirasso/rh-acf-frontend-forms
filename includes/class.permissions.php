@@ -1,20 +1,18 @@
 <?php 
 
-namespace ACFF;
+namespace R;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-class Permissions {
+class ACFF_Permissions {
 
   private $prefix;
   private $hook_allowed_fields = 'rh/acff/allowed-fields';
 
-  public function __construct( $acff ) {
+  public function __construct() {
 
-    $this->acff = $acff;
-    $this->prefix = get_prefix();
+    $this->prefix = ACFF()->get_prefix();
     
-    add_filter('pre_get_posts', [$this, 'query_frontend_forms_only'], 999);
     add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
     add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin'] );
     add_filter('acf/get_field_types', [$this, 'restrict_field_types']);
@@ -30,9 +28,8 @@ class Permissions {
     // add_filter('user_has_cap', [$this, 'user_has_cap'], 10, 3);
     add_filter('map_meta_cap', [$this, 'map_meta_cap'], 10, 4 );
     add_filter('register_post_type_args', [$this, 'register_post_type_args'], 999, 2);
-    add_filter('views_edit-acf-field-group', [$this, 'field_group_edit_views'], 20, 1);
+    
     add_filter('bulk_actions-edit-acf-field-group', [$this, 'restrict_bulk_actions'], 20, 1);
-    add_action('acf/update_field_group', [$this, 'update_field_group'], 10);
     add_action('acf/init', [$this, 'add_settings_page_fields']);
 
     add_action("acf/prepare_field/name={$this->prefix}_allowed_fields", [$this, 'prepare_field_allowed_fields']);
@@ -54,10 +51,10 @@ class Permissions {
     if( $pagenow !== 'post.php' || $screen->id !== 'acf-field-group' ) {
       return $class;
     }
-    if( $this->acff->is_frontend_form( acf_maybe_get_GET('post') ) ) {
+    if( ACFF()->is_frontend_form( acf_maybe_get_GET('post') ) ) {
       $class .= ' is-edit-acf-frontend-form';
     }
-    if( $this->is_acf_super_admin() ) {
+    if( ACFF()->is_super_admin() ) {
       $class .= ' is-acf-super-admin';
     } else {
       $class .= ' is-not-acf-super-admin';
@@ -82,7 +79,7 @@ class Permissions {
    * @return void
    */
   public function add_settings_page_fields() {
-    $settings_page = get_settings_page_info();
+    $settings_page = ACFF()->get_settings_page_info();
 
     acf_add_local_field(array(
       'key' => "field_{$this->prefix}_allowed_fields",
@@ -202,15 +199,6 @@ class Permissions {
   }
 
   /**
-   * Checks if current user can access all ACF settings and fields
-   *
-   * @return boolean
-   */
-  private function is_acf_super_admin() {
-    return current_user_can( 'administrator' );
-  }
-
-  /**
    * Restricts field types for non-admins
    *
    * @param [array] $groups
@@ -218,7 +206,7 @@ class Permissions {
    */
   public function restrict_field_types( $groups ) {
 
-    if( !$this->acff->is_frontend_form( acf_maybe_get_GET( 'post') ) ) {
+    if( !ACFF()->is_frontend_form( acf_maybe_get_GET( 'post') ) ) {
       return $groups;
     }
     $allowed = $this->get_allowed_frontend_fields();
@@ -253,7 +241,7 @@ class Permissions {
    * @return $setting
    */
   public function acf_setting_show_admin( $setting ) {
-    if( !$this->is_acf_super_admin() ) {
+    if( !ACFF()->is_super_admin() ) {
       return false;
     }
     return $setting;
@@ -281,57 +269,7 @@ class Permissions {
     }
   }
 
-  /**
-   * Field group edit views
-   *
-   * @param [type] $views
-   * @return array
-   */
-  public function field_group_edit_views( $views ) {
-    $views = $this->add_edit_view_frontend_forms( $views );
-    if( !$this->is_acf_super_admin() ) {
-      return [];
-    }
-    return $views;
-  }
-
-  /**
-   * Adds Frontend Forms to field group edit views
-   *
-   * @param [type] $views
-   * @return array $views
-   */
-  private function add_edit_view_frontend_forms( $views ) {
-    $count = $this->count_frontend_forms();
-    $class = false;
-    if( $this->is_edit_view_frontend_forms() ) {
-      $class = ' class="current"';
-    }
-    if( !$count ) {
-      return $views;
-    }
-    $url = add_query_arg([
-      'meta_key' => 'is-frontend-form',
-      'meta_value' => '1'
-    ], admin_url('edit.php?post_type=acf-field-group'));
-    $views['frontend_forms'] = "<a $class href='$url'>Frontend Forms <span class='count'>($count)</span></a>";
-    return $views;
-  }
-
-  /**
-   * Counts ACF Frontend Forms
-   *
-   * @return int
-   */
-  private function count_frontend_forms() {
-    $posts = get_posts([
-      'post_type' => 'acf-field-group',
-      'fields' => 'ids',
-      'meta_key' => '_acff_is_frontend_form',
-      'meta_value' => '1'
-    ]);
-    return count( $posts );
-  }
+  
 
   /**
    * Removes acf field group edit bulk actions for non-admins
@@ -340,7 +278,7 @@ class Permissions {
    * @return array
    */
   public function restrict_bulk_actions( $actions ) {
-    if( !$this->is_acf_super_admin() ) {
+    if( !ACFF()->is_super_admin() ) {
       return [];
     }
     return $actions;
@@ -366,11 +304,11 @@ class Permissions {
       return $user_caps;
     }
     
-    if( $cap !== $this->get_frontend_forms_cap() || $this->is_acf_super_admin() ) {
+    if( $cap !== $this->get_frontend_forms_cap() || ACFF()->is_super_admin() ) {
       return $user_caps;
     }
     
-    if( !$this->acff->is_frontend_form( $post ) ) {
+    if( !ACFF()->is_frontend_form( $post ) ) {
       $user_caps[] = 'do_not_allow';
     }
     
@@ -385,7 +323,7 @@ class Permissions {
    * @return array $args
    */
   public function register_post_type_args( $args, $pt ) {
-    if( $pt !== 'acf-field-group' || $this->is_acf_super_admin() ) {
+    if( $pt !== 'acf-field-group' || ACFF()->is_super_admin() ) {
       return $args;
     }
     foreach( $args['labels'] as $key => $label ) {
@@ -421,7 +359,7 @@ class Permissions {
   public function remove_acf_submenu_pages() {
     $slug = 'edit.php?post_type=acf-field-group';
     $cap = acf_get_setting('capability');
-    if( $this->is_acf_super_admin() ) {
+    if( ACFF()->is_super_admin() ) {
       return;
     }
     // remove the default menu item
@@ -431,7 +369,7 @@ class Permissions {
   }
 
   public function row_actions( $actions, $post ) {
-    if( $this->is_acf_super_admin() || $post->post_type !== 'acf-field-group' ) {
+    if( ACFF()->is_super_admin() || $post->post_type !== 'acf-field-group' ) {
       return $actions;
     }
     foreach( $actions as $key => $value ) {
@@ -459,7 +397,7 @@ class Permissions {
    * @return void
    */
   private function die_if_not_admin( $message ) {
-    if( $this->is_acf_super_admin() ) {
+    if( ACFF()->is_super_admin() ) {
       return;
     }
     $args = [
@@ -473,20 +411,6 @@ class Permissions {
     );
   }
 
-
-  /**
-   * Save field group setting as post meta
-   *
-   * @param [type] $post_id
-   * @return void
-   */
-  public function update_field_group( $field_group ) {
-    $is_frontend_form = $this->acff->is_frontend_form( $field_group['ID'] );
-    if( $this->is_acf_super_admin() ) {
-      update_post_meta($field_group['ID'], '_acff_is_frontend_form', $is_frontend_form);
-    }
-  }
-
   /**
    * Hide field group settings for non-administrators
    *
@@ -494,7 +418,7 @@ class Permissions {
    */
   public function remove_meta_boxes() {
     
-    if( !$this->is_acf_super_admin() ) {
+    if( !ACFF()->is_super_admin() ) {
       // remove_meta_box('acf-field-group-locations', 'acf-field-group', 'normal');
       // remove_meta_box('acf-field-group-options', 'acf-field-group', 'normal');
     }
@@ -508,7 +432,7 @@ class Permissions {
    * @return void
    */
   public function render_field_group_settings( $field_group ) {
-    // if( !$this->is_acf_super_admin() ) {
+    // if( !ACFF()->is_super_admin() ) {
     //   return;
     // }
     
@@ -552,45 +476,9 @@ class Permissions {
     return $choices;
   }
 
-  /**
-   * Detect meta query in edit.php
-   *
-   * @return boolean
-   */
-  private function is_edit_view_frontend_forms() {
-    $meta_key = acf_maybe_get_GET('meta_key');
-    $meta_value = intval( acf_maybe_get_GET('meta_value', 0) );
-    $is_frontend_form_query = $meta_key === 'is-frontend-form' && $meta_value === 1;
-    return $is_frontend_form_query;
-  }
+  
 
-  /**
-   * Filter acf_field_groups for editors
-   *
-   * @param [WP_Query] $q
-   * @return $query
-   */
-  public function query_frontend_forms_only( $q ) {
-    if( !is_admin() || !$q->is_main_query() || $q->get('post_type') !== 'acf-field-group' ) {
-      return $q;
-    }
-    
-    if( $this->is_acf_super_admin() && !$this->is_edit_view_frontend_forms() ) {
-      return $q;
-    }
-    
-    $meta_query = $q->get('meta_query');
-    $meta_query = [
-      [
-        'key' => '_acff_is_frontend_form',
-        'value' => '1',
-        // 'type' => 'NUMERIC'
-      ]
-    ];
-    $q->set('meta_query', $meta_query);
-    
-    return $q;
-  }
+  
 
   /**
    * Don't save frontend form field groups 

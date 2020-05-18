@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: RH ACF Frontend Forms
- * Version: 3.1.5
+ * Version: 3.2.0
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
 **/
 
-namespace ACFF;
+namespace R;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -26,22 +26,6 @@ add_action('plugins_loaded', function() {
   }
 });
 
-
-/**
- * acf_get_path
- *
- * Returns the plugin path to a specified file.
- *
- * @date	28/9/13
- * @since	5.0.0
- *
- * @param	string $filename The specified file.
- * @return	string
- */
-function get_path( $filename = '' ) {
-	return plugin_dir_path( __FILE__ ) . ltrim($filename, '/');
-}
-
 /*
  * acff_include
  *
@@ -54,68 +38,28 @@ function get_path( $filename = '' ) {
  * @return	void
  */
 function acff_include( $filename = '', $debug = false ) {
-	$file_path = get_path($filename);
+	$file_path = plugin_dir_path( __FILE__ ) . ltrim($filename, '/');
 	if( file_exists($file_path) ) {
     if( $debug ) pre_dump( $file_path );
 		include_once($file_path);
 	}
 }
 
-/**
- * Returns the prefix for the plugin.
- *
- * @return void
- */
-function get_prefix() {
-  return 'rh_acff';
-}
-
-/**
- * Helper function to get versioned asset urls
- *
- * @param [type] $path
- * @return void
- */
-function asset_uri( $path ) {
-  $uri = plugins_url( $path, __FILE__ );
-  $file = plugin_dir_path( __FILE__ ) . $path;
-  if( file_exists( $file ) ) {
-    $version = filemtime( $file );
-    $uri .= "?v=$version";
-  }
-  return $uri;
-}
-
-/**
- * Checks if we are in a development environment
- *
- * @return boolean
- */
-function is_dev() {
-  return defined('WP_ENV') && WP_ENV === 'development';
-}
-
-/**
- * Returns settings page info
- *
- * @return void
- */
-function get_settings_page_info() {
-  $prefix = get_prefix();
-  $id = "{$prefix}_settings";
-  return (object) [
-    'id' => $id,
-    'slug' => str_replace('_', '-', $id)
-  ];
-}
-
 foreach([
-  'class-acff',
-  'class-permissions',
+  'class.singleton',
+  'class.acff',
+  'class.permissions',
 ] as $filename) {
   acff_include("includes/$filename.php");
 }
 
+define('ACFF_ROOT', __FILE__ );
 
-$acff = new ACFF();
-new Permissions( $acff );
+/**
+ * Instanciate
+ */
+function ACFF() {
+  return ACFF::getInstance();
+}
+ACFF();
+new ACFF_Permissions();
