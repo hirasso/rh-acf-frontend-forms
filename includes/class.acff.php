@@ -63,6 +63,8 @@ class ACFF extends RHSingleton {
     // add the settings page
     add_action('acf/init', [$this, 'add_settings_page']);
 
+    add_filter('acf/location/rule_match/post_type', [$this, 'frontend_form_rule_match'], 10, 4);
+
   }
 
   /**
@@ -420,7 +422,6 @@ class ACFF extends RHSingleton {
       'menu_title'    => __('ACFF Admin'),
       'menu_slug'     => $settings_page->slug,
       'capability'    => 'manage_options',
-      'redirect'      => false,
       'post_id'       => $settings_page->id,
       'parent_slug'   => 'edit.php?post_type=acf-field-group',
     ]);
@@ -457,6 +458,20 @@ class ACFF extends RHSingleton {
     $field_group = acf_get_field_group( $post_id );
     $is_frontend_form = $field_group['acff_is_frontend_form'] ?? false;
     return $is_frontend_form;
+  }
+
+
+  /**
+   * Checks if a field group is a frontend form for a certain post type
+   *
+   * @param [type] $field_group_id
+   * @param [type] $post_type
+   * @return boolean
+   */
+  private function is_frontend_form_for_post_type( $field_group, $post_type ) {
+    $is_frontend_form = (bool) ($field_group['acff_is_frontend_form'] ?? 0);
+    $for_post_type = $field_group['acff_for_post_type'] ?? '';
+    return $is_frontend_form && $for_post_type === $post_type;
   }
 
   /**
@@ -668,7 +683,6 @@ class ACFF extends RHSingleton {
       $q->set('post__in', $this->get_frontend_forms_ids());
     }
     
-
     return $q;
   }
 
@@ -683,6 +697,23 @@ class ACFF extends RHSingleton {
     $meta_key = acf_maybe_get_GET('meta_key');
     $meta_value = intval( acf_maybe_get_GET('meta_value', 0) );
     return $meta_key === 'is-frontend-form' && $meta_value === 1;
+  }
+
+  /**
+   * Rule match for frontend forms
+   *
+   * @param [type] $match
+   * @param [type] $rule
+   * @param [type] $options
+   * @param [type] $field_group
+   * @return boolean
+   */
+  public function frontend_form_rule_match( $match, $rule, $options, $field_group ) {
+    global $post_type;
+
+    if( $this->is_frontend_form_for_post_type($field_group, $post_type) ) return true;
+
+    return $match;
   }
 
 }

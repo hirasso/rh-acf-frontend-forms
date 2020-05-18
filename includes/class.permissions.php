@@ -475,9 +475,6 @@ class ACFF_Permissions {
     }
     return $choices;
   }
-
-  
-
   
 
   /**
