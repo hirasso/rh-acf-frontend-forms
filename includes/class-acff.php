@@ -32,6 +32,10 @@ class ACFF {
     add_action('admin_enqueue_scripts', [$this, 'admin_styles'], 999);
     add_filter('acf/prepare_field/type=image', [$this, 'prepare_image_field'] );
     add_filter('acf/validate_value', [$this, 'validate_value'], 9, 3 );
+    
+    add_filter( 'acf/validate_value/type=text', [$this, 'fix_acf_length_validation'], 20, 4 ); // Text and Textarea both support maxlength, as of ACF 5.8.11
+    add_filter( 'acf/validate_value/type=textarea', [$this, 'fix_acf_length_validation'], 20, 4 );
+
     add_filter('acf/update_value', [$this, 'update_value'], 10, 3);
 
     add_filter('acf/render_field/type=image', [$this, 'render_upload_instructions'] );
@@ -241,10 +245,6 @@ class ACFF {
       return $valid;
     }
 
-    if( in_array($field['type'], ['text', 'textarea']) ) {
-      $valid = $this->validate_maxlength( $value, $field );
-    }
-
     if( $field['required'] && empty($value) ) {
       $valid = __('Please fill out this field');
       switch( $field['type'] ) {
@@ -266,22 +266,33 @@ class ACFF {
   }
 
   /**
-   * Validate maxlength, convert &amp; to & before doing so
+   * Correct max length validation failures caused by html entities like & and < for text inputs.
+   * 
+   * @url reference https://support.advancedcustomfields.com/forums/topic/escaping-in-text-fields/
+   * 
+   * @param string|true $valid
+   * @param string $value
+   * @param array $field
+   * @param string $input_name
    *
-   * @param [type] $value
-   * @param [type] $field
-   * @return void
+   * @return string|true
    */
-  public function validate_maxlength( $value, $field ) {
+  function fix_acf_length_validation( $valid, $value, $field, $input_name ) {
+    if ( is_string($valid) && strpos($valid, 'Value must not exceed') === 0 ) {
+      if ( !isset($field['maxlength']) ) return $valid; // maxlength should  be present here
 
-    $value = wp_unslash($this->maybe_reconvert_ampersands($value));
-    // Check maxlength
-    if( $field['maxlength'] && mb_strlen($value) > $field['maxlength'] ) {
-      return sprintf( __('Value must not exceed %d characters', 'acf'), $field['maxlength'] );
+      // decode html entities (& -> &). particularly: &, <, >, ", '
+      $decoded_value = wp_specialchars_decode( $value );
+
+      // get new string length
+      $decoded_length = mb_strlen(wp_unslash( $decoded_value ));
+
+      // if the decoded string length fits within the max length, override the validtion.
+      if ( $decoded_length <= $field['maxlength'] ) $valid = true;
     }
-
-    return true;
+    return $valid;
   }
+  
 
   /**
    * Load a value
