@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: RH ACF Frontend Forms
- * Version: 3.2.2
+ * Version: 3.2.3
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
@@ -61,5 +61,7 @@ define('ACFF_ROOT', __FILE__ );
 function ACFF() {
   return ACFF::getInstance();
 }
-ACFF();
-new ACFF_Permissions();
+if( defined('ACF') ) {
+  ACFF();
+  new ACFF_Permissions();
+}
