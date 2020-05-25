@@ -1,6 +1,6 @@
 <?php 
 
-namespace R;
+namespace RH\ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -486,15 +486,14 @@ class ACFF_Permissions {
    */
   function acf_save_json( $path ) {
     
-    $field_group = acf_maybe_get_POST( 'acf_field_group' );
-    if( !$field_group ) {
-      return $path;
-    }
+    $field_group = (array) acf_maybe_get_POST( 'acf_field_group' );
+    // bail early if no field group in $_POST
+    if( empty($field_group) ) return $path;
+
     // Bail early if this is no frontend form
-    $is_frontend_form = acf_maybe_get( $field_group, 'acff_is_frontend_form' );
-    if( !$is_frontend_form ) {
-      return $path;
-    }
+    $is_frontend_form = (bool) acf_maybe_get( $field_group, 'acff_is_frontend_form' );
+    if( !$is_frontend_form ) return $path;
+    
     // delete previously saved frontend form json
     $key = acf_maybe_get( $field_group, 'key' );
     if( $key ) {

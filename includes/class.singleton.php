@@ -1,17 +1,17 @@
 <?php 
 
-namespace R;
+namespace RH\ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if( !class_exists('\R\RHSingleton') ) :
+if( !class_exists('\RH\ACFF\Singleton') ) :
 
 /**
  * Singleton Abstract
  * 
  * @url reference https://blog.cotten.io/how-to-screw-up-singletons-in-php-3e8c83b63189
  */
-abstract class RHSingleton {
+abstract class Singleton {
 
   private static $instances = array();
 

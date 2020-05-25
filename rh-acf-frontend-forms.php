@@ -1,15 +1,19 @@
 <?php
 /**
  * Plugin Name: RH ACF Frontend Forms
- * Version: 3.2.4
+ * Version: 3.2.5
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
 **/
 
-namespace R;
+namespace RH\ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+function ns($function) {
+  return __NAMESPACE__ . "\\$function";
+}
 
 global $rh_updater_notice_shown;
 add_action('plugins_loaded', function() {

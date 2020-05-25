@@ -1,10 +1,10 @@
 <?php 
 
-namespace R;
+namespace RH\ACFF;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-class ACFF extends RHSingleton {
+class ACFF extends Singleton {
 
   private $prefix = 'rh_acff';
 
@@ -53,7 +53,7 @@ class ACFF extends RHSingleton {
     add_filter('acf/render_field/type=text', [$this, 'render_max_length_info'] );
     add_filter('acf/render_field/type=textarea', [$this, 'render_max_length_info'] );
     add_action('acf/submit_form', [$this, 'on_submit_form'], 10, 2 );
-
+    
     add_action('acf/include_field_types', [$this, 'include_field_types']);
     add_action('acf/render_field_settings', [$this, 'render_field_settings'], 11 );
 
@@ -64,7 +64,6 @@ class ACFF extends RHSingleton {
     add_action('acf/init', [$this, 'add_settings_page']);
 
     add_filter('acf/location/rule_match/post_type', [$this, 'frontend_form_rule_match'], 10, 4);
-
     add_action('save_post',	[$this, 'save_post'], 9, 2);
 
   }
@@ -707,7 +706,7 @@ class ACFF extends RHSingleton {
    *
    * @return array
    */
-  private function get_frontend_forms_ids() {
+  public function get_frontend_forms_ids() {
     return array_column($this->get_frontend_forms(), 'ID');
   }
 
@@ -716,7 +715,7 @@ class ACFF extends RHSingleton {
    *
    * @return array
    */
-  private function get_admin_forms_ids() {
+  public function get_admin_forms_ids() {
     return array_column($this->get_admin_forms(), 'ID');
   }
 
@@ -805,6 +804,7 @@ class ACFF extends RHSingleton {
    * @return int $post_id
    */
   public function save_post( $post_id, $post ) {
+    
     if( $post->post_type === 'acf-field-group' ) {
       add_filter('acf/validate_field_group', [$this, 'validate_field_group_before_save'] );
     }

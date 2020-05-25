@@ -1,8 +1,8 @@
 <?php
 
-if( ! class_exists('acf_field_frontend_form') ) :
+namespace RH\ACFF;
 
-class acf_field_frontend_form extends acf_field_select {
+class acf_field_frontend_form extends \acf_field_select {
 	
 	
 	/*
@@ -56,7 +56,7 @@ class acf_field_frontend_form extends acf_field_select {
   function get_choices() {
     
     $choices = [];
-    foreach( R\ACFF()->get_frontend_forms_ids() as $id ) {
+    foreach( ACFF()->get_frontend_forms_ids() as $id ) {
       $choices[$id] = get_the_title($id);
     }
     return $choices;
@@ -71,8 +71,4 @@ class acf_field_frontend_form extends acf_field_select {
 
 
 // initialize
-acf_register_field_type( 'acf_field_frontend_form' );
-
-endif; // class_exists check
-
-?>
+acf_register_field_type( ns('acf_field_frontend_form') );
