@@ -501,9 +501,8 @@ class ACFF extends Singleton {
    * @return void
    */
   public function prepare_field( $field ) {
-    if( is_admin() && !$this->is_frontend_form_field($field) ) {
-      return $field;
-    }
+    if( !$field ) return $field;
+    if( is_admin() && !$this->is_frontend_form_field($field) ) return $field;
     if( in_array($field['type'], ['repeater', 'group']) ) {
       $field['layout'] = 'block';
     }
