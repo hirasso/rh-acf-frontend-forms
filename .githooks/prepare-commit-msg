@@ -3,5 +3,5 @@ COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 SHA1=$3
 MSG=$(<${COMMIT_MSG_FILE})
-PLUGIN_FILE=$(../rh-acf-frontend-forms.php)
+PLUGIN_FILE=$(./rh-acf-frontend-forms.php)
 echo "--------------${PLUGIN_FILE}"
