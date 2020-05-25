@@ -46,7 +46,7 @@ class ACFF extends RHSingleton {
     add_filter('acf/update_value', [$this, 'update_value'], 10, 3);
 
     add_filter('pre_get_posts', [$this, 'query_frontend_forms_only'], 999);
-    add_filter('views_edit-acf-field-group', [$this, 'field_group_edit_views'], 20, 1);
+    add_filter('views_edit-acf-field-group', [$this, 'list_table_views'], 20, 1);
 
     add_filter('acf/render_field/type=image', [$this, 'render_upload_instructions'] );
     add_filter('acf/render_field/type=file', [$this, 'render_upload_instructions'] );
@@ -599,8 +599,9 @@ class ACFF extends RHSingleton {
    * @param [type] $views
    * @return array
    */
-  public function field_group_edit_views( $views ) {
+  public function list_table_views( $views ) {
     $views = $this->add_edit_view_frontend_forms( $views );
+    $views = $this->add_edit_view_admin_forms( $views );
     if( !$this->is_super_admin() ) {
       return [];
     }
@@ -640,6 +641,29 @@ class ACFF extends RHSingleton {
   }
 
   /**
+   * Adds Frontend Forms to field group edit views
+   *
+   * @param [type] $views
+   * @return array $views
+   */
+  private function add_edit_view_admin_forms( $views ) {
+    $count = $this->count_admin_forms();
+    $class = false;
+    if( $this->is_edit_view_admin_forms() ) {
+      $class = ' class="current"';
+    }
+    if( !$count ) {
+      return $views;
+    }
+    $url = add_query_arg([
+      'meta_key' => 'is-frontend-form',
+      'meta_value' => '0'
+    ], admin_url('edit.php?post_type=acf-field-group'));
+    $views['admin_forms'] = "<a $class href='$url'>Admin Forms <span class='count'>($count)</span></a>";
+    return $views;
+  }
+
+  /**
    * Counts ACF Frontend Forms
    *
    * @return int
@@ -649,23 +673,61 @@ class ACFF extends RHSingleton {
   }
 
   /**
+   * Counts ACF Frontend Forms
+   *
+   * @return int
+   */
+  private function count_admin_forms() {
+    return count($this->get_admin_forms());
+  }
+
+  /**
+   * Get field groups from Database
+   *
+   * @return array
+   */
+  private function get_field_groups_from_db() {
+    return acf_get_raw_field_groups();
+  }
+
+  /**
    * Get all frontend forms
    *
    * @return array
    */
   public function get_frontend_forms() {
-    return array_filter(acf_get_field_groups(), function($field_group) {
-      return $field_group['acff_is_frontend_form'] ?? 0 === 1;
+    return array_filter($this->get_field_groups_from_db(), function($field_group) {
+      return (bool) acf_maybe_get( $field_group, 'acff_is_frontend_form', false );
+    });
+  }
+  
+  /**
+   * Get all admin forms
+   *
+   * @return array
+   */
+  private function get_admin_forms() {
+    return array_filter($this->get_field_groups_from_db(), function($field_group) {
+      return (bool) acf_maybe_get( $field_group, 'acff_is_frontend_form', false ) === false;
     });
   }
 
   /**
    * Get the ids of all frontend forms
    *
-   * @return void
+   * @return array
    */
-  public function get_frontend_forms_ids() {
+  private function get_frontend_forms_ids() {
     return array_column($this->get_frontend_forms(), 'ID');
+  }
+
+  /**
+   * Get the ids of all admin forms
+   *
+   * @return array
+   */
+  private function get_admin_forms_ids() {
+    return array_column($this->get_admin_forms(), 'ID');
   }
 
   /**
@@ -681,13 +743,15 @@ class ACFF extends RHSingleton {
 
     if( !$this->is_super_admin() || $this->is_edit_view_frontend_forms() ) {
       $q->set('post__in', $this->get_frontend_forms_ids());
+    } elseif( $this->is_super_admin() && $this->is_edit_view_admin_forms() ) {
+      $q->set('post__in', $this->get_admin_forms_ids());
     }
     
     return $q;
   }
 
   /**
-   * Detect meta query in edit.php
+   * Detect edit screen for frontend forms
    *
    * @return boolean
    */
@@ -697,6 +761,19 @@ class ACFF extends RHSingleton {
     $meta_key = acf_maybe_get_GET('meta_key');
     $meta_value = intval( acf_maybe_get_GET('meta_value', 0) );
     return $meta_key === 'is-frontend-form' && $meta_value === 1;
+  }
+
+  /**
+   * Detect edit screen for admin forms
+   *
+   * @return boolean
+   */
+  private function is_edit_view_admin_forms() {
+    global $pagenow, $post_type;
+    if( $pagenow !== 'edit.php' || $post_type !== 'acf-field-group' ) return false;
+    $meta_key = acf_maybe_get_GET('meta_key');
+    $meta_value = intval( acf_maybe_get_GET('meta_value', 0) );
+    return $meta_key === 'is-frontend-form' && $meta_value === 0;
   }
 
   /**
