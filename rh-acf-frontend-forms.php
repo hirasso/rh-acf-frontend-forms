@@ -61,5 +61,7 @@ define('ACFF_ROOT', __FILE__ );
 function ACFF() {
   return ACFF::getInstance();
 }
-ACFF();
-new ACFF_Permissions();
+if( defined('ACF') ) {
+  ACFF();
+  new ACFF_Permissions();
+}
