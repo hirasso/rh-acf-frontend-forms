@@ -64,7 +64,10 @@ class ACFF extends Singleton {
     add_action('acf/init', [$this, 'add_settings_page']);
 
     add_filter('acf/location/rule_match/post_type', [$this, 'frontend_form_rule_match'], 10, 4);
-    add_action('save_post',	[$this, 'save_post'], 9, 2);
+
+    // add_action('save_post',	[$this, 'save_post'], 9, 2);
+
+    add_action('post_submitbox_misc_actions',	[$this, 'inject_acff_field_group_settings']);
 
   }
 
@@ -808,6 +811,22 @@ class ACFF extends Singleton {
       add_filter('acf/validate_field_group', [$this, 'validate_field_group_before_save'] );
     }
     return $post_id;
+  }
+
+  /**
+   * Inject ACFF settings for non-admins
+   *
+   * @return void
+   */
+  public function inject_acff_field_group_settings() {
+    global $field_group;
+    if( !is_array($field_group) || $this->is_super_admin() ) return;
+    $acff_is_frontend_form = (int) $field_group['acff_is_frontend_form'] ?? 0;
+    $acff_for_post_type = (string) $field_group['acff_for_post_type'] ?? '';
+    ob_start() ?>
+    <input type='hidden' name='acf_field_group[acff_is_frontend_form]' value='<?= esc_attr($acff_is_frontend_form) ?>'></input>
+    <input type='hidden' name='acf_field_group[acff_for_post_type]' value='<?= esc_attr($acff_for_post_type) ?>'></input>
+    <?php echo ob_get_clean();
   }
 
 }
