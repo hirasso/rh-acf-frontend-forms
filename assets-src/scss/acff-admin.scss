@@ -11,7 +11,7 @@
 .is-not-acf-super-admin.post-type-acf-field-group {
   #acf-field-group-locations,
   #acf-field-group-options {
-    display: none !important;
+    // display: none !important; // disabled due to a better PHP-based solution 
   }
 }
 .is-edit-acf-frontend-form {

@@ -420,8 +420,8 @@ class ACFF_Permissions {
   public function remove_meta_boxes() {
     
     if( !ACFF()->is_super_admin() ) {
-      // remove_meta_box('acf-field-group-locations', 'acf-field-group', 'normal');
-      // remove_meta_box('acf-field-group-options', 'acf-field-group', 'normal');
+      remove_meta_box('acf-field-group-locations', 'acf-field-group', 'normal');
+      remove_meta_box('acf-field-group-options', 'acf-field-group', 'normal');
     }
   }
 
