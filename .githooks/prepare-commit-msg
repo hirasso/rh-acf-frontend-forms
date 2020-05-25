@@ -2,5 +2,5 @@
 COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 SHA1=$3
-MSG=var=$(<${COMMIT_MSG_FILE})
+MSG=$(<${COMMIT_MSG_FILE})
 echo "--------------${MSG}"
