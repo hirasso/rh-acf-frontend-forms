@@ -624,19 +624,13 @@ class ACFF extends RHSingleton {
    * @return array $views
    */
   private function add_edit_view_frontend_forms( $views ) {
-    $count = $this->count_frontend_forms();
-    $class = false;
-    if( $this->is_edit_view_frontend_forms() ) {
-      $class = ' class="current"';
-    }
-    if( !$count ) {
-      return $views;
-    }
+    if( !$count = $this->count_frontend_forms() ) return $views;
+    $class = $this->is_edit_view_frontend_forms() ? 'current' : '';
     $url = add_query_arg([
       'meta_key' => 'is-frontend-form',
       'meta_value' => '1'
     ], admin_url('edit.php?post_type=acf-field-group'));
-    $views['frontend_forms'] = "<a $class href='$url'>Frontend Forms <span class='count'>($count)</span></a>";
+    $views['frontend_forms'] = "<a class='$class' href='$url'>Frontend Forms <span class='count'>($count)</span></a>";
     return $views;
   }
 
@@ -647,19 +641,13 @@ class ACFF extends RHSingleton {
    * @return array $views
    */
   private function add_edit_view_admin_forms( $views ) {
-    $count = $this->count_admin_forms();
-    $class = false;
-    if( $this->is_edit_view_admin_forms() ) {
-      $class = ' class="current"';
-    }
-    if( !$count ) {
-      return $views;
-    }
+    if( !$count = $this->count_admin_forms() ) return $views;
+    $class = $this->is_edit_view_admin_forms() ? 'current' : '';
     $url = add_query_arg([
       'meta_key' => 'is-frontend-form',
       'meta_value' => '0'
     ], admin_url('edit.php?post_type=acf-field-group'));
-    $views['admin_forms'] = "<a $class href='$url'>Admin Forms <span class='count'>($count)</span></a>";
+    $views['admin_forms'] = "<a class='$class' href='$url'>Admin Forms <span class='count'>($count)</span></a>";
     return $views;
   }
 
