@@ -4,13 +4,15 @@
  * Version: 1.0
  */
 
+import './scss/acff.scss';
+
 global.jQuery = $ = window.jQuery;
 
-import './modules/autofill';
-import ACFFrontendForm from './modules/frontend-form';
-import ImageDrop from './modules/image-drop';
-import FileInput from './modules/file-input';
-import MaxLength from './modules/maxlength';
+import './js/autofill';
+import './js/plugin.frontend-form';
+import ImageDrop from './js/image-drop';
+import FileInput from './js/file-input';
+import MaxLength from './js/maxlength';
 import autosize from 'autosize';
 
 // window.rh = window.rh || {};

@@ -77,10 +77,10 @@ class ACFF extends Singleton {
   function frontend_assets() {
 
     // enqueue plugin script
-    wp_enqueue_script( 'rh-acff', $this->asset_uri('assets/js/acff.js'), array('jquery'), null, true );
+    wp_enqueue_script( 'rh-acff', $this->asset_uri('assets/acff.js'), ['jquery'], null, true );
 
     // enqueue plugin styles
-    wp_enqueue_style( 'rh-acff', $this->asset_uri('assets/css/acff.css'), [], null, 'all');
+    wp_enqueue_style( 'rh-acff', $this->asset_uri('assets/acff.css'), [], null, 'all');
 
     if( apply_filters('rh/acff/deregister-acf-styles', true ) ) {
       // Removes the default ACF styles
@@ -97,7 +97,7 @@ class ACFF extends Singleton {
    * @return void
    */
   public function admin_styles() {
-    wp_enqueue_style( "rh-acff-admin", $this->asset_uri('assets/css/acff-admin.css') );
+    wp_enqueue_style( "rh-acff-admin", $this->asset_uri('assets/acff-admin.css') );
   }
 
   /**
