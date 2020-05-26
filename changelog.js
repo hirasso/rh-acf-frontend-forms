@@ -88,7 +88,7 @@ async function generateChangelog() {
 async function writeChangelog( changelog ) {
   let file = '';
   for( const [version, versionInfo] of Object.entries(changelog) ) {
-    file += `## ${version} – ${versionInfo.date}\n\n`;
+    file += `#### ${version} – ${versionInfo.date}\n\n`;
     for( const change of versionInfo.messages ) {
       file += `- ${change}\n`;
     }
