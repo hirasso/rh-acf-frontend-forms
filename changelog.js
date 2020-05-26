@@ -2,7 +2,7 @@ const fs = require('fs');
 const simpleGit = require('simple-git/promise')('.');
 const argv = require('minimist')(process.argv.slice(2));
 
-const blacklist = ['Merge branch '];
+const blacklist = ['Merge branch ', 'prepare-commit-msg', 'pre-commit-msg'];
 
 /**
  * Adds the current commit message to the current plugin version
@@ -65,7 +65,7 @@ async function generateChangelog() {
   // Deactivated this, would only make sense in git hook 'prepare-commit-message', 
   // but message is generated after commit
   // changelog = await addCurrentCommitToChangelog(changelog);
-
+  let lastCommit = null;
   for( const commit of Object.values(gitLog.all) ) {
     // continue;
     let pluginFile = false;
@@ -73,6 +73,8 @@ async function generateChangelog() {
       try { pluginFile = await simpleGit.show(`${commit.hash}:rah-acf-frontend-forms.php`) } catch(e) {}
     }
     if( !pluginFile ) continue;
+    if( lastCommit && lastCommit.message === commit.message ) continue;
+    lastCommit = commit;
     let date = commit.date.substr(0, commit.date.indexOf('T'));
     let shortHash = commit.hash.substr(0,7);
     let message = `${commit.message} (#${shortHash})`;

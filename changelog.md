@@ -1,26 +1,11 @@
 #### 3.2.8 – 2020-05-26
 
+- Add changelog generation to post-comit (#d7d7e9e)
 - add dates to changelog versions (#fe0194b)
 - Automate changelog generation (#890fd8e)
 - update changelog (#431dcd8)
 - move changelog generation out of git hook (#fe51342)
-- Move to prepare-commit-msg (#3b794bd)
 - Automated changelog generation (#21fda31)
-- Automated changelog generation (#97d4e25)
-- Automated changelog generation (#e1fcb04)
-- disable prepare-commit-msg (#ce57604)
-- add pre-commit-msg (#30e0764)
-- add pre-commit-msg (#a83fcce)
-- add pre-commit-msg (#85a115f)
-- add pre-commit-msg (#6ca8e46)
-- add pre-commit-msg (#95ad73e)
-- add pre-commit-msg (#62cdccd)
-- add prepare-commit-msg (#c0a5b6a)
-- add pre-commit-msg (#a88a6f6)
-- add prepare-commit-msg (#f908c1b)
-- add pre-commit-msg (#d87aff9)
-- add pre-commit-msg (#7c5076e)
-- add pre-commit-msg (#90ef8c4)
 - v 3.2.8 (#df612e3)
 
 #### 3.2.7 – 2020-05-25
@@ -249,7 +234,6 @@
 
 - Don't autofill already filled fields (#446ffaa)
 - Untrack assets (#486aa95)
-- Untrack assets (#327312f)
 - Add ajax response event (#c34a2e1)
 
 #### 1.2.5 – 2018-08-23
@@ -291,12 +275,9 @@
 - Add Plugin Update Checker (#d87d9f6)
 - fucking mime types :P (#b5d73a5)
 - API improvements (#af4e8ec)
-- API improvements (#4dabbd2)
 - optimize image-drop (#51364c4)
 - optimize has-value check (#f89edd6)
-- optimize has-value check (#f8a01cb)
 - image-drop fixes (#1c0acdf)
-- image-drop fixes (#15b616a)
 - added acf_localize_data to force validation (#f54ed88)
 - Image Drop Optimizations (#e64b9e5)
 - Optimize “lateInitializeFields” (#ad6e8c0)
@@ -305,7 +286,6 @@
 - Steps to support multiple same acf_form’s on one page (#caeab8a)
 - fixed rah/acf-form-resized for image-drops (#9c1e7d6)
 - Added rah/acf-form-resized event trigger (#b143147)
-- Added rah/acf-form-resized event trigger (#133b966)
 - Fixes, fixes, fixes (#0ed355a)
 - Initial commit (#e39db03)
 
