@@ -52,7 +52,8 @@ async function generateChangelog() {
       try { pluginFile = await simpleGit.show(`${commit.hash}:rah-acf-frontend-forms.php`) } catch(e) {}
     }
     if( !pluginFile ) continue;
-    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), commit.message, changelog )
+    let message = `${commit.message} (#${commit.hash.substr(0,7)})`;
+    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), message, changelog )
   }
   return changelog;
 }
@@ -71,7 +72,7 @@ async function writeChangelog( changelog ) {
     file += `\n`;
   }
   fs.writeFileSync('./changelog.md', file);
-  // await simpleGit.add('./changelog.md');
-  return true;
+  await simpleGit.add('./changelog.md');
+  process.exit();
 }
 generateChangelog().then(changelog => writeChangelog(changelog));
