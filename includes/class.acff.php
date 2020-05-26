@@ -791,6 +791,7 @@ class ACFF extends Singleton {
    * @return array
    */
   public function validate_field_group_before_save( $field_group ) {
+    pre_dump($field_group, true);
     if( $this->is_super_admin() ) return $field_group;
     $field_group_before = acf_get_raw_field_group($field_group['ID']);
     if( isset( $field_group_before['acff_is_frontend_form'] ) ) $field_group['acff_is_frontend_form'] = (int) $field_group_before['acff_is_frontend_form'];
@@ -823,9 +824,15 @@ class ACFF extends Singleton {
     if( !is_array($field_group) || $this->is_super_admin() ) return;
     $acff_is_frontend_form = (int) $field_group['acff_is_frontend_form'] ?? 0;
     $acff_for_post_type = (string) $field_group['acff_for_post_type'] ?? '';
+    $location_rule_name = "acf_field_group[location][group_0][rule_0]";
     ob_start() ?>
+    <!-- Start acf frontend forms -->
     <input type='hidden' name='acf_field_group[acff_is_frontend_form]' value='<?= esc_attr($acff_is_frontend_form) ?>'></input>
     <input type='hidden' name='acf_field_group[acff_for_post_type]' value='<?= esc_attr($acff_for_post_type) ?>'></input>
+    <input type="hidden" name='<?= $location_rule_name ?>[param]' value='post_type'></input>
+    <input type="hidden" name='<?= $location_rule_name ?>[operator]' value='=='></input>
+    <input type="hidden" name='<?= $location_rule_name ?>[value]' value='<?= esc_attr($acff_for_post_type) ?>'></input>
+    <!-- End acf frontend forms -->
     <?php echo ob_get_clean();
   }
 

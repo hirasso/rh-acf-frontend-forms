@@ -60,7 +60,9 @@ foreach([
 define('ACFF_ROOT', __FILE__ );
 
 /**
- * Instanciate
+ * API Access to ACFF Singleton Instance
+ *
+ * @return ACFF 
  */
 function ACFF() {
   return ACFF::getInstance();
