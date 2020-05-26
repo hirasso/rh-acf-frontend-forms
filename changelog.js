@@ -33,10 +33,13 @@ function getPluginVersion( pluginFile ) {
  * @param {string} message 
  * @param {object} changelog 
  */
-function addCommitMessageToChangelog( pluginVersion, message, changelog = {} ) {
+function addCommitMessageToChangelog( pluginVersion, message, changelog = {}, date = null ) {
   if( isMessageBlacklisted(message) ) return changelog;
-  if( !changelog[pluginVersion] ) changelog[pluginVersion] = [];
-  changelog[pluginVersion].push( message );
+  if( !changelog[pluginVersion] ) changelog[pluginVersion] = {
+    date: date,
+    messages: []
+  };
+  changelog[pluginVersion].messages.push( message );
   return changelog;
 }
 
@@ -70,8 +73,10 @@ async function generateChangelog() {
       try { pluginFile = await simpleGit.show(`${commit.hash}:rah-acf-frontend-forms.php`) } catch(e) {}
     }
     if( !pluginFile ) continue;
-    let message = `${commit.message} (#${commit.hash.substr(0,7)})`;
-    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), message, changelog )
+    let date = commit.date.substr(0, commit.date.indexOf('T'));
+    let shortHash = commit.hash.substr(0,7);
+    let message = `${commit.message} (#${shortHash})`;
+    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), message, changelog, date )
   }
   return changelog;
 }
@@ -82,14 +87,14 @@ async function generateChangelog() {
  */
 async function writeChangelog( changelog ) {
   let file = '';
-  for( const [version, changes] of Object.entries(changelog) ) {
-    file += `## ${version}\n\n`;
-    for( const change of changes ) {
+  for( const [version, versionInfo] of Object.entries(changelog) ) {
+    file += `## ${version} – ${versionInfo.date}\n\n`;
+    for( const change of versionInfo.messages ) {
       file += `- ${change}\n`;
     }
     file += `\n`;
   }
   fs.writeFileSync('./changelog.md', file);
-  // await simpleGit.add('./changelog.md');
+  await simpleGit.add('./changelog.md');
 }
 generateChangelog().then(changelog => writeChangelog(changelog));
