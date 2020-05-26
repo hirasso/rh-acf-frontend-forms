@@ -1,2 +1,3 @@
 #!/bin/sh
 node ./changelog.js
+git add ./changelog.md

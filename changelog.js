@@ -71,7 +71,7 @@ async function writeChangelog( changelog ) {
     file += `\n`;
   }
   fs.writeFileSync('./changelog.md', file);
-  await simpleGit.add('./changelog.md');
+  // await simpleGit.add('./changelog.md');
   return true;
 }
 generateChangelog().then(changelog => writeChangelog(changelog));
