@@ -1,6 +1,7 @@
 #### 3.2.8 – 2020-05-26
 
-- Add changelog generation to post-comit (#d7d7e9e)
+- Inject post type location rule for frontend forms (#3093c35)
+- Add changelog generation to post-comit (#d52febb)
 - add dates to changelog versions (#fe0194b)
 - Automate changelog generation (#890fd8e)
 - update changelog (#431dcd8)
