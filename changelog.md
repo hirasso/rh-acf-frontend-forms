@@ -1,6 +1,7 @@
 ## 3.2.8
 
-- Move to pre-commit
+- Move to prepare-commit-msg
+- Move to prepare-commit-msg (#3b794bd)
 - Automated changelog generation (#21fda31)
 - Automated changelog generation (#97d4e25)
 - Automated changelog generation (#e1fcb04)

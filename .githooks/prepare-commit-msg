@@ -1,2 +1,5 @@
 #!/bin/sh
-node ./changelog.js
+# npm run generate-changelog
+# CURRENT_MESSAGE=$(<.git/COMMIT_EDITMSG)
+# node ./changelog.js --currentMessage "${CURRENT_MESSAGE}"
+# git add ./changelog.md

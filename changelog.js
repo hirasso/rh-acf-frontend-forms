@@ -1,5 +1,6 @@
 const fs = require('fs');
 const simpleGit = require('simple-git/promise')('.');
+const argv = require('minimist')(process.argv.slice(2));
 
 /**
  * Adds the current commit message to the current plugin version
@@ -43,7 +44,10 @@ async function generateChangelog() {
   const gitLog = await simpleGit.log();
   
   let changelog = {};
-  changelog = await addCurrentCommitToChangelog(changelog);
+
+  // Deactivated this, would only make sense in git hook 'prepare-commit-message', 
+  // but message is generated after commit
+  // changelog = await addCurrentCommitToChangelog(changelog);
 
   for( const commit of Object.values(gitLog.all) ) {
     // continue;
@@ -72,7 +76,6 @@ async function writeChangelog( changelog ) {
     file += `\n`;
   }
   fs.writeFileSync('./changelog.md', file);
-  await simpleGit.add('./changelog.md');
-  process.exit();
+  // await simpleGit.add('./changelog.md');
 }
 generateChangelog().then(changelog => writeChangelog(changelog));
