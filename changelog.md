@@ -1,6 +1,6 @@
 ## 3.2.8
 
-- Move to prepare-commit-msg
+- move changelog generation out of git hook (#fe51342)
 - Move to prepare-commit-msg (#3b794bd)
 - Automated changelog generation (#21fda31)
 - Automated changelog generation (#97d4e25)
