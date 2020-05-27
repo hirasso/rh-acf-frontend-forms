@@ -1,5 +1,7 @@
 #### 3.2.8 (2020-05-27)
 
+- Move some logic to post-commit (#44b62d0)
+- Cleanup ✨ (#4442d79)
 - Remove dependency `simpleGit` for changelog generation (#ae3ec10)
 - Inject post type location rule for frontend forms (#b8f68a1)
 - Add changelog generation to post-comit (#d52febb)

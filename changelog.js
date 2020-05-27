@@ -2,7 +2,7 @@ const fs = require('fs');
 const child = require('child_process');
 const argv = require('minimist')(process.argv.slice(2));
 
-const blacklist = ['Merge branch ', 'prepare-commit-msg', 'pre-commit-msg'];
+const blacklist = ['Merge branch ', 'prepare-commit-msg', 'pre-commit-msg', '#ignore'];
 
 /**
  * Get the plugin version from a file
