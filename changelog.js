@@ -113,7 +113,6 @@ async function writeChangelog( changelog ) {
     file += `\n`;
   }
   fs.writeFileSync('./changelog.md', file);
-  child.execSync('git add ./changelog.md');
 }
 
 generateChangelog().then(changelog => writeChangelog(changelog));
