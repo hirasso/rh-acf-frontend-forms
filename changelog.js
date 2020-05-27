@@ -5,20 +5,6 @@ const argv = require('minimist')(process.argv.slice(2));
 const blacklist = ['Merge branch ', 'prepare-commit-msg', 'pre-commit-msg'];
 
 /**
- * Adds the current commit message to the current plugin version
- * @param {Object} changelog 
- */
-function addCurrentCommitToChangelog(changelog) {
-  return new Promise((resolve, reject) => {
-    const pluginFile = fs.readFileSync('./rh-acf-frontend-forms.php', 'utf-8');
-    let message = fs.readFileSync('./.git/COMMIT_EDITMSG', 'utf-8');
-    message = message.replace(/\r?\n|\r/g, "");
-    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), message, changelog );
-    resolve(changelog);
-  })
-}
-
-/**
  * Get the plugin version from a file
  * @param {String} pluginFile 
  */
@@ -94,12 +80,9 @@ function getPluginFileInCommit(hash) {
  * Generate the changelog
  */
 async function generateChangelog() {
-  
-  let changelog = {};
   const commitsArray = getCommitsArray();
-  // Deactivated this, would only make sense in git hook 'prepare-commit-message', 
-  // but message is generated after commit
-  // changelog = await addCurrentCommitToChangelog(changelog);
+  let changelog = {};
+  
   let lastCommit = null;
   for( const commit of Object.values(commitsArray) ) {
     // continue;
