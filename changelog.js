@@ -1,7 +1,7 @@
 const fs = require('fs');
 const child = require('child_process');
 const argv = require('minimist')(process.argv.slice(2));
-
+const pluginFiles = ['rh-acf-frontend-forms.php', 'rah-acf-frontend-forms.php'];
 const blacklist = ['Merge branch ', 'prepare-commit-msg', 'pre-commit-msg', '#ignore'];
 
 /**
@@ -40,16 +40,17 @@ function isMessageBlacklisted(message) {
   return false;
 }
 
-function getCommitsArray() {
+function getCommits() {
   const delimiter = "----DELIMITER----";
   // https://git-scm.com/docs/pretty-formats
-  const output = child.execSync(`git log --pretty=format:'%B%H\n%ad${delimiter}'`).toString('utf-8');
+  const output = child.execSync(`git log --pretty=format:'%B###%H###%ad\n${delimiter}'`).toString('utf-8');
   
-  const commitsArray = output.split(`${delimiter}\n`).map(commit => {
-    const [message, hash, date] = commit.split('\n');
-    return { hash, message, date };
+  const commits = output.split(`\n${delimiter}`).map(commit => {
+    let [message, hash, date] = commit.split('###');
+    message = message.replace(/(?:\r\n|\r|\n)/g, ' ').trim();
+    return { message, hash, date };
   }).filter(commit => Boolean(commit.hash));
-  return commitsArray;
+  return commits;
 }
 
 /**
@@ -67,7 +68,6 @@ function fileExistsInCommit(file, hash) {
  * @param {string} hash 
  */
 function getPluginFileInCommit(hash) {
-  let pluginFiles = ['rh-acf-frontend-forms.php', 'rah-acf-frontend-forms.php'];
   for( const file of pluginFiles ) {
     if( fileExistsInCommit(file, hash) ) {
       return child.execSync(`git show ${hash}:${file}`);
@@ -80,7 +80,7 @@ function getPluginFileInCommit(hash) {
  * Generate the changelog
  */
 async function generateChangelog() {
-  const commitsArray = getCommitsArray();
+  const commitsArray = getCommits();
   let changelog = {};
   
   let lastCommit = null;

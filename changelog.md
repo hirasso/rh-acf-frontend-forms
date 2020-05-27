@@ -1,5 +1,6 @@
 #### 3.2.8 (2020-05-27)
 
+- Feature: Support for multiline commit messages in changelog 🤓 (#a807758)
 - Move some logic to post-commit (#44b62d0)
 - Cleanup ✨ (#4442d79)
 - Remove dependency `simpleGit` for changelog generation (#ae3ec10)
@@ -31,6 +32,7 @@
 
 #### 3.2.3 (2020-05-25)
 
+- truly hide ACFF field group settings for non-admins (#2113658)
 - cleanup (#57974bb)
 - add list view 'Admin Forms' (#bc63177)
 - wait for ACF until initialization (#482aeb9)
@@ -38,6 +40,10 @@
 #### 3.2.2 (2020-05-18)
 
 - Fix missing frontend forms menu item in some cases (#d775274)
+
+#### 3.2.1 (2020-05-18)
+
+- add rule to always show frontend_forms for attached post types (#6b69021)
 
 #### 3.2.0 (2020-05-18)
 
