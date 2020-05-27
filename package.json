@@ -40,8 +40,7 @@
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-watch-reload": "^1.0.0",
     "rimraf": "^3.0.2",
-    "sass": "^1.26.5",
-    "simple-git": "^2.5.0"
+    "sass": "^1.26.5"
   },
   "dependencies": {
     "autosize": "^4.0.2",

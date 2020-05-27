@@ -1,5 +1,5 @@
 const fs = require('fs');
-const simpleGit = require('simple-git/promise')('.');
+const child = require('child_process');
 const argv = require('minimist')(process.argv.slice(2));
 
 const blacklist = ['Merge branch ', 'prepare-commit-msg', 'pre-commit-msg'];
@@ -54,31 +54,64 @@ function isMessageBlacklisted(message) {
   return false;
 }
 
+function getCommitsArray() {
+  const delimiter = "----DELIMITER----";
+  // https://git-scm.com/docs/pretty-formats
+  const output = child.execSync(`git log --pretty=format:'%B%H\n%ad${delimiter}'`).toString('utf-8');
+  
+  const commitsArray = output.split(`${delimiter}\n`).map(commit => {
+    const [message, hash, date] = commit.split('\n');
+    return { hash, message, date };
+  }).filter(commit => Boolean(commit.hash));
+  return commitsArray;
+}
+
+/**
+ * 
+ * @param {string} file 
+ * @param {string} commit 
+ */
+function fileExistsInCommit(file, hash) {
+  try { child.execSync(`git cat-file -e ${hash}:${file} > /dev/null 2>&1`); return true; } catch(e) { return false; }
+}
+
+/**
+ * Get the main plugin file from a certain commit
+ * 
+ * @param {string} hash 
+ */
+function getPluginFileInCommit(hash) {
+  let pluginFiles = ['rh-acf-frontend-forms.php', 'rah-acf-frontend-forms.php'];
+  for( const file of pluginFiles ) {
+    if( fileExistsInCommit(file, hash) ) {
+      return child.execSync(`git show ${hash}:${file}`);
+    }
+  }
+  return false;
+}
+
 /**
  * Generate the changelog
  */
 async function generateChangelog() {
-  const gitLog = await simpleGit.log();
   
   let changelog = {};
-
+  const commitsArray = getCommitsArray();
   // Deactivated this, would only make sense in git hook 'prepare-commit-message', 
   // but message is generated after commit
   // changelog = await addCurrentCommitToChangelog(changelog);
   let lastCommit = null;
-  for( const commit of Object.values(gitLog.all) ) {
+  for( const commit of Object.values(commitsArray) ) {
     // continue;
-    let pluginFile = false;
-    try { pluginFile = await simpleGit.show(`${commit.hash}:rh-acf-frontend-forms.php`) } catch(e) {
-      try { pluginFile = await simpleGit.show(`${commit.hash}:rah-acf-frontend-forms.php`) } catch(e) {}
-    }
+    let pluginFile = getPluginFileInCommit(commit.hash);
     if( !pluginFile ) continue;
+    pluginFile = pluginFile.toString('utf-8');
     if( lastCommit && lastCommit.message === commit.message ) continue;
     lastCommit = commit;
-    let date = commit.date.substr(0, commit.date.indexOf('T'));
+    let date = new Date(commit.date).toISOString().split('T')[0];
     let shortHash = commit.hash.substr(0,7);
     let message = `${commit.message} (#${shortHash})`;
-    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), message, changelog, date )
+    changelog = addCommitMessageToChangelog( getPluginVersion( pluginFile ), message, changelog, date );
   }
   return changelog;
 }
@@ -90,13 +123,14 @@ async function generateChangelog() {
 async function writeChangelog( changelog ) {
   let file = '';
   for( const [version, versionInfo] of Object.entries(changelog) ) {
-    file += `#### ${version} – ${versionInfo.date}\n\n`;
+    file += `#### ${version} (${versionInfo.date})\n\n`;
     for( const change of versionInfo.messages ) {
       file += `- ${change}\n`;
     }
     file += `\n`;
   }
   fs.writeFileSync('./changelog.md', file);
-  await simpleGit.add('./changelog.md');
+  child.execSync('git add ./changelog.md');
 }
+
 generateChangelog().then(changelog => writeChangelog(changelog));
