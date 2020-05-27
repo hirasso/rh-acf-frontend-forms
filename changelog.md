@@ -1,6 +1,7 @@
 #### 3.2.8 (2020-05-27)
 
-- Feature: Support for multiline commit messages in changelog 🤓 (#a807758)
+- optimize changelog (#4d488f0)
+- Feature: Support for multiline commit messages in changelog 🤓 (#6032d83)
 - Move some logic to post-commit (#44b62d0)
 - Cleanup ✨ (#4442d79)
 - Remove dependency `simpleGit` for changelog generation (#ae3ec10)
