@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: RH ACF Frontend Forms
- * Version: 3.2.8
+ * Version: 3.2.9
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
@@ -14,21 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 function ns($function) {
   return __NAMESPACE__ . "\\$function";
 }
-
-global $rh_updater_notice_shown;
-add_action('plugins_loaded', function() {
-  if( class_exists('\RH_Bitbucket_Updater') ) {
-    new \RH_Bitbucket_Updater( __FILE__ );
-  } else {
-    add_action('admin_notices', function() {
-      global $rh_updater_notice_shown;
-      if( !$rh_updater_notice_shown && current_user_can('activate_plugins') ) {
-        $rh_updater_notice_shown = true;
-        echo "<div class='notice notice-warning'><p>RH_Updater is not installed. Custom plugins won't be updated.</p></div>";
-      }
-    });
-  }
-});
 
 /*
  * acff_include

@@ -1,6 +1,10 @@
+#### 3.2.9 (2020-07-17)
+
+- Remove rh-updater dependency (#d3d5049)
+
 #### 3.2.8 (2020-05-27)
 
-- optimize changelog (#4d488f0)
+- optimize changelog (#60eaf1e)
 - Feature: Support for multiline commit messages in changelog 🤓 (#6032d83)
 - Move some logic to post-commit (#44b62d0)
 - Cleanup ✨ (#4442d79)
