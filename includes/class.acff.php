@@ -65,8 +65,6 @@ class ACFF extends Singleton {
 
     add_filter('acf/location/rule_match/post_type', [$this, 'frontend_form_rule_match'], 10, 4);
 
-    // add_action('save_post',	[$this, 'save_post'], 9, 2);
-
     add_action('post_submitbox_misc_actions',	[$this, 'inject_acff_field_group_settings']);
 
   }
@@ -782,36 +780,6 @@ class ACFF extends Singleton {
     if( $this->is_frontend_form_for_post_type($field_group, $post_type) ) return true;
 
     return $match;
-  }
-
-  /**
-   * Validate a field group before saving. Inject variables for non-administrators
-   *
-   * @param array $field_group
-   * @return array
-   */
-  public function validate_field_group_before_save( $field_group ) {
-    pre_dump($field_group, true);
-    if( $this->is_super_admin() ) return $field_group;
-    $field_group_before = acf_get_raw_field_group($field_group['ID']);
-    if( isset( $field_group_before['acff_is_frontend_form'] ) ) $field_group['acff_is_frontend_form'] = (int) $field_group_before['acff_is_frontend_form'];
-    if( isset( $field_group_before['acff_for_post_type'] ) ) $field_group['acff_for_post_type'] = (string) $field_group_before['acff_for_post_type'];
-    return $field_group;
-  }
-
-  /**
-   * Hook into 'save_post' for posts of type 'acf-field-group' (just before ACF save_post in 'admin-field-group.php')
-   *
-   * @param int $post_id
-   * @param WP_Post $post
-   * @return int $post_id
-   */
-  public function save_post( $post_id, $post ) {
-    
-    if( $post->post_type === 'acf-field-group' ) {
-      add_filter('acf/validate_field_group', [$this, 'validate_field_group_before_save'] );
-    }
-    return $post_id;
   }
 
   /**
