@@ -1,6 +1,13 @@
-#### 3.2.9 (2020-07-17)
+#### 3.3.0 (2024-01-17)
 
-- Remove rh-updater dependency (#d3d5049)
+- Formatting (#95603cb)
+- PHP 8 compatibility (#00410ef)
+
+#### 3.2.9 (2021-07-06)
+
+- Cleanup (#ebc3081)
+- remove code-workspace (#b5138de)
+- Remove rh-updater dependency (#923dd75)
 
 #### 3.2.8 (2020-05-27)
 
