@@ -1,22 +1,22 @@
 
-global.jQuery = $ = window.jQuery;
+const $ = window.jQuery;
 
 import feather from 'feather-icons';
 
 export default class ImageDrop {
-  
+
   constructor( acfField ) {
     // vars
     this.acfField = acfField;
 
     this.$el = acfField.$el;
-    
+
     this.$input = this.$el.find('input[type="file"]');
     this.$imagePreview = this.$el.find('.image-wrap');
     this.$image = this.$imagePreview.find('img');
     this.$clear = this.$el.find('[data-name="remove"]');
     this.$clear.html(feather.icons['x-circle'].toSvg());
-    
+
     this.$imageUploader = this.$el.find('.acf-image-uploader');
     this.$instructions = this.$el.find('.instructions');
     this.$instructions.appendTo( this.$imageUploader );
@@ -25,7 +25,7 @@ export default class ImageDrop {
     this.$el.addClass('image-drop');
     this.setupEvents();
     this.renderImage( this.$image.attr('src') );
-    
+
   }
 
   maybeGet( key, object, fallback ) {
@@ -37,7 +37,7 @@ export default class ImageDrop {
   }
 
   setupEvents() {
-    
+
     if( $.inArray( 'dataTransfer', $.event.props ) === -1 ) {
       $.event.props.push('dataTransfer');
     }
@@ -70,7 +70,7 @@ export default class ImageDrop {
     this.lastInputVal = this.$input.val();
     this.$input.change( e => this.onInputChange( this.$input ) );
   }
-  
+
 
   renderImage( src ) {
 
@@ -161,5 +161,5 @@ export default class ImageDrop {
     return errors.length ? errors : false;
   }
 
-  
+
 }

@@ -1,8 +1,8 @@
 
-global.jQuery = $ = window.jQuery;
+const $ = window.jQuery;
 
 export default class MaxLength {
-  
+
   constructor( field ) {
     let $el = field.$el;
     this.$info = $el.find('.maxlength-info');

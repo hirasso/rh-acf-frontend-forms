@@ -1,6 +1,7 @@
 #### 3.3.0 (2024-01-17)
 
-- Formatting (#95603cb)
+- Cleanup (#71f5d8f)
+- Formatting (#dff3d24)
 - PHP 8 compatibility (#00410ef)
 
 #### 3.2.9 (2021-07-06)

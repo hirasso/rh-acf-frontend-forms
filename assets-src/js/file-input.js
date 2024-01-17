@@ -1,10 +1,10 @@
 
-global.jQuery = $ = window.jQuery;
+const $ = window.jQuery;
 
 import feather from 'feather-icons';
 
 export default class FileInput {
-  
+
   constructor( acfField ) {
     // vars
     this.acfField = acfField;
@@ -13,14 +13,14 @@ export default class FileInput {
     this.$input = this.$el.find('input[type="file"]');
     this.$clear = this.$el.find('[data-name="remove"]');
     this.$clear.html(feather.icons['x-circle'].toSvg());
-    
+
     this.$uploader = this.$el.find('.acf-file-uploader');
     this.$instructions = this.$el.find('.instructions');
     this.$instructions.appendTo( this.$uploader );
     this.dataSettings = this.$instructions.data('settings');
 
     this.setupEvents();
-    
+
   }
 
   maybeGet( key, object, fallback ) {
@@ -32,7 +32,7 @@ export default class FileInput {
   }
 
   setupEvents() {
-    
+
     if( $.inArray( 'dataTransfer', $.event.props ) === -1 ) {
       $.event.props.push('dataTransfer');
     }
@@ -75,7 +75,7 @@ export default class FileInput {
   }
 
   onInputChange( $input ) {
-  
+
     if( this.lastInputVal === $input.val() ) {
       return;
     }
@@ -122,5 +122,5 @@ export default class FileInput {
     return errors.length ? errors : false;
   }
 
-  
+
 }

@@ -6,7 +6,7 @@
 
 import './scss/acff.scss';
 
-global.jQuery = $ = window.jQuery;
+const $ = window.jQuery;
 
 import './js/autofill';
 import './js/plugin.frontend-form';
@@ -18,24 +18,24 @@ import autosize from 'autosize';
 // window.rh = window.rh || {};
 
 class App {
-  
+
   constructor() {
 
     if( typeof acf === 'undefined' ) {
       console.warn( 'The global acf object is not defined' );
       return;
     }
-    
+
     this.setup();
     this.setupAjaxSubmit();
-    
+
   }
 
   /**
    * Setup global acf functions and hooks
    */
   setup() {
-    
+
     // add initialized class to fields on initialization
     acf.addAction('new_field', ( field ) => {
       field.$el.addClass('rh-is-initialized');
@@ -71,7 +71,7 @@ class App {
       this.adjustRepeater( $el, $el.closest('.acf-repeater'), 'append' );
     });
 
-    
+
   }
 
   /**
@@ -84,10 +84,10 @@ class App {
       if( !$form.hasClass('is-ajax-submit') ) {
         return true;
       }
-      $form.one('submit', e => { 
+      $form.one('submit', e => {
         e.preventDefault();
       })
-      
+
       $form.acfFrontendForm('doAjaxSubmit');
 
     });
@@ -107,7 +107,7 @@ class App {
 
   initAutosize( field ) {
     let $input = field.$input();
-    
+
     $input.each(function(){
       autosize(this);
     }).on('autosize:resized', function(){

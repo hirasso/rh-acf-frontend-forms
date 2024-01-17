@@ -4,7 +4,7 @@
  * Version: 1.0
  */
 
-global.jQuery = $ = window.jQuery;
+const $ = window.jQuery;
 
 import plugin from './plugin';
 
@@ -15,7 +15,7 @@ export default class ACFFrontendForm {
     let $form = $(el);
     this.options = options;
     this.$form = $form;
-    
+
     // return if there is no form element
     if( !$form.length ) {
       console.warn( 'Form element doesn\'t exist' );
@@ -34,7 +34,7 @@ export default class ACFFrontendForm {
 
     acf.doAction('append', $form);
     acf.validation.enable();
-    
+
     this.$form.find('.acf-field input').each((i, el) => {
       this.adjustHasValueClass( $(el) );
     })
@@ -48,7 +48,7 @@ export default class ACFFrontendForm {
   }
 
   setupForm() {
-    
+
     if( this.options.ajaxSubmit ) {
       this.$form.addClass('is-ajax-submit');
       // this.$form.on('submit', (e) => {
@@ -76,7 +76,7 @@ export default class ACFFrontendForm {
       }
       $(input).prop('disabled', true);
     })
-    
+
     var formData = new FormData( this.$form[0] );
 
     // Re-enable empty file $fileInputs
@@ -132,7 +132,7 @@ export default class ACFFrontendForm {
     this.$ajaxResponse
       .text( message )
       .toggleClass('is--error', response.success === false);
-    
+
     this.$form.addClass('show-ajax-response');
   }
 
@@ -153,13 +153,13 @@ export default class ACFFrontendForm {
   }
 
   setupInputs() {
-    
+
     let selector = 'input,textarea,select';
     this.$form.on( 'keyup keydown change', selector, e => this.adjustHasValueClass( $(e.currentTarget) ) );
     this.$form.on( 'change', selector, e => this.maybeSubmitForm(e) );
     this.$form.on( 'focus', selector, e => this.onInputFocus( e.currentTarget ) );
     this.$form.on( 'blur', selector, e => this.onInputBlur( e.currentTarget ) );
-      
+
   }
   adjustHasValueClass( $input ) {
 
@@ -191,7 +191,7 @@ export default class ACFFrontendForm {
     if( type === 'checkbox' ) {
       val = $input.prop('checked');
     }
-    
+
     if( val ) {
       $field.addClass('has-value');
     } else {
