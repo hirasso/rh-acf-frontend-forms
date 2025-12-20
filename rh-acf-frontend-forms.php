@@ -5,6 +5,9 @@
  * Author: Rasso Hilber
  * Description: Frontend forms for Advanced Custom Fields
  * Author URI: https://rassohilber.com
+ * License: GPL-3.0-or-later
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * GitHub Plugin URI: https://github.com/hirasso/rh-acf-frontend-forms
 **/
 
 namespace RH\ACFF;

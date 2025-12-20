@@ -1,6 +1,7 @@
-#### 3.3.0 (2024-01-17)
+#### 3.3.0 (2025-12-20)
 
-- Cleanup (#71f5d8f)
+- Add support for git updater (#ddc2564)
+- Cleanup (#9a0784f)
 - Formatting (#dff3d24)
 - PHP 8 compatibility (#00410ef)
 
