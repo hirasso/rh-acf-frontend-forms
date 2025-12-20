@@ -1,4 +1,4 @@
-@import './_vars';
+@use '_vars';
 
 .image-drop {
   position: relative;
@@ -84,7 +84,7 @@
   width: 80%;
   height: 80%;
   transform: translate3d(-50%, -50%, 0);
-  fill: $white;
+  fill: vars.$white;
   stroke-width: 1.5px;
 }
 .image-drop [type="file"] {

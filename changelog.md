@@ -1,6 +1,7 @@
 #### 3.3.0 (2025-12-20)
 
-- Add support for git updater (#ddc2564)
+- Migrate to sass@1.97.1 (#5fb2d5f)
+- Add support for git updater (#4a5c14c)
 - Cleanup (#9a0784f)
 - Formatting (#dff3d24)
 - PHP 8 compatibility (#00410ef)
