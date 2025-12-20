@@ -58,6 +58,8 @@ class ACFF extends Singleton
     add_filter('acf/render_field/type=textarea', [$this, 'render_max_length_info']);
     add_action('acf/submit_form', [$this, 'on_submit_form'], 20, 2);
 
+    add_filter('acf/render_field/name=_validate_email', [$this, 'render_time_based_honeypot']);
+
     add_action('acf/include_field_types', [$this, 'include_field_types']);
     add_action('acf/render_field_settings', [$this, 'render_field_settings'], 11);
 
@@ -840,5 +842,15 @@ class ACFF extends Singleton
     <input type="hidden" name='<?= $location_rule_name ?>[value]' value='<?= esc_attr($acff_for_post_type) ?>'></input>
     <!-- End acf frontend forms -->
 <?php echo ob_get_clean();
+  }
+
+  /**
+   * Render a time-based honeypot field
+   */
+  public function render_time_based_honeypot() {
+      ob_start(); ?>
+      <input type="hidden" name="_form_started" value="">
+      <script>document.currentScript.previousElementSibling.value = Math.floor(Date.now() / 1000)</script>
+      <?php echo ob_get_clean();
   }
 }
