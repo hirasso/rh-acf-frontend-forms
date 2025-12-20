@@ -59,6 +59,7 @@ class ACFF extends Singleton
     add_action('acf/submit_form', [$this, 'on_submit_form'], 20, 2);
 
     add_filter('acf/render_field/name=_validate_email', [$this, 'render_time_based_honeypot']);
+    add_action('acf/validate_save_post', [$this, 'validate_time_based_honeypot'], 5);
 
     add_action('acf/include_field_types', [$this, 'include_field_types']);
     add_action('acf/render_field_settings', [$this, 'render_field_settings'], 11);
@@ -852,5 +853,20 @@ class ACFF extends Singleton
       <input type="hidden" name="_form_started" value="">
       <script>document.currentScript.previousElementSibling.value = Math.floor(Date.now() / 1000)</script>
       <?php echo ob_get_clean();
+  }
+
+  /**
+   * Validate the time based honeypot "_form_started"
+   */
+  public function validate_time_based_honeypot() {
+    $started = (int) ($_POST['_form_started'] ?? 0);
+
+    // Missing or suspiciously fast submission
+    if (!$started || (time() - $started) < 3) {
+      acf_add_validation_error(
+        '',
+        __('Submission failed. Please try again.')
+      );
+    }
   }
 }

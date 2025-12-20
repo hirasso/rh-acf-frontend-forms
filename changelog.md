@@ -1,6 +1,7 @@
 #### 3.3.0 (2025-12-20)
 
-- Render a time-based honeypot field (#b1e073b)
+- Validate time based honeypot (#eec2381)
+- Render a time-based honeypot field (#f692889)
 - Migrate to sass@1.97.1 (#6c83859)
 - Add support for git updater (#4a5c14c)
 - Cleanup (#9a0784f)
