@@ -1,6 +1,10 @@
+#### 3.3.1 (2025-12-20)
+
+- Add a time-based honeypot strategy to frontend forms (#e68b1a8)
+
 #### 3.3.0 (2025-12-20)
 
-- Validate time based honeypot (#eec2381)
+- Validate time based honeypot (#ce22f75)
 - Render a time-based honeypot field (#f692889)
 - Migrate to sass@1.97.1 (#6c83859)
 - Add support for git updater (#4a5c14c)
