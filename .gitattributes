@@ -5,10 +5,13 @@
 package.json export-ignore
 pnpm-lock.yaml export-ignore
 jsconfig.json export-ignore
+postcss.config.ts export-ignore
 
 # php tooling
 composer.lock export-ignore
 composer.json export-ignore
+phpstan.neon export-ignore
+pint.json export-ignore
 
 # build tooling
 /bin export-ignore
