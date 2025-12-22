@@ -1,0 +1,8 @@
+:root {
+  --acff-black: #000;
+  --acff-white: #fff;
+
+  --acff-red: hsla(10, 100%, 55%, 1);
+  --acff-green: hsla(139, 100%, 42%, 1);
+  --acff-blue: hsla(200, 100%, 50%, 1);
+}

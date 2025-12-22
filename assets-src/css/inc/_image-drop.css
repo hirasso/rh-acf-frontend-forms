@@ -1,13 +1,3 @@
-/* assets-src/css/inc/_vars.css */
-:root {
-  --acff-black: #000;
-  --acff-white: #fff;
-  --acff-red: hsla(10, 100%, 55%, 1);
-  --acff-green: hsla(139, 100%, 42%, 1);
-  --acff-blue: hsla(200, 100%, 50%, 1);
-}
-
-/* assets-src/css/inc/_image-drop.css */
 .image-drop {
   position: relative;
 }
@@ -28,6 +18,7 @@
   height: 0;
   padding-bottom: 63%;
 }
+
 .image-drop .instructions {
   position: absolute !important;
   top: 50%;
@@ -87,7 +78,6 @@
   width: 80%;
   height: 80%;
   transform: translate3d(-50%, -50%, 0);
-  fill: #fff;
   fill: var(--acff-white);
   stroke-width: 1.5px;
 }
@@ -102,62 +92,3 @@
   padding: 0;
   z-index: 1;
 }
-
-/* assets-src/css/inc/_error-message.css */
-.acf-error-message.-dismiss {
-  display: none;
-}
-.acf-temp-remove {
-  display: none;
-}
-.acf-error-message p {
-  background: hsla(10, 100%, 55%, 1);
-  background: var(--acff-red);
-  margin: 0;
-  font-size: 0.8em;
-  letter-spacing: 0.05em;
-  padding: 0.55em 0.7em 0.55em;
-  color: #fff;
-  color: var(--acff-white);
-}
-.acf-input .acf-error-message {
-  display: block;
-  pointer-events: none;
-  z-index: 4;
-  margin-bottom: 0.5em;
-}
-.acf-input .acf-error-message:after {
-  content: "";
-  display: block;
-  width: 0.5em;
-  height: 0.5em;
-  background: hsla(10, 100%, 55%, 1);
-  background: var(--acff-red);
-  transform: rotate(-45deg);
-  margin-top: -0.3em;
-  margin-left: 1.5em;
-}
-
-/* assets-src/css/acff.css */
-.acf-input {
-  position: relative;
-}
-.acf-form.rh-is-locked {
-  pointer-events: none;
-}
-.acf-field textarea {
-  resize: none;
-}
-.acf-ajax-response {
-  background: hsla(139, 100%, 42%, 1);
-  background: var(--acff-green);
-}
-.acf-ajax-response.is--error {
-  background: hsla(10, 100%, 55%, 1);
-  background: var(--acff-red);
-}
-.acf-field-repeater > .acf-input > .acf-notice.-warning.-dismiss {
-  display: none;
-}
-
-/*# sourceMappingURL=acff.css.map */

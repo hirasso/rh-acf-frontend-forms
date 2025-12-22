@@ -1,0 +1,22 @@
+@import "./inc/_vars.css";
+@import "./inc/_image-drop.css";
+@import "./inc/_error-message.css";
+
+.acf-input {
+  position: relative;
+}
+.acf-form.rh-is-locked {
+  pointer-events: none;
+}
+.acf-field textarea {
+  resize: none;
+}
+.acf-ajax-response {
+  background: var(--acff-green);
+}
+.acf-ajax-response.is--error {
+  background: var(--acff-red);
+}
+.acf-field-repeater > .acf-input > .acf-notice.-warning.-dismiss {
+  display: none;
+}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: RH ACF Frontend Forms
  * Version: 3.3.1
@@ -10,52 +11,36 @@
  * GitHub Plugin URI: https://github.com/hirasso/rh-acf-frontend-forms
 **/
 
-namespace RH\ACFF;
+namespace Hirasso\ACFF;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
-function ns($function) {
-  return __NAMESPACE__ . "\\$function";
+/** Exit if accessed directly */
+if (! defined('ABSPATH')) {
+    exit;
 }
 
-/*
- * acff_include
- *
- * Includes a file within the ACF plugin.
- *
- * @date	10/3/14
- * @since	5.0.0
- *
- * @param	string $filename The specified file.
- * @return	void
+/**
+ * Require the autoloader
+ * - vendor/autoload.php in development (composer)
+ * - autoload.dist.php in production (not composer)
  */
-function acff_include( $filename = '', $debug = false ) {
-	$file_path = plugin_dir_path( __FILE__ ) . ltrim($filename, '/');
-	if( file_exists($file_path) ) {
-    if( $debug ) pre_dump( $file_path );
-		include_once($file_path);
-	}
-}
+require_once match(\is_readable(__DIR__ . '/vendor/autoload.php')) {
+    true => __DIR__ . '/vendor/autoload.php',
+    default => __DIR__ . '/autoload.dist.php'
+};
 
-foreach([
-  'class.singleton',
-  'class.acff',
-  'class.permissions',
-] as $filename) {
-  acff_include("includes/$filename.php");
-}
 
-define('ACFF_ROOT', __FILE__ );
+define('ACFF_ROOT', __FILE__);
 
 /**
  * API Access to ACFF Singleton Instance
  *
  * @return ACFF
  */
-function ACFF() {
-  return ACFF::getInstance();
+function ACFF()
+{
+    return ACFF::getInstance();
 }
-if( defined('ACF') ) {
-  ACFF();
-  new ACFF_Permissions();
+if (defined('ACF')) {
+    ACFF();
+    new Permissions();
 }

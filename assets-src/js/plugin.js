@@ -1,4 +1,3 @@
-
 const $ = window.jQuery;
 
 /**
@@ -24,32 +23,37 @@ const $ = window.jQuery;
  */
 
 export default function plugin(pluginName, className, shortHand = false) {
-	let dataName = `${pluginName}`;
-	let dataOptionsName = `${dataName.toLowerCase()}-options`;
-	let old = $.fn[pluginName];
+  let dataName = `${pluginName}`;
+  let dataOptionsName = `${dataName.toLowerCase()}-options`;
+  let old = $.fn[pluginName];
 
-	$.fn[pluginName] = function (option) {
-		return this.each(function () {
-			let $this = $(this);
-			let data = $this.data(dataName);
-			let dataOptions = $this.data(dataOptionsName);
-			let options = $.extend({}, className.DEFAULTS, dataOptions, typeof option === 'object' && option);
+  $.fn[pluginName] = function (option) {
+    return this.each(function () {
+      let $this = $(this);
+      let data = $this.data(dataName);
+      let dataOptions = $this.data(dataOptionsName);
+      let options = $.extend(
+        {},
+        className.DEFAULTS,
+        dataOptions,
+        typeof option === "object" && option,
+      );
 
-			if (!data) {
-				$this.data(dataName, (data = new className(this, options)));
-			}
+      if (!data) {
+        $this.data(dataName, (data = new className(this, options)));
+      }
 
-			if (typeof option === 'string') {
-				data[option]();
-			}
-		});
-	};
+      if (typeof option === "string") {
+        data[option]();
+      }
+    });
+  };
 
-	// - Short hand
-	if (shortHand) {
-		$[pluginName] = (options) => $({})[pluginName](options);
-	}
+  // - Short hand
+  if (shortHand) {
+    $[pluginName] = (options) => $({})[pluginName](options);
+  }
 
-	// - No conflict
-	$.fn[pluginName].noConflict = () => $.fn[pluginName] = old;
+  // - No conflict
+  $.fn[pluginName].noConflict = () => ($.fn[pluginName] = old);
 }
