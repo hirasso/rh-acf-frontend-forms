@@ -6,6 +6,7 @@ package.json export-ignore
 pnpm-lock.yaml export-ignore
 jsconfig.json export-ignore
 postcss.config.ts export-ignore
+assets-src export-ignore
 
 # php tooling
 composer.lock export-ignore
