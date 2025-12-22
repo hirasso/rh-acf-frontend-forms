@@ -22,7 +22,7 @@ class Permissions
         add_action('admin_init', [$this, 'grant_frontend_form_cap_to_admins']);
         add_filter('admin_body_class', [$this, 'admin_body_class']);
 
-        add_action('acf/render_field_group_settings', [$this, 'render_field_group_settings']);
+        add_action('acf/field_group/render_additional_group_settings', [$this, 'render_field_group_settings']);
         add_action('acf/field_group/admin_head', [$this, 'remove_meta_boxes'], 999, 2);
         add_action('admin_menu', [$this, 'remove_acf_submenu_pages'], 999);
         add_action('current_screen', [$this, 'check_current_screen']);
@@ -464,11 +464,8 @@ class Permissions
      */
     public function render_field_group_settings($field_group)
     {
-        // if( !ACFF()->is_super_admin() ) {
-        //   return;
-        // }
-
-        $is_frontend_form = !empty($field_group['acff_is_frontend_form']) ? $field_group['acff_is_frontend_form'] : false;
+        $is_frontend_form = !empty($field_group['acff_is_frontend_form'])
+            ? $field_group['acff_is_frontend_form'] : false;
 
         acf_render_field_wrap([
             'id'       => 'acff_acff_is_frontend_form',
@@ -481,7 +478,10 @@ class Permissions
             'ui'			=> 1,
         ]);
 
-        $post_type = !empty($field_group['acff_for_post_type']) ? $field_group['acff_for_post_type'] : false;
+        $post_type = !empty($field_group['acff_for_post_type'])
+            ? $field_group['acff_for_post_type']
+            : false;
+
         acf_render_field_wrap([
             'label'			=> __('Frontend Form for', 'acf'),
             'instructions'	=> 'Which post type should this frontend form create?',

@@ -18,6 +18,9 @@
     "format": "pnpm format:assets && pnpm format:php",
     "format:assets": "npx prettier --write '**/*.{js,css}'",
     "format:php": "./vendor/bin/pint",
+    "analyse": "pnpm analyse:js && pnpm analyse:php",
+    "analyse:js": "pnpm exec tsc --noEmit --project jsconfig.json",
+    "analyse:php": "./vendor/bin/phpstan analyse --memory-limit=2G",
     "version": "pnpm changeset version && bin/cli.js version:patch"
   },
   "dependencies": {
@@ -36,6 +39,7 @@
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-preset-env": "^10.5.0",
-    "prettier": "^3.7.4"
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3"
   }
 }

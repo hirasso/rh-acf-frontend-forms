@@ -1,11 +1,9 @@
 parameters:
   level: 6
   paths:
-    - focal-point-picker.php
+    - rh-acf-frontend-forms.php
     - src/
   scanDirectories:
-    - vendor/.wordpress
+    - vendor/.wp
     - vendor/wp-cli/wp-cli
   ignoreErrors:
-    - '#Constant WPFP_PLUGIN_URI not found#'
-    - '#Constant WPFP_PLUGIN_DIR not found#'

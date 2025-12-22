@@ -128,10 +128,8 @@ class ACFF extends Singleton
 
     /**
      * Gets the path of a file
-     *
-     * @return void
      */
-    public function get_file_path($path)
+    public function get_file_path(string $path): string
     {
         $path = ltrim($path, '/');
         $file = plugin_dir_path(ACFF_ROOT) . $path;
@@ -167,6 +165,7 @@ class ACFF extends Singleton
         ];
         $hints = [];
 
+        /** @var string $mime_types */
         $mime_types = acf_maybe_get($field, 'mime_types', '');
         $max_size = acf_maybe_get($field, 'max_size', null);
 
@@ -424,10 +423,8 @@ class ACFF extends Singleton
 
     /**
      * Returns settings page info
-     *
-     * @return void
      */
-    public function get_settings_page_info()
+    public function get_settings_page_info(): object
     {
         $id = "{$this->prefix}_settings";
         return (object) [
@@ -477,67 +474,57 @@ class ACFF extends Singleton
 
 
     /**
-     * Checks if a post is an ACF field group for submissions
-     *
-     * @param [type] $post
-     * @return boolean
+     * Check if a post is an ACF field group for submissions
      */
-    public function is_frontend_form($post_id = 0)
+    public function is_frontend_form(?int $post_id = 0): bool
     {
         $field_group = acf_get_field_group($post_id);
-        $is_frontend_form = $field_group['acff_is_frontend_form'] ?? false;
-        return $is_frontend_form;
+        return (bool) ($field_group['acff_is_frontend_form'] ?? false);
     }
 
 
     /**
-     * Checks if a field group is a frontend form for a certain post type
-     *
-     * @param [type] $field_group_id
-     * @param [type] $post_type
-     * @return boolean
+     * Check if a field group is a frontend form for a certain post type
      */
-    private function is_frontend_form_for_post_type($field_group, $post_type)
+    private function is_frontend_form_for_post_type(array $field_group, string $post_type): bool
     {
-        $is_frontend_form = (bool) ($field_group['acff_is_frontend_form'] ?? 0);
+        $is_frontend_form = (bool) ($field_group['acff_is_frontend_form'] ?? false);
         $for_post_type = $field_group['acff_for_post_type'] ?? '';
         return $is_frontend_form && $for_post_type === $post_type;
     }
 
     /**
-     * Checks if a field is part of a frontend form
-     *
-     * @param [type] $field
-     * @return boolean
+     * Check if a field is part of a frontend form
      */
-    private function is_frontend_form_field($field)
+    private function is_frontend_form_field(?array $field = null): bool
     {
         if (!$field) {
-            return $field;
+            return false;
         }
         $ancestors = get_post_ancestors($field['ID']);
         $root = count($ancestors) - 1;
         $field_group_id = $ancestors[$root] ?? false;
+
         if (!$field_group_id) {
             return false;
         }
+
         return $this->is_frontend_form($field_group_id);
     }
 
     /**
      * Prepare fields for frontend forms
-     *
-     * @param [type] $field
-     * @return void
      */
-    public function prepare_field($field)
+    public function prepare_field(?array $field = null): ?array
     {
-        if (!$field) {
-            return $field;
+        if (empty($field)) {
+            return null;
         }
+
         if (is_admin() && !$this->is_frontend_form_field($field)) {
             return $field;
         }
+
         if (in_array($field['type'], ['repeater', 'group'])) {
             $field['layout'] = 'block';
         }
@@ -563,22 +550,19 @@ class ACFF extends Singleton
         if (!in_array($field['type'], ['repeater', 'group', 'flexible_content', 'file', 'image']) && !empty($field['value'])) {
             $field['wrapper']['class'] .= ' has-value';
         }
+
         return $field;
     }
 
     /**
-     * Format some values
-     *
-     * @param [type] $value
-     * @param [type] $post_id
-     * @param [type] $field
-     * @return void
+     * Format some values from frontend forms
      */
-    public function format_value($value, $post_id, $field)
+    public function format_value(mixed $value, int|string $post_id, array $field): mixed
     {
         if (!$value || !$this->is_frontend_form_field($field)) {
             return $value;
         }
+
         if (in_array($field['type'], ['file'])) {
             $file_id = get_field($field['name'], $post_id, false);
             $file_url = wp_get_attachment_url($file_id);
@@ -589,9 +573,7 @@ class ACFF extends Singleton
     }
 
     /**
-     * Renders additional field settings
-     *
-     * @return void
+     * Render additional field settings
      */
     public function render_field_settings($field)
     {
@@ -607,6 +589,7 @@ class ACFF extends Singleton
                     'media_upload'   => 0,
                 ], true);
                 break;
+
             case 'message':
                 acf_render_field_setting($field, [
                     'label'      => __('Message', 'acf'),
@@ -636,14 +619,16 @@ class ACFF extends Singleton
     {
         $views = $this->add_edit_view_frontend_forms($views);
         $views = $this->add_edit_view_admin_forms($views);
+
         if (!$this->is_super_admin()) {
             return [];
         }
+
         return $views;
     }
 
     /**
-     * Checks if current user can access all ACF settings and fields
+     * Check if the current user can access all ACF settings and fields
      */
     public function is_super_admin(): bool
     {
@@ -659,31 +644,34 @@ class ACFF extends Singleton
             return $views;
         }
         $class = $this->is_edit_view_frontend_forms() ? 'current' : '';
+
         $url = add_query_arg([
             'meta_key' => 'is-frontend-form',
             'meta_value' => '1'
         ], admin_url('edit.php?post_type=acf-field-group'));
+
         $views['frontend_forms'] = "<a class='$class' href='$url'>Frontend Forms <span class='count'>($count)</span></a>";
+
         return $views;
     }
 
     /**
      * Adds Frontend Forms to field group edit views
-     *
-     * @param [type] $views
-     * @return array $views
      */
-    private function add_edit_view_admin_forms($views)
+    private function add_edit_view_admin_forms(array $views): array
     {
         if (!$count = $this->count_admin_forms()) {
             return $views;
         }
         $class = $this->is_edit_view_admin_forms() ? 'current' : '';
+
         $url = add_query_arg([
             'meta_key' => 'is-frontend-form',
             'meta_value' => '0'
         ], admin_url('edit.php?post_type=acf-field-group'));
+
         $views['admin_forms'] = "<a class='$class' href='$url'>Admin Forms <span class='count'>($count)</span></a>";
+
         return $views;
     }
 
@@ -816,12 +804,6 @@ class ACFF extends Singleton
 
     /**
      * Rule match for frontend forms
-     *
-     * @param [type] $match
-     * @param [type] $rule
-     * @param [type] $options
-     * @param [type] $field_group
-     * @return boolean
      */
     public function frontend_form_rule_match($match, $rule, $options, $field_group)
     {

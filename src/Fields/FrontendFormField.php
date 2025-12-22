@@ -2,6 +2,8 @@
 
 namespace Hirasso\ACFF\Fields;
 
+use function Hirasso\ACFF\ACFF;
+
 class FrontendFormField extends \acf_field_select
 {
     /*
@@ -57,7 +59,6 @@ class FrontendFormField extends \acf_field_select
 
     public function get_choices()
     {
-
         $choices = [];
         foreach (ACFF()->get_frontend_forms_ids() as $id) {
             $choices[$id] = get_the_title($id);
@@ -67,7 +68,6 @@ class FrontendFormField extends \acf_field_select
 
     public function load_value($value, $post_id, $field)
     {
-        // return
         return intval($value);
     }
 
