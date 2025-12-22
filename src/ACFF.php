@@ -135,7 +135,6 @@ class ACFF extends Singleton
     {
         $path = ltrim($path, '/');
         $file = plugin_dir_path(ACFF_ROOT) . $path;
-        dd($file);
         return $file;
     }
 
