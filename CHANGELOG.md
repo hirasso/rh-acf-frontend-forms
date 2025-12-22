@@ -1,5 +1,11 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.0.1
+
+### Patch Changes
+
+- cceff79: Try to get release assets running
+
 ## 4.0.0
 
 ### Major Changes
