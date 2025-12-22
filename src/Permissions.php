@@ -440,17 +440,18 @@ class Permissions
 
         $post_type = !empty($field_group['acff_for_post_type'])
             ? $field_group['acff_for_post_type']
-            : false;
+            : '';
 
         acf_render_field_wrap([
-            'label'			=> __('Frontend Form for', 'acf'),
-            'instructions'	=> 'Which post type should this frontend form create?',
-            'type'			=> 'select',
-            'name'			=> 'acff_for_post_type',
-            'prefix'		=> 'acf_field_group',
-            'value'			=> $post_type,
-            'ui'			  => 0,
-            'choices'   => $this->get_post_type_select_choices(),
+            'label' => __('Frontend Form for', 'acf'),
+            'instructions' => 'Which post type should this frontend form create?',
+            'type' => 'select',
+            'name' => 'acff_for_post_type',
+            'prefix' => 'acf_field_group',
+            'value' => $post_type,
+            'ui' => false,
+            'allow_null' => true,
+            'choices' => $this->get_post_type_select_choices(),
             'conditional_logic' => [
                 'field'     => 'acff_is_frontend_form',
                 'operator'  => '==',
