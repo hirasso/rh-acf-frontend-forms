@@ -1,5 +1,12 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.2.2
+
+### Patch Changes
+
+- c6a3044: Remove the title hack from the ACFF Settings page field group
+- Add typings to all js code
+
 ## 4.2.1
 
 ### Patch Changes
