@@ -74,11 +74,10 @@ jobs:
           node-version: latest
           cache: pnpm
 
-      - name: Install Asset Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build assets
-        run: pnpm build
+      - name: Install deps and build assets
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
 
       - name: Commit built assets
         run: |
@@ -105,6 +104,7 @@ jobs:
         run: |
           TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
           ASSET="${{ needs.package-infos.outputs.packageName }}.zip"
+          git archive -o "/tmp/$ASSET --prefix=${{ github.event.repository.name }}/ "$TAG"
           echo "Latest tag: $TAG"
           gh release upload "$TAG" "$ASSET" --clobber
           echo "✅ Uploaded $ASSET to the release $TAG"
