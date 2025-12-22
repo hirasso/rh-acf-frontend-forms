@@ -55,7 +55,7 @@ export default function plugin(
 
   // - Short hand
   if (shortHand) {
-    $[pluginName] = (options: any) =>
+    ($ as any)[pluginName] = (options: any) =>
       ($({})[pluginName as any] as any)(options);
   }
 

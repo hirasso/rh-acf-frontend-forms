@@ -19,7 +19,7 @@
     "format:assets": "npx prettier --write '**/*.{js,css}'",
     "format:php": "./vendor/bin/pint",
     "analyse": "pnpm analyse:js && pnpm analyse:php",
-    "analyse:js": "pnpm exec tsc --noEmit --project jsconfig.json",
+    "analyse:js": "pnpm exec tsc --noEmit --project tsconfig.json",
     "analyse:php": "./vendor/bin/phpstan analyse --memory-limit=2G",
     "version": "pnpm changeset version && bin/cli.js version:patch"
   },
