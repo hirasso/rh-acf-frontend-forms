@@ -38,7 +38,7 @@ class Permissions
         add_action("acf/prepare_field/name={$this->prefix}_allowed_fields", [$this, 'prepare_field_allowed_fields']);
         add_action("acf/render_field/name={$this->prefix}_allowed_fields", [$this, 'render_field_allowed_fields']);
 
-        add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
+        // add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
 
     }
 
@@ -474,33 +474,37 @@ class Permissions
 
     /**
      * Don't save frontend form field groups
+     *
+     * TODO: 22.12.25 Test why that was develped in the first place.
+     * But we actually can't NOT save the field group, otherwise our
+     * custom field group settings won't work anymore (acff_is_frontend_form, ...)
      */
-    public function acf_save_json(string $path)
-    {
-        $field_group = (array) acf_maybe_get_POST('acf_field_group');
+    // public function acf_save_json(string $path)
+    // {
+    //     $field_group = (array) acf_maybe_get_POST('acf_field_group');
 
-        // bail early if no field group in $_POST
-        if (empty($field_group)) {
-            return $path;
-        }
+    //     // bail early if no field group in $_POST
+    //     if (empty($field_group)) {
+    //         return $path;
+    //     }
 
-        // Bail early if this is no frontend form
-        $is_frontend_form = (bool) acf_maybe_get($field_group, 'acff_is_frontend_form');
-        if (!$is_frontend_form) {
-            return $path;
-        }
+    //     // Bail early if this is no frontend form
+    //     $is_frontend_form = (bool) acf_maybe_get($field_group, 'acff_is_frontend_form');
+    //     if (!$is_frontend_form) {
+    //         return $path;
+    //     }
 
-        // delete previously saved frontend form json
-        $key = acf_maybe_get($field_group, 'key');
+    //     // delete previously saved frontend form json
+    //     $key = acf_maybe_get($field_group, 'key');
 
-        if ($key) {
-            remove_filter('acf/settings/save_json', [$this, 'acf_save_json']);
-            acf_delete_json_field_group($key);
-            add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
-        }
+    //     if ($key) {
+    //         remove_filter('acf/settings/save_json', [$this, 'acf_save_json']);
+    //         acf_delete_json_field_group($key);
+    //         add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
+    //     }
 
-        // return nothing, the field group won't be saved
-        return false;
-    }
+    //     // return nothing, the field group won't be saved
+    //     return false;
+    // }
 
 }
