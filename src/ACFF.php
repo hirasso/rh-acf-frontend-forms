@@ -767,8 +767,8 @@ class ACFF
         if (!is_array($field_group) || $this->is_super_admin()) {
             return;
         }
-        $acff_is_frontend_form = (int) $field_group['acff_is_frontend_form'] ?? 0;
-        $acff_for_post_type = (string) $field_group['acff_for_post_type'] ?? '';
+        $acff_is_frontend_form = (int) ($field_group['acff_is_frontend_form'] ?? 0);
+        $acff_for_post_type = (string) ($field_group['acff_for_post_type'] ?? '');
         $location_rule_name = "acf_field_group[location][group_0][rule_0]";
         ob_start() ?>
     <!-- Start acf frontend forms -->
