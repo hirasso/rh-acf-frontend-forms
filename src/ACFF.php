@@ -444,8 +444,12 @@ class ACFF
      * Check if a field group is a frontend form for a certain post type
      * @param array<string, mixed> $field_group
      */
-    private function is_frontend_form_for_post_type(array $field_group, string $post_type): bool
+    private function is_frontend_form_for_post_type(array $field_group, ?string $post_type = null): bool
     {
+        if (!$post_type) {
+            return false;
+        }
+
         $is_frontend_form = (bool) ($field_group['acff_is_frontend_form'] ?? false);
         $for_post_type = $field_group['acff_for_post_type'] ?? '';
         return $is_frontend_form && $for_post_type === $post_type;
@@ -774,9 +778,10 @@ class ACFF
      */
     public function frontend_form_rule_match(bool $match, array $rule, array $options, array $field_group): bool
     {
+        /** @var ?string $post_type */
         global $post_type;
 
-        if ($this->is_frontend_form_for_post_type($field_group, $post_type)) {
+        if ($post_type && $this->is_frontend_form_for_post_type($field_group, $post_type)) {
             return true;
         }
 
