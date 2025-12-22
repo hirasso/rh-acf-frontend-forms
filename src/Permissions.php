@@ -24,7 +24,6 @@ class Permissions
 
         add_action('acf/field_group/render_additional_group_settings', [$this, 'render_field_group_settings']);
         add_action('acf/field_group/admin_head', [$this, 'remove_meta_boxes'], 999, 2);
-        add_action('admin_menu', [$this, 'remove_acf_submenu_pages'], 999);
         add_action('current_screen', [$this, 'check_current_screen']);
         add_filter('page_row_actions', [$this, 'row_actions'], 10, 2);
         // Disabled: fires too late (after meta caps have been mapped already)
@@ -341,30 +340,7 @@ class Permissions
         return $args;
     }
 
-    /*
-    *  admin_menu
-    *
-    *  This function will replace the ACF admin menu item with a simpler one for non-admins
-    *
-    *  @type	action (admin_menu)
-    *
-    *  @param	n/a
-    *  @return	n/a
-    */
-    public function remove_acf_submenu_pages()
-    {
-        $slug = 'edit.php?post_type=acf-field-group';
-        $cap = acf_get_setting('capability');
-        if (acff()->is_super_admin()) {
-            return;
-        }
-        // remove the default menu item
-        // remove_menu_page($slug);
-        // add a custom menu item with acff=1 appended, so that submenus won't be added
-        // add_menu_page(__("Forms"), __("Forms"), $cap, "$slug&acff=1", false, 'dashicons-welcome-widgets-menus');
-    }
-
-    public function row_actions($actions, $post)
+    public function row_actions(array $actions, \WP_Post $post): array
     {
         if (acff()->is_super_admin() || $post->post_type !== 'acf-field-group') {
             return $actions;
