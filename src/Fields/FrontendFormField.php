@@ -60,7 +60,7 @@ class FrontendFormField extends \acf_field_select
     public function get_choices()
     {
         $choices = [];
-        foreach (ACFF()->get_frontend_forms_ids() as $id) {
+        foreach (acff()->get_frontend_forms_ids() as $id) {
             $choices[$id] = get_the_title($id);
         }
         return $choices;

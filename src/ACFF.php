@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 } // Exit if accessed directly
 
-class ACFF extends Singleton
+class ACFF
 {
     protected $prefix = 'rh_acff';
 

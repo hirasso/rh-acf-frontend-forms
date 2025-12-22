@@ -33,14 +33,18 @@ define('ACFF_ROOT', __FILE__);
 
 /**
  * API Access to ACFF Singleton Instance
- *
- * @return ACFF
  */
-function ACFF()
+function acff()
 {
-    return ACFF::getInstance();
+    /** @var ?ACFF $instance */
+    static $instance = null;
+
+    if (!$instance) {
+        $instance = new ACFF();
+    }
+
+    return $instance;
 }
-if (defined('ACF')) {
-    ACFF();
-    new Permissions();
-}
+
+acff();
+new Permissions();

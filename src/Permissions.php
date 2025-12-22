@@ -14,7 +14,7 @@ class Permissions
     public function __construct()
     {
 
-        $this->prefix = ACFF()->get_prefix();
+        $this->prefix = acff()->get_prefix();
 
         add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
         add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin']);
@@ -56,11 +56,11 @@ class Permissions
 
         $classes = explode(' ', $class);
 
-        if (ACFF()->is_frontend_form(acf_maybe_get_GET('post'))) {
+        if (acff()->is_frontend_form(acf_maybe_get_GET('post'))) {
             $classes[] = 'is-edit-acf-frontend-form';
         }
 
-        $classes[] = ACFF()->is_super_admin()
+        $classes[] = acff()->is_super_admin()
             ? 'is-acf-super-admin'
             : 'is-not-acf-super-admin';
 
@@ -84,7 +84,7 @@ class Permissions
      */
     public function add_settings_page_fields()
     {
-        $settings_page = ACFF()->get_settings_page_info();
+        $settings_page = acff()->get_settings_page_info();
 
         acf_add_local_field([
             'key' => "field_{$this->prefix}_allowed_fields",
@@ -105,7 +105,12 @@ class Permissions
         $choices = [];
         $never_allow = ['frontend_form'];
 
-        foreach (acf_get_field_types_info() as $key => $field) {
+        /** @var array<string, array{
+         *  label: string
+         * }> $types */
+        $types = acf_get_field_types_info();
+
+        foreach ($types as $key => $field) {
             if (in_array($key, $never_allow)) {
                 continue;
             }
@@ -203,7 +208,7 @@ class Permissions
      */
     public function restrict_field_types(array $groups): array
     {
-        if (!ACFF()->is_frontend_form(acf_maybe_get_GET('post'))) {
+        if (!acff()->is_frontend_form(acf_maybe_get_GET('post'))) {
             return $groups;
         }
 
@@ -236,7 +241,7 @@ class Permissions
      */
     public function acf_setting_show_admin(bool $setting): bool
     {
-        if (!ACFF()->is_super_admin()) {
+        if (!acff()->is_super_admin()) {
             return false;
         }
         return $setting;
@@ -268,7 +273,7 @@ class Permissions
      */
     public function restrict_bulk_actions(array $actions): array
     {
-        if (!ACFF()->is_super_admin()) {
+        if (!acff()->is_super_admin()) {
             return [];
         }
         return $actions;
@@ -294,12 +299,12 @@ class Permissions
             return $user_caps;
         }
 
-        if ($cap !== $this->get_frontend_forms_cap() || ACFF()->is_super_admin()) {
+        if ($cap !== $this->get_frontend_forms_cap() || acff()->is_super_admin()) {
             return $user_caps;
         }
 
         // deny access to acf field groups that aren't frontend forms
-        if (get_post_type($post) === 'acf-field-group' && !ACFF()->is_frontend_form($post->ID)) {
+        if (get_post_type($post) === 'acf-field-group' && !acff()->is_frontend_form($post->ID)) {
             $user_caps[] = 'do_not_allow';
         }
 
@@ -311,7 +316,7 @@ class Permissions
      */
     public function register_post_type_args(array $args, string $pt): array
     {
-        if ($pt !== 'acf-field-group' || ACFF()->is_super_admin()) {
+        if ($pt !== 'acf-field-group' || acff()->is_super_admin()) {
             return $args;
         }
 
@@ -350,7 +355,7 @@ class Permissions
     {
         $slug = 'edit.php?post_type=acf-field-group';
         $cap = acf_get_setting('capability');
-        if (ACFF()->is_super_admin()) {
+        if (acff()->is_super_admin()) {
             return;
         }
         // remove the default menu item
@@ -361,7 +366,7 @@ class Permissions
 
     public function row_actions($actions, $post)
     {
-        if (ACFF()->is_super_admin() || $post->post_type !== 'acf-field-group') {
+        if (acff()->is_super_admin() || $post->post_type !== 'acf-field-group') {
             return $actions;
         }
         foreach ($actions as $key => $value) {
@@ -393,7 +398,7 @@ class Permissions
      */
     private function die_if_not_admin($message)
     {
-        if (ACFF()->is_super_admin()) {
+        if (acff()->is_super_admin()) {
             return;
         }
         $args = [
@@ -415,7 +420,7 @@ class Permissions
     public function remove_meta_boxes()
     {
 
-        if (!ACFF()->is_super_admin()) {
+        if (!acff()->is_super_admin()) {
             remove_meta_box('acf-field-group-locations', 'acf-field-group', 'normal');
             remove_meta_box('acf-field-group-options', 'acf-field-group', 'normal');
         }
