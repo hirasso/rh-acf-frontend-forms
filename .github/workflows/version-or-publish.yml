@@ -113,7 +113,7 @@ jobs:
           NAME="${{ github.event.repository.name }}"
           echo "Repo Name: $NAME"
 
-          git archive -o "/tmp/$NAME-$TAG.zip --prefix=$NAME/ "$TAG"
+          git archive -o "/tmp/$NAME-$TAG.zip" --prefix="$NAME/" "$TAG"
 
           gh release upload "$TAG" "/tmp/$NAME-$TAG.zip" --clobber
 
