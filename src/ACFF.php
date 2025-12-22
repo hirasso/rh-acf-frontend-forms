@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 class ACFF extends Singleton
 {
-    private $prefix = 'rh_acff';
+    protected $prefix = 'rh_acff';
 
     public function __construct()
     {
@@ -25,8 +25,6 @@ class ACFF extends Singleton
 
     /**
      * Returns the prefix for the plugin.
-     *
-     * @return void
      */
     public function get_prefix()
     {
@@ -38,7 +36,6 @@ class ACFF extends Singleton
      */
     public function hooks()
     {
-
         // Always initializes the form_head in the frontend
         add_action('template_redirect', 'acf_form_head');
 
@@ -84,7 +81,6 @@ class ACFF extends Singleton
      */
     public function frontend_assets()
     {
-
         // enqueue plugin script
         wp_enqueue_script('rh-acff', $this->asset_uri('assets/acff.js'), ['jquery'], null, true);
 
@@ -101,8 +97,6 @@ class ACFF extends Singleton
 
     /**
      * Enqueue Admin Styles
-     *
-     * @return void
      */
     public function admin_styles()
     {
@@ -111,9 +105,6 @@ class ACFF extends Singleton
 
     /**
      * Helper function to get versioned asset urls
-     *
-     * @param [type] $path
-     * @return void
      */
     public function asset_uri($path)
     {
@@ -273,12 +264,9 @@ class ACFF extends Singleton
 
     /**
      * Prepare text fields for max chars info
-     * @param  array $field
-     * @return array $field
      */
     public function render_max_length_info($field)
     {
-
         if (!$field['maxlength'] || is_admin()) {
             return;
         }
@@ -292,15 +280,10 @@ class ACFF extends Singleton
 
     /**
      * Validate values of a text field
-     *
-     * @param [type] $valid
-     * @param [type] $value
-     * @param [type] $field
-     * @return void
      */
-    public function validate_value($valid, $value, $field)
+    public function validate_value(string|bool $valid, mixed $value, array $field): string|bool
     {
-        if (!$this->is_frontend_form_field($field)) {
+        if (is_string($valid) || !$this->is_frontend_form_field($field)) {
             return $valid;
         }
 
@@ -357,19 +340,12 @@ class ACFF extends Singleton
         return $valid;
     }
 
-
     /**
-     * Load a value
-     *
-     * @param [type] $value
-     * @param [type] $post_id
-     * @param [type] $field
-     * @return void
+     * Update a value
      */
-    public function update_value($value, $post_id, $field)
+    public function update_value(mixed $value, string|int $post_id, array $field): mixed
     {
-        $value = $this->maybe_reconvert_ampersands($value);
-        return $value;
+        return $this->maybe_reconvert_ampersands($value);
     }
 
     /**
@@ -383,42 +359,8 @@ class ACFF extends Singleton
         if (is_string($value)) {
             $value = wp_specialchars_decode($value);
         }
+
         return $value;
-    }
-
-    /**
-     * Validate upload size
-     *
-     * @param [type] $field
-     * @param [type] $default_message
-     * @return string
-     */
-    private function validate_upload($field, $message)
-    {
-        if (!isset($_FILES['acf'])) {
-            return $message;
-        }
-        $file = [
-            'size' => $_FILES['acf']['size'][$field['key']]
-        ];
-        // file size
-        if ($file['size']) {
-
-            $min_size = acf_maybe_get($field, 'min_size', 0);
-            $max_size = acf_maybe_get($field, 'max_size', 0);
-
-            if ($min_size && $file['size'] < acf_get_filesize($min_size)) {
-
-                // min width
-                $message = sprintf(__('File size must be at least %s.', 'acf'), acf_format_filesize($min_size));
-            } elseif ($max_size && $file['size'] > acf_get_filesize($max_size)) {
-
-                // min width
-                $message = sprintf(__('File size must must not exceed %s.', 'acf'), acf_format_filesize($max_size));
-            }
-        }
-
-        return $message;
     }
 
     /**
@@ -427,6 +369,7 @@ class ACFF extends Singleton
     public function get_settings_page_info(): object
     {
         $id = "{$this->prefix}_settings";
+
         return (object) [
             'id' => $id,
             'slug' => str_replace('_', '-', $id)
@@ -440,10 +383,12 @@ class ACFF extends Singleton
      */
     public function add_settings_page()
     {
-
         $settings_page = $this->get_settings_page_info();
 
-        acf_add_options_page([
+        /**
+         * We only have normal ACF (not pro) available for static analysis
+         */
+        acf_add_options_page([ // @phpstan-ignore function.notFound
             'page_title'    => __('Frontend Forms Settings'),
             'menu_title'    => __('ACFF Admin'),
             'menu_slug'     => $settings_page->slug,
@@ -751,14 +696,11 @@ class ACFF extends Singleton
 
     /**
      * Filter acf_field_groups for editors
-     *
-     * @param [WP_Query] $q
-     * @return $query
      */
-    public function query_frontend_forms_only($q)
+    public function query_frontend_forms_only(\WP_Query $q): void
     {
         if (!is_admin() || !$q->is_main_query() || $q->get('post_type') !== 'acf-field-group') {
-            return $q;
+            return;
         }
 
         if (!$this->is_super_admin() || $this->is_edit_view_frontend_forms()) {
@@ -766,8 +708,6 @@ class ACFF extends Singleton
         } elseif ($this->is_super_admin() && $this->is_edit_view_admin_forms()) {
             $q->set('post__in', $this->get_admin_forms_ids());
         }
-
-        return $q;
     }
 
     /**

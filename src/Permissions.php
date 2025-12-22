@@ -44,38 +44,37 @@ class Permissions
 
     /**
      * Adds an admin body class with info about acf field group capabilities
-     *
-     * @param [string] $class
-     * @return string
      */
-    public function admin_body_class($class)
+    public function admin_body_class(string $class): string
     {
         global $pagenow;
+
         $screen = get_current_screen();
         if ($pagenow !== 'post.php' || $screen->id !== 'acf-field-group') {
             return $class;
         }
+
+        $classes = explode(' ', $class);
+
         if (ACFF()->is_frontend_form(acf_maybe_get_GET('post'))) {
-            $class .= ' is-edit-acf-frontend-form';
+            $classes[] = 'is-edit-acf-frontend-form';
         }
-        if (ACFF()->is_super_admin()) {
-            $class .= ' is-acf-super-admin';
-        } else {
-            $class .= ' is-not-acf-super-admin';
-        }
+
+        $classes[] = ACFF()->is_super_admin()
+            ? 'is-acf-super-admin'
+            : 'is-not-acf-super-admin';
+
         return $class;
     }
 
     /**
      * Gets a list of fields that are allowed for frontend forms
-     *
-     * @return array
      */
     private function get_allowed_frontend_fields()
     {
         $allowed = (array) get_field("{$this->prefix}_allowed_fields", $this->get_settings_page_id());
         $allowed = apply_filters($this->hook_allowed_fields, $allowed);
-        return $allowed;
+        return is_array($allowed) ? $allowed : [];
     }
 
     /**
@@ -100,54 +99,52 @@ class Permissions
 
     /**
      * Get all ACF Field Types
-     *
-     * @return void
      */
     private function get_allowed_field_types_choices()
     {
         $choices = [];
         $never_allow = ['frontend_form'];
-        $field_types = acf_get_field_types_info();
-        foreach ($field_types as $key => $field) {
+
+        foreach (acf_get_field_types_info() as $key => $field) {
             if (in_array($key, $never_allow)) {
                 continue;
             }
-
             $choices[$key] = "{$field['label']}";
         }
+
         return $choices;
     }
 
     /**
      * Prints a notice if fields are being filtered by theme
-     *
-     * @param [array] $field
-     * @return void
      */
-    public function prepare_field_allowed_fields($field)
+    public function prepare_field_allowed_fields(?array $field = null): ?array
     {
+        if (empty($field)) {
+            return null;
+        }
+
         if (!has_filter($this->hook_allowed_fields)) {
             return $field;
         }
+
         // show allowed fields
         acf_render_field_wrap([
-            'label'			=> __('Allowed fields for frontend forms'),
+            'label' => __('Allowed fields for frontend forms'),
             'instructions' => "Remove the filter <em style='-webkit-user-select: all; user-select:all;'>$this->hook_allowed_fields</em> from your theme to edit fields manually.",
-            'type'			=> 'textarea',
-            'readonly'  => true,
-            'rows'      => 2,
-            'value'			=> implode(', ', $this->get_allowed_frontend_fields()),
+            'type' => 'textarea',
+            'readonly' => true,
+            'rows' => 2,
+            'value'	=> implode(', ', $this->get_allowed_frontend_fields()),
         ]);
 
         $this->update_settings_field('allowed_fields', $this->get_allowed_frontend_fields());
 
-        return false;
+        return null;
     }
 
     /**
      * Gets the settings page ID
-     *
-     * @return void
      */
     private function get_settings_page_id()
     {
@@ -156,37 +153,24 @@ class Permissions
 
     /**
      * Get a settings field
-     *
-     * @param [type] $name
-     * @param [type] $format
-     * @param [type] $fallback
-     * @return void
      */
-    private function get_settings_field($name, $format, $fallback = null)
+    private function get_settings_field(string $name, bool $format)
     {
-        $value = get_field("{$this->prefix}_{$name}", $this->get_settings_page_id(), $format);
-        return $value ? $value : $fallback;
+        return get_field("{$this->prefix}_{$name}", $this->get_settings_page_id(), $format);
     }
 
     /**
      * Update a settings field
-     *
-     * @param [type] $name
-     * @param [type] $value
-     * @return void
      */
-    private function update_settings_field($name, $value)
+    private function update_settings_field(string $name, mixed $value)
     {
         return update_field("{$this->prefix}_{$name}", $value, $this->get_settings_page_id());
     }
 
     /**
-     * Renders a code box with filter documentation
-     *
-     * @param [array] $field
-     * @return void
+     * Render a code box with filter documentation
      */
-    public function render_field_allowed_fields($field)
+    public function render_field_allowed_fields(array $field): void
     {
         acf_render_field_wrap([
             'label'			=> __('Code Snippet'),
@@ -199,33 +183,32 @@ class Permissions
     }
 
     /**
-     * Gets the code snippet for the allowed fields filter
-     *
-     * @return string
+     * Get the code snippet for the allowed fields filter
      */
-    private function get_code_snippet_allowed_fields()
+    private function get_code_snippet_allowed_fields(): string
     {
-        $value = (array) $this->get_settings_field('allowed_fields', false, []);
+        /** @var array $value */
+        $value = $this->get_settings_field('allowed_fields', false) ?: [];
+
         $allowed_fields = implode("', \n    '", $value);
         $snippet = "add_filter('$this->hook_allowed_fields', function(\$fields) {";
         $snippet .= "\n  return [\n    '$allowed_fields',\n  ];";
         $snippet .= "\n});";
+
         return $snippet;
     }
 
     /**
-     * Restricts field types for non-admins
-     *
-     * @param [array] $groups
-     * @return array $groups
+     * Restrict field types for non-admins
      */
-    public function restrict_field_types($groups)
+    public function restrict_field_types(array $groups): array
     {
-
         if (!ACFF()->is_frontend_form(acf_maybe_get_GET('post'))) {
             return $groups;
         }
+
         $allowed = $this->get_allowed_frontend_fields();
+
         foreach ($groups as $group_name => $group) {
             // https://stackoverflow.com/questions/4260086/php-how-to-use-array-filter-to-filter-array-keys/4260168#4260168
             $group = array_intersect_key($group, array_flip($allowed));
@@ -235,29 +218,23 @@ class Permissions
                 unset($groups[$group_name]);
             }
         }
+
         return $groups;
     }
 
 
     /**
      * Filter ACF Global Setting 'capability'
-     *
-     * @param [string] $setting
-     * @return $setting
      */
-    public function acf_setting_capability($setting)
+    public function acf_setting_capability(): string
     {
-        $cap = $this->get_frontend_forms_cap();
-        return $cap;
+        return $this->get_frontend_forms_cap();
     }
 
     /**
      * Filter ACF Global setting 'show_admin'
-     *
-     * @param [string] $setting
-     * @return $setting
      */
-    public function acf_setting_show_admin($setting)
+    public function acf_setting_show_admin(bool $setting): bool
     {
         if (!ACFF()->is_super_admin()) {
             return false;
@@ -267,37 +244,29 @@ class Permissions
 
     /**
      * Returns the minimum capability required to edit frontend forms
-     *
-     * @return string cap
      */
-    private function get_frontend_forms_cap()
+    private function get_frontend_forms_cap(): string
     {
-        return apply_filters('hirasso/acff/settings/capability', 'manage_options');
+        return (string) apply_filters('hirasso/acff/settings/capability', 'manage_options');
     }
 
     /**
      * Grant frontend form capability to roles
-     *
-     * @return void
      */
-    public function grant_frontend_form_cap_to_admins()
+    public function grant_frontend_form_cap_to_admins(): void
     {
         $cap = $this->get_frontend_forms_cap();
         $admin = get_role('administrator');
+
         if (!array_key_exists($cap, $admin->capabilities)) {
             $admin->add_cap($cap);
         }
     }
 
-
-
     /**
-     * Removes acf field group edit bulk actions for non-admins
-     *
-     * @param [array] $actions
-     * @return array
+     * Remove ACF field group edit bulk actions for non-admins
      */
-    public function restrict_bulk_actions($actions)
+    public function restrict_bulk_actions(array $actions): array
     {
         if (!ACFF()->is_super_admin()) {
             return [];
@@ -317,9 +286,8 @@ class Permissions
     * @param int      $user_id      The user ID.
     * @param array    $args         Adds the context to the cap. Typically the object ID.
     */
-    public function map_meta_cap($user_caps, $cap, $user_id, $args)
+    public function map_meta_cap(array $user_caps, string $cap, int $user_id, array $args): array
     {
-
         $post = get_post($args[0] ?? false);
 
         if (!$post) {
@@ -331,7 +299,7 @@ class Permissions
         }
 
         // deny access to acf field groups that aren't frontend forms
-        if (get_post_type($post) === 'acf-field-group' && !ACFF()->is_frontend_form($post)) {
+        if (get_post_type($post) === 'acf-field-group' && !ACFF()->is_frontend_form($post->ID)) {
             $user_caps[] = 'do_not_allow';
         }
 
@@ -339,22 +307,21 @@ class Permissions
     }
 
     /**
-     * Overwrites deletion capabilities for ACF field groups, to only allow admininstrators
-     *
-     * @param [array] $args
-     * @param [string] $pt
-     * @return array $args
+     * Overwrite deletion capabilities for ACF field groups, to only allow admininstrators
      */
-    public function register_post_type_args($args, $pt)
+    public function register_post_type_args(array $args, string $pt): array
     {
         if ($pt !== 'acf-field-group' || ACFF()->is_super_admin()) {
             return $args;
         }
+
         foreach ($args['labels'] as $key => $label) {
             $args['labels'][$key] = str_replace(['Custom Field', 'Field Group'], 'Frontend Form', $label);
         }
+
         $super_cap = 'manage_options';
         $acff_cap = $this->get_frontend_forms_cap();
+        // TODO??
         // $args['capabilities']['edit_post'] = $acff_cap;
         // $args['capabilities']['edit_posts'] = $acff_cap;
         // $args['capabilities']['edit_others_posts'] = $acff_cap;
@@ -366,7 +333,6 @@ class Permissions
         $args['menu_icon'] = 'dashicons-welcome-widgets-menus';
         $args['menu_position'] = 1000;
 
-        // pre_dump( $args );
         return $args;
     }
 
@@ -455,14 +421,10 @@ class Permissions
         }
     }
 
-
     /**
      * Field Group setting
-     *
-     * @param [array] $field_group
-     * @return void
      */
-    public function render_field_group_settings($field_group)
+    public function render_field_group_settings(array $field_group): void
     {
         $is_frontend_form = !empty($field_group['acff_is_frontend_form'])
             ? $field_group['acff_is_frontend_form'] : false;
@@ -512,14 +474,11 @@ class Permissions
 
     /**
      * Don't save frontend form field groups
-     *
-     * @param [string] $path
-     * @return mixed
      */
-    public function acf_save_json($path)
+    public function acf_save_json(string $path)
     {
-
         $field_group = (array) acf_maybe_get_POST('acf_field_group');
+
         // bail early if no field group in $_POST
         if (empty($field_group)) {
             return $path;
@@ -533,11 +492,13 @@ class Permissions
 
         // delete previously saved frontend form json
         $key = acf_maybe_get($field_group, 'key');
+
         if ($key) {
             remove_filter('acf/settings/save_json', [$this, 'acf_save_json']);
             acf_delete_json_field_group($key);
             add_filter('acf/settings/save_json', [$this, 'acf_save_json']);
         }
+
         // return nothing, the field group won't be saved
         return false;
     }

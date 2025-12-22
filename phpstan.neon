@@ -1,9 +1,14 @@
 parameters:
-  level: 6
+
+  level: 2
+
   paths:
     - rh-acf-frontend-forms.php
     - src/
+
   scanDirectories:
-    - vendor/.wp
+    - vendor/.wp/core
+    - vendor/.wp/plugins/advanced-custom-fields
     - vendor/wp-cli/wp-cli
+
   ignoreErrors:
