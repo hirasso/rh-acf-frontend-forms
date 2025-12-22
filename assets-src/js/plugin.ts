@@ -22,13 +22,17 @@ const $ = window.jQuery;
  * plugin('myPlugin', MyPlugin');
  */
 
-export default function plugin(pluginName, className, shortHand = false) {
+export default function plugin(
+  pluginName: string,
+  className: any,
+  shortHand = false,
+) {
   let dataName = `${pluginName}`;
   let dataOptionsName = `${dataName.toLowerCase()}-options`;
-  let old = $.fn[pluginName];
+  let old = ($.fn as any)[pluginName];
 
-  $.fn[pluginName] = function (option) {
-    return this.each(function () {
+  ($.fn as any)[pluginName] = function (this: any, option: any) {
+    return this.each(function (this: any) {
       let $this = $(this);
       let data = $this.data(dataName);
       let dataOptions = $this.data(dataOptionsName);
@@ -51,9 +55,11 @@ export default function plugin(pluginName, className, shortHand = false) {
 
   // - Short hand
   if (shortHand) {
-    $[pluginName] = (options) => $({})[pluginName](options);
+    $[pluginName] = (options: any) =>
+      ($({})[pluginName as any] as any)(options);
   }
 
   // - No conflict
-  $.fn[pluginName].noConflict = () => ($.fn[pluginName] = old);
+  ($.fn as any)[pluginName].noConflict = () =>
+    (($.fn as any)[pluginName] = old);
 }

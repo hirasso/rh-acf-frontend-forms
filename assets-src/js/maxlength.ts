@@ -1,10 +1,17 @@
 const $ = window.jQuery;
 
+import type { ACFField } from "../types.js";
+
 export default class MaxLength {
-  constructor(field) {
+  $info: JQuery<HTMLElement>;
+  max: number;
+  $remainingCount: JQuery<HTMLElement>;
+  $input: JQuery<HTMLElement>;
+
+  constructor(field: ACFField) {
     let $el = field.$el;
     this.$info = $el.find(".maxlength-info");
-    this.max = parseInt(this.$info.attr("data-maxlength"), 10);
+    this.max = parseInt(this.$info.attr("data-maxlength") || "0", 10);
     this.$remainingCount = $el.find(".remaining-count");
     this.$input = field.$input();
     this.$input.on("input maxlength:update", () => this.update());
@@ -12,7 +19,7 @@ export default class MaxLength {
   }
 
   update() {
-    let value = this.$input.val();
+    let value = String(this.$input.val() || "");
     let remaining = this.max - value.length;
     remaining = Math.max(0, remaining);
     if (remaining < 20) {

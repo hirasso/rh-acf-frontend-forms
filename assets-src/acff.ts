@@ -75,8 +75,7 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
         e.preventDefault();
       });
 
-      // @ts-expect-error ts doesn't know about the datepicker
-      $form.acfFrontendForm("doAjaxSubmit");
+      ($form as any).acfFrontendForm("doAjaxSubmit");
     });
   }
 

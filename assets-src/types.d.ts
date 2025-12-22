@@ -65,9 +65,18 @@ export interface ACF {
     callback: (arg: ACFImageField) => void | boolean,
   ): void;
   addAction(
+    action: `new_field/type=file`,
+    callback: (arg: ACFImageField) => void | boolean,
+  ): void;
+  addAction(
     action: "new_field" | `new_field/type=${string}`,
     callback: (arg: ACFField) => void | boolean,
   ): void;
+
+  /**
+   * Trigger an action hook
+   */
+  doAction(action: string, ...args: any[]): void;
 
   /**
    * Get data from an ACF element
@@ -84,6 +93,31 @@ export interface ACF {
    * Hide loading spinner
    */
   hideSpinner(): void;
+
+  /**
+   * Lock a form
+   */
+  lockForm($form: JQuery): void;
+
+  /**
+   * Unlock a form
+   */
+  unlockForm($form: JQuery): void;
+
+  /**
+   * Validation API
+   */
+  validation: {
+    enable(): void;
+    reset($form: JQuery): void;
+  };
+
+  /**
+   * Unload API
+   */
+  unload: {
+    disable(): void;
+  };
 }
 
 /**

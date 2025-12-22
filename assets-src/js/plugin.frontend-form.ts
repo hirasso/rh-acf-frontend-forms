@@ -4,12 +4,26 @@
  */
 
 const $ = window.jQuery;
+const acf = window.acf;
 
 import plugin from "./plugin";
 
+interface ACFFrontendFormOptions {
+  ajaxSubmit?: boolean;
+  waitAfterSubmit?: number;
+  resetAfterSubmit?: boolean;
+  submitOnChange?: boolean;
+  onSuccess?: (response: any) => void;
+}
+
 export default class ACFFrontendForm {
-  constructor(el, options = {}) {
-    let $form = $(el);
+  options: ACFFrontendFormOptions;
+  $form: JQuery<HTMLFormElement>;
+  $ajaxResponse?: JQuery<HTMLElement>;
+  static DEFAULTS: ACFFrontendFormOptions;
+
+  constructor(el: HTMLFormElement, options: ACFFrontendFormOptions = {}) {
+    let $form = $<HTMLFormElement>(el);
     this.options = options;
     this.$form = $form;
 
@@ -55,17 +69,18 @@ export default class ACFFrontendForm {
     this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
 
     // disable the confirmation for repeater remove-row buttons
-    this.$form.on("click", '[data-event="remove-row"]', function (e) {
-      $(this).click();
+    this.$form.on("click", '[data-event="remove-row"]', function () {
+      $(this).trigger("click");
     });
   }
 
   doAjaxSubmit() {
     // Fix for Safari Webkit – empty file inputs
     // https://stackoverflow.com/a/49827426/586823
-    let $fileInputs = $('input[type="file"]:not([disabled])', this.$form);
-    $fileInputs.each(function (i, input) {
-      if (input.files.length > 0) {
+    const $fileInputs = $('input[type="file"]:not([disabled])', this.$form);
+    $fileInputs.each((i, input) => {
+      const fileInput = input as HTMLInputElement;
+      if (fileInput.files && fileInput.files.length > 0) {
         return;
       }
       $(input).prop("disabled", true);
@@ -88,11 +103,11 @@ export default class ACFFrontendForm {
       contentType: false,
     }).done((response) => {
       this.handleAjaxResponse(response);
-      this.options.onSuccess(response);
+      this.options.onSuccess?.(response);
     });
   }
 
-  handleAjaxResponse(response) {
+  handleAjaxResponse(response: any) {
     acf.hideSpinner();
     this.showAjaxResponse(response);
     if (!response.success) {
@@ -115,7 +130,7 @@ export default class ACFFrontendForm {
     this.$form.find(".acf-form-submit").append(this.$ajaxResponse);
   }
 
-  showAjaxResponse(response) {
+  showAjaxResponse(response: any) {
     let message = ((response || {}).data || {}).message;
     if (!message) {
       console.warn(
@@ -126,25 +141,20 @@ export default class ACFFrontendForm {
     this.$form.trigger("rh/show-ajax-response", response);
     this.$form.trigger("rh/acf-frontend-form/response", response);
     this.$ajaxResponse
-      .text(message)
+      ?.text(message)
       .toggleClass("is--error", response.success === false);
 
     this.$form.addClass("show-ajax-response");
   }
 
   resetForm() {
-    this.$form.get(0).reset();
+    const form = this.$form.get(0) as HTMLFormElement;
+    form.reset();
     this.$form
       .find(".acf-field")
       .find("input,textarea,select")
       .trigger("change");
     this.$form.find(".acf-field").removeClass("has-value has-focus");
-  }
-
-  initImageDrops() {
-    $(".acf-field-image").each((i, el) => {
-      new ImageDrop($(el));
-    });
   }
 
   hideConditionalFields() {
@@ -160,14 +170,14 @@ export default class ACFFrontendForm {
     this.$form.on("focus", selector, (e) => this.onInputFocus(e.currentTarget));
     this.$form.on("blur", selector, (e) => this.onInputBlur(e.currentTarget));
   }
-  adjustHasValueClass($input) {
+  adjustHasValueClass($input: JQuery<HTMLElement>) {
     let $field = $input.parents(".acf-field:first");
-    let field = acf.getInstance($field);
+    let field = (acf as any).getInstance($field);
     if (typeof field === "undefined") {
       return;
     }
     let type = $input.attr("type");
-    let val = $input.val();
+    let val: any = $input.val();
 
     let enabledInputs = [
       "text",
@@ -196,26 +206,25 @@ export default class ACFFrontendForm {
       $field.removeClass("has-value");
     }
   }
-  maybeSubmitForm(e) {
+  maybeSubmitForm(e: JQuery.TriggeredEvent) {
     if (this.options.submitOnChange) {
       this.$form.find('[type="submit"]').click();
       this.$form.submit();
     }
   }
-  onInputFocus(el) {
+  onInputFocus(el: HTMLElement) {
     this.$field(el).addClass("has-focus");
   }
-  onInputBlur(el) {
+  onInputBlur(el: HTMLElement) {
     this.$field(el).removeClass("has-focus");
   }
-  $field(input) {
+  $field(input: HTMLElement) {
     return $(input).parents(".acf-field:first");
   }
 }
 
 /**
  * Defaults
- * @type {{color: string, status: number}}
  */
 ACFFrontendForm.DEFAULTS = {
   ajaxSubmit: true,
@@ -223,7 +232,7 @@ ACFFrontendForm.DEFAULTS = {
   resetAfterSubmit: true,
   submitOnChange: false,
   onSuccess: () => {},
-};
+} satisfies ACFFrontendFormOptions;
 
 /**
  * make jQuery Plugin

@@ -74,7 +74,7 @@ export default class ImageDrop {
       // this.parseFile( e.dataTransfer.files[0] );
     });
 
-    this.$clear.unbind().click((e) => {
+    this.$clear.off().on("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.clear();
@@ -83,7 +83,7 @@ export default class ImageDrop {
     this.currentImageSrc = this.$image.attr("src");
 
     this.lastInputVal = this.$input.val();
-    this.$input.change((e) => this.onInputChange(this.$input));
+    this.$input.on("change", () => this.onInputChange(this.$input));
   }
 
   renderImage(src: string | undefined) {
