@@ -1,5 +1,11 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.2.1
+
+### Patch Changes
+
+- 2414177: Dot not assume `$post_type` is always defined in `is_frontend_form_for_post_type`
+
 ## 4.2.0
 
 ### Minor Changes
