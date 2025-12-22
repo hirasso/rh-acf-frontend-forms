@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 class ACFF
 {
-    protected $prefix = 'rh_acff';
+    protected string $prefix = 'rh_acff';
 
     public function __construct()
     {
@@ -26,7 +26,7 @@ class ACFF
     /**
      * Returns the prefix for the plugin.
      */
-    public function get_prefix()
+    public function get_prefix(): string
     {
         return $this->prefix;
     }
@@ -34,7 +34,7 @@ class ACFF
     /**
      * Setup action and filter hooks
      */
-    public function hooks()
+    public function hooks(): void
     {
         // Always initializes the form_head in the frontend
         add_action('template_redirect', 'acf_form_head');
@@ -79,7 +79,7 @@ class ACFF
     /**
      * Enqueue and dequeue assets
      */
-    public function frontend_assets()
+    public function frontend_assets(): void
     {
         // enqueue plugin script
         wp_enqueue_script('rh-acff', $this->asset_uri('assets/acff.js'), ['jquery'], null, true);
@@ -98,7 +98,7 @@ class ACFF
     /**
      * Enqueue Admin Styles
      */
-    public function admin_styles()
+    public function admin_styles(): void
     {
         wp_enqueue_style("rh-acff-admin", $this->asset_uri('assets/acff-admin.css'));
     }
@@ -106,7 +106,7 @@ class ACFF
     /**
      * Helper function to get versioned asset urls
      */
-    public function asset_uri($path)
+    public function asset_uri(string $path): string
     {
         $uri = plugins_url($path, ACFF_ROOT);
         $file = $this->get_file_path($path);
@@ -129,10 +129,10 @@ class ACFF
 
     /**
      * Prepares image fields
-     * @param  array $field
-     * @return array $field
+     * @param  array<string, mixed> $field
+     * @return array<string, mixed> $field
      */
-    public function prepare_image_field($field)
+    public function prepare_image_field(array $field): array
     {
         if (is_admin()) {
             return $field;
@@ -143,10 +143,10 @@ class ACFF
 
     /**
      * Renders image field instructions
-     * @param  array $field
-     * @return array $field
+     * @param  array<string, mixed> $field
+     * @return array<string, mixed> $field
      */
-    public function render_upload_instructions($field)
+    public function render_upload_instructions(array $field): array
     {
         if (is_admin()) {
             return $field;
@@ -190,7 +190,11 @@ class ACFF
         return $field;
     }
 
-    public function glue_last_two($array)
+    /**
+     * @param array<int, string> $array
+     * @return array<int, string>
+     */
+    public function glue_last_two(array $array): array
     {
         // glue together last 2 types
         if (count($array) > 1) {
@@ -203,7 +207,10 @@ class ACFF
         return $array;
     }
 
-    public function get_mime_types_error_message($mime_types)
+    /**
+     * @param array<int, string> $mime_types
+     */
+    public function get_mime_types_error_message(array $mime_types): string
     {
         // glue together last 2 types
         if (count($mime_types) > 1) {
@@ -216,7 +223,7 @@ class ACFF
         return sprintf(__('File type must be %s.', 'acf'), implode(', ', $mime_types));
     }
 
-    public function get_max_size_error_message()
+    public function get_max_size_error_message(): string
     {
         return 'test 123';
     }
@@ -225,14 +232,15 @@ class ACFF
     /**
      * Checks if the page is called via ajax, even if not in admin-ajax.php
      */
-    public function is_ajax_call()
+    public function is_ajax_call(): bool
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
     /**
      * Runs after form submit
+     * @param array<string, mixed> $form
      */
-    public function on_submit_form($form, $post_id)
+    public function on_submit_form(array $form, int|string $post_id): void
     {
         $success = apply_filters("rh/acf_form_success", true, $post_id);
         $success = apply_filters("rh/acf_form_success/id={$form['id']}", true, $post_id);
@@ -240,8 +248,9 @@ class ACFF
     }
     /**
      * Send the response
+     * @param array<string, mixed> $form
      */
-    public function send_ajax_submit_response($form, $success)
+    public function send_ajax_submit_response(array $form, bool $success): void
     {
         $custom_return = acf_maybe_get($form, 'return', '');
         if ($custom_return || !$this->is_ajax_call()) {
@@ -264,8 +273,9 @@ class ACFF
 
     /**
      * Prepare text fields for max chars info
+     * @param array<string, mixed> $field
      */
-    public function render_max_length_info($field)
+    public function render_max_length_info(array $field): void
     {
         if (!$field['maxlength'] || is_admin()) {
             return;
@@ -280,6 +290,7 @@ class ACFF
 
     /**
      * Validate values of a text field
+     * @param array<string, mixed> $field
      */
     public function validate_value(string|bool $valid, mixed $value, array $field): string|bool
     {
@@ -314,12 +325,12 @@ class ACFF
      *
      * @param string|true $valid
      * @param string $value
-     * @param array $field
+     * @param array<string, mixed> $field
      * @param string $input_name
      *
      * @return string|true
      */
-    public function fix_acf_length_validation($valid, $value, $field, $input_name)
+    public function fix_acf_length_validation($valid, $value, array $field, $input_name)
     {
         if (is_string($valid) && strpos($valid, 'Value must not exceed') === 0) {
             if (!isset($field['maxlength'])) {
@@ -342,6 +353,7 @@ class ACFF
 
     /**
      * Update a value
+     * @param array<string, mixed> $field
      */
     public function update_value(mixed $value, string|int $post_id, array $field): mixed
     {
@@ -354,7 +366,7 @@ class ACFF
      * previously converted by
      * @see wp_kses_normalize_entities
      **/
-    private function maybe_reconvert_ampersands($value)
+    private function maybe_reconvert_ampersands(mixed $value): mixed
     {
         if (is_string($value)) {
             $value = wp_specialchars_decode($value);
@@ -430,6 +442,7 @@ class ACFF
 
     /**
      * Check if a field group is a frontend form for a certain post type
+     * @param array<string, mixed> $field_group
      */
     private function is_frontend_form_for_post_type(array $field_group, string $post_type): bool
     {
@@ -440,6 +453,7 @@ class ACFF
 
     /**
      * Check if a field is part of a frontend form
+     * @param array<string, mixed>|null $field
      */
     private function is_frontend_form_field(?array $field = null): bool
     {
@@ -459,6 +473,8 @@ class ACFF
 
     /**
      * Prepare fields for frontend forms
+     * @param array<string, mixed>|null $field
+     * @return array<string, mixed>|null
      */
     public function prepare_field(?array $field = null): ?array
     {
@@ -501,6 +517,7 @@ class ACFF
 
     /**
      * Format some values from frontend forms
+     * @param array<string, mixed> $field
      */
     public function format_value(mixed $value, int|string $post_id, array $field): mixed
     {
@@ -519,8 +536,9 @@ class ACFF
 
     /**
      * Render additional field settings
+     * @param array<string, mixed> $field
      */
-    public function render_field_settings($field)
+    public function render_field_settings(array $field): void
     {
         switch ($field['type']) {
             case 'true_false':
@@ -559,6 +577,8 @@ class ACFF
 
     /**
      * Field group edit views
+     * @param array<string, string> $views
+     * @return array<string, string>
      */
     public function list_table_views(array $views): array
     {
@@ -582,6 +602,8 @@ class ACFF
 
     /**
      * Add Frontend Forms to field group edit views
+     * @param array<string, string> $views
+     * @return array<string, string>
      */
     private function add_edit_view_frontend_forms(array $views): array
     {
@@ -602,6 +624,8 @@ class ACFF
 
     /**
      * Adds Frontend Forms to field group edit views
+     * @param array<string, string> $views
+     * @return array<string, string>
      */
     private function add_edit_view_admin_forms(array $views): array
     {
@@ -643,9 +667,9 @@ class ACFF
     /**
      * Get field groups from Database
      *
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
-    private function get_field_groups_from_db()
+    private function get_field_groups_from_db(): array
     {
         return acf_get_raw_field_groups();
     }
@@ -653,9 +677,9 @@ class ACFF
     /**
      * Get all frontend forms
      *
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
-    public function get_frontend_forms()
+    public function get_frontend_forms(): array
     {
         return array_filter($this->get_field_groups_from_db(), function ($field_group) {
             return (bool) acf_maybe_get($field_group, 'acff_is_frontend_form', false);
@@ -665,9 +689,9 @@ class ACFF
     /**
      * Get all admin forms
      *
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
-    private function get_admin_forms()
+    private function get_admin_forms(): array
     {
         return array_filter($this->get_field_groups_from_db(), function ($field_group) {
             return (bool) acf_maybe_get($field_group, 'acff_is_frontend_form', false) === false;
@@ -677,9 +701,9 @@ class ACFF
     /**
      * Get the ids of all frontend forms
      *
-     * @return array
+     * @return array<int, int>
      */
-    public function get_frontend_forms_ids()
+    public function get_frontend_forms_ids(): array
     {
         return array_column($this->get_frontend_forms(), 'ID');
     }
@@ -687,9 +711,9 @@ class ACFF
     /**
      * Get the ids of all admin forms
      *
-     * @return array
+     * @return array<int, int>
      */
-    public function get_admin_forms_ids()
+    public function get_admin_forms_ids(): array
     {
         return array_column($this->get_admin_forms(), 'ID');
     }
@@ -744,8 +768,11 @@ class ACFF
 
     /**
      * Rule match for frontend forms
+     * @param array<string, mixed> $rule
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $field_group
      */
-    public function frontend_form_rule_match($match, $rule, $options, $field_group)
+    public function frontend_form_rule_match(bool $match, array $rule, array $options, array $field_group): bool
     {
         global $post_type;
 
@@ -785,7 +812,7 @@ class ACFF
     /**
      * Render a time-based honeypot field
      */
-    public function render_time_based_honeypot()
+    public function render_time_based_honeypot(): void
     {
         ob_start(); ?>
       <input type="hidden" name="_acff_form_started" value="">
@@ -798,7 +825,7 @@ class ACFF
     /**
      * Validate the time based honeypot "_acff_form_started"
      */
-    public function validate_time_based_honeypot()
+    public function validate_time_based_honeypot(): void
     {
         // Not an acf_form()
         if (($_POST['_acf_screen'] ?? null) !== 'acf_form') {

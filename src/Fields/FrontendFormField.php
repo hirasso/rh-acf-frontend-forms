@@ -10,19 +10,9 @@ class FrontendFormField extends \acf_field_select
     *  __construct
     *
     *  This function will setup the field type data
-    *
-    *  @type	function
-    *  @date	5/03/2014
-    *  @since	5.0.0
-    *
-    *  @param	n/a
-    *  @return	n/a
     */
-
     public function initialize()
     {
-
-        // vars
         $this->name = 'frontend_form';
         $this->label = __("Frontend Form");
         $this->category = 'relational';
@@ -39,13 +29,19 @@ class FrontendFormField extends \acf_field_select
 
     }
 
-    public function render_field($field)
+    /**
+     * @param array<string, mixed> $field
+     */
+    public function render_field(mixed $field): void
     {
         $field['choices'] = $this->get_choices();
         parent::render_field($field);
     }
 
-    public function render_field_settings($field)
+    /**
+     * @param array<string, mixed> $field
+     */
+    public function render_field_settings(mixed $field): void
     {
         // allow_null
         acf_render_field_setting($field, [
@@ -57,7 +53,10 @@ class FrontendFormField extends \acf_field_select
         ]);
     }
 
-    public function get_choices()
+    /**
+     * @return array<int, string>
+     */
+    public function get_choices(): array
     {
         $choices = [];
         foreach (acff()->get_frontend_forms_ids() as $id) {
@@ -66,7 +65,10 @@ class FrontendFormField extends \acf_field_select
         return $choices;
     }
 
-    public function load_value($value, $post_id, $field)
+    /**
+     * @param array<string, mixed> $field
+     */
+    public function load_value(mixed $value, mixed $post_id, mixed $field): int
     {
         return intval($value);
     }

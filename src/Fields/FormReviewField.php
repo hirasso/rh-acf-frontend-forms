@@ -8,19 +8,9 @@ class FormReviewField extends \acf_field_message
     *  __construct
     *
     *  This function will setup the field type data
-    *
-    *  @type	function
-    *  @date	5/03/2014
-    *  @since	5.0.0
-    *
-    *  @param	n/a
-    *  @return	n/a
     */
-
-    public function initialize()
+    public function initialize(): void
     {
-
-        // vars
         $this->name = 'form_review';
         $this->label = __("Form Review");
         $this->category = 'layout';
@@ -32,11 +22,15 @@ class FormReviewField extends \acf_field_message
 
     }
 
-    public function prepare_field($field)
+    /**
+     * @param array<string, mixed>|null $field
+     * @return array<string, mixed>|null
+     */
+    public function prepare_field(?array $field = null): ?array
     {
         // don't display form reviews on admin
-        if (is_admin()) {
-            return false;
+        if (empty($field) || is_admin()) {
+            return null;
         }
         return $field;
     }

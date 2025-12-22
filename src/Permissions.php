@@ -8,8 +8,8 @@ if (! defined('ABSPATH')) {
 
 class Permissions
 {
-    private $prefix;
-    private $hook_allowed_fields = 'hirasso/acff/allowed-fields';
+    private string $prefix;
+    private string $hook_allowed_fields = 'hirasso/acff/allowed-fields';
 
     public function __construct()
     {
@@ -68,8 +68,9 @@ class Permissions
 
     /**
      * Gets a list of fields that are allowed for frontend forms
+     * @return array<int, string>
      */
-    private function get_allowed_frontend_fields()
+    private function get_allowed_frontend_fields(): array
     {
         $allowed = (array) get_field("{$this->prefix}_allowed_fields", $this->get_settings_page_id());
         $allowed = apply_filters($this->hook_allowed_fields, $allowed);
@@ -98,8 +99,9 @@ class Permissions
 
     /**
      * Get all ACF Field Types
+     * @return array<string, string>
      */
-    private function get_allowed_field_types_choices()
+    private function get_allowed_field_types_choices(): array
     {
         $choices = [];
         $never_allow = ['frontend_form'];
@@ -121,6 +123,8 @@ class Permissions
 
     /**
      * Prints a notice if fields are being filtered by theme
+     * @param array<string, mixed>|null $field
+     * @return array<string, mixed>|null
      */
     public function prepare_field_allowed_fields(?array $field = null): ?array
     {
@@ -150,7 +154,7 @@ class Permissions
     /**
      * Gets the settings page ID
      */
-    private function get_settings_page_id()
+    private function get_settings_page_id(): string
     {
         return "{$this->prefix}_settings";
     }
@@ -158,7 +162,7 @@ class Permissions
     /**
      * Get a settings field
      */
-    private function get_settings_field(string $name, bool $format)
+    private function get_settings_field(string $name, bool $format): mixed
     {
         return get_field("{$this->prefix}_{$name}", $this->get_settings_page_id(), $format);
     }
@@ -166,13 +170,14 @@ class Permissions
     /**
      * Update a settings field
      */
-    private function update_settings_field(string $name, mixed $value)
+    private function update_settings_field(string $name, mixed $value): bool
     {
         return update_field("{$this->prefix}_{$name}", $value, $this->get_settings_page_id());
     }
 
     /**
      * Render a code box with filter documentation
+     * @param array<string, mixed> $field
      */
     public function render_field_allowed_fields(array $field): void
     {
@@ -191,7 +196,7 @@ class Permissions
      */
     private function get_code_snippet_allowed_fields(): string
     {
-        /** @var array $value */
+        /** @var array<int, string> $value */
         $value = $this->get_settings_field('allowed_fields', false) ?: [];
 
         $allowed_fields = implode("', \n    '", $value);
@@ -204,6 +209,8 @@ class Permissions
 
     /**
      * Restrict field types for non-admins
+     * @param array<string, mixed> $groups
+     * @return array<string, mixed>
      */
     public function restrict_field_types(array $groups): array
     {
@@ -269,6 +276,8 @@ class Permissions
 
     /**
      * Remove ACF field group edit bulk actions for non-admins
+     * @param array<string, string> $actions
+     * @return array<string, string>
      */
     public function restrict_bulk_actions(array $actions): array
     {
@@ -285,10 +294,11 @@ class Permissions
     *
     * @since 2.8.0
     *
-    * @param string[] $user_caps    Array of the user's capabilities.
+    * @param array<int, string> $user_caps    Array of the user's capabilities.
     * @param string   $cap          Capability name.
     * @param int      $user_id      The user ID.
-    * @param array    $args         Adds the context to the cap. Typically the object ID.
+    * @param array<int, mixed>    $args         Adds the context to the cap. Typically the object ID.
+    * @return array<int, string>
     */
     public function map_meta_cap(array $user_caps, string $cap, int $user_id, array $args): array
     {
@@ -312,6 +322,8 @@ class Permissions
 
     /**
      * Overwrite deletion capabilities for ACF field groups, to only allow admininstrators
+     * @param array<string, mixed> $args
+     * @return array<string, mixed>
      */
     public function register_post_type_args(array $args, string $pt): array
     {
@@ -340,6 +352,10 @@ class Permissions
         return $args;
     }
 
+    /**
+     * @param array<string, string> $actions
+     * @return array<string, string>
+     */
     public function row_actions(array $actions, \WP_Post $post): array
     {
         if (acff()->is_super_admin() || $post->post_type !== 'acf-field-group') {
@@ -372,7 +388,7 @@ class Permissions
      *
      * @return void
      */
-    private function die_if_not_admin($message)
+    private function die_if_not_admin(string $message): void
     {
         if (acff()->is_super_admin()) {
             return;
@@ -404,6 +420,7 @@ class Permissions
 
     /**
      * Field Group setting
+     * @param array<string, mixed> $field_group
      */
     public function render_field_group_settings(array $field_group): void
     {
@@ -442,7 +459,10 @@ class Permissions
         ]);
     }
 
-    private function get_post_type_select_choices()
+    /**
+     * @return array<string, string>
+     */
+    private function get_post_type_select_choices(): array
     {
         $post_types = get_post_types([], 'objects');
         $choices = [];

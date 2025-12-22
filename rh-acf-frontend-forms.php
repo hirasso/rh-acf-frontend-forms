@@ -34,7 +34,7 @@ define('ACFF_ROOT', __FILE__);
 /**
  * API Access to ACFF Singleton Instance
  */
-function acff()
+function acff(): ACFF
 {
     /** @var ?ACFF $instance */
     static $instance = null;
