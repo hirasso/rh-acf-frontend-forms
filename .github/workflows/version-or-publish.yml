@@ -113,10 +113,13 @@ jobs:
           NAME="${{ github.event.repository.name }}"
           echo "Repo Name: $NAME"
 
-          git archive -o "/tmp/$NAME-$TAG.zip" --prefix="$NAME/" "$TAG"
+          FILENAME="$NAME-$TAG.zip"
+          echo "File Name: $FILENAME"
 
-          gh release upload "$TAG" "/tmp/$NAME-$TAG.zip" --clobber
+          git archive -o "/tmp/$FILENAME" --prefix="$NAME/" "$TAG"
 
-          echo "✅ Uploaded $NAME-$TAG.zip to the release $TAG"
+          gh release upload "$TAG" "/tmp/$FILENAME" --clobber
+
+          echo "✅ Uploaded $FILENAME to the release $TAG"
         env:
           GH_TOKEN: ${{ github.token }}
