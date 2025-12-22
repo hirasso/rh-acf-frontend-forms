@@ -411,12 +411,9 @@ class ACFF
 
         $field_group_title = __('Frontend Form Settings');
 
-        // hack to let us get around the acf-field-group #title check on submit
-        $title_hack = '<div class="rh-acf-title-hack hidden" id="titlewrap"><input id="title" value="noop" readonly></input></div>';
-
         acf_add_local_field_group([
             'key' => "group_$settings_page->id",
-            'title' => "$field_group_title $title_hack",
+            'title' => "$field_group_title",
             'location' => [
                 [
                     [
