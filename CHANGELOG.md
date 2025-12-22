@@ -1,5 +1,14 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.0.0
+
+### Major Changes
+
+- 2f2af5b: - **BREAKING**: renamed namespace from `RH\ACFF` to `Hirasso\ACFF`
+  - **BREAKING**: renamed filters from "rh/acff/filtername" to "hirasso/acff/filtername"
+  - Switched to `@changesets/cli` for CHANGELOG management
+  - Switched from parcel bundler 1 to raw esbuild/sass workflow
+
 #### 3.3.1 (2025-12-22)
 
 - Cleanup (#6375f29)
@@ -317,4 +326,3 @@
 - Added rah/acf-form-resized event trigger (#b143147)
 - Fixes, fixes, fixes (#0ed355a)
 - Initial commit (#e39db03)
-
