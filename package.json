@@ -9,8 +9,11 @@
   "scripts": {
     "preinstall": "git config core.hooksPath .githooks; echo 'added .githooks to git'",
     "bundle": "node parcel-bundler.js -f \"assets-src/*.js\" -o \"assets\"",
-    "watch": "npm run bundle",
-    "build": "npm run bundle -- --production"
+    "watch": "pnpm run bundle",
+    "build": "pnpm run bundle -- --production",
+    "format:assets": "npx prettier --write '**/*.{js,css}'",
+    "format:php": "./vendor/bin/pint",
+    "version": "pnpm changeset version && bin/cli.js version:patch"
   },
   "babel": {
     "presets": [
@@ -33,12 +36,18 @@
     "@babel/core": "^7.9.6",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.9.6",
+    "@changesets/cli": "^2.29.8",
     "autoprefixer": "^9.7.6",
+    "fast-glob": "^3.3.3",
     "find-parent-dir": "^0.3.0",
     "glob": "^7.1.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "minimist": "^1.2.5",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-watch-reload": "^1.0.0",
+    "picocolors": "^1.1.1",
+    "prettier": "^3.7.4",
     "rimraf": "^3.0.2",
     "sass": "^1.26.5"
   },
