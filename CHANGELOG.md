@@ -4,10 +4,12 @@
 
 ### Major Changes
 
-- 2f2af5b: - **BREAKING**: renamed namespace from `RH\ACFF` to `Hirasso\ACFF`
-  - **BREAKING**: renamed filters from "rh/acff/filtername" to "hirasso/acff/filtername"
-  - Switched to `@changesets/cli` for CHANGELOG management
-  - Switched from parcel bundler 1 to raw esbuild/sass workflow
+- **BREAKING**: renamed the main plugin namespace from `RH\ACFF` to `Hirasso\ACFF`
+- **BREAKING**: renamed filters from "rh/acff/filtername" to "hirasso/acff/filtername"
+- Switched to `@changesets/cli` for CHANGELOG management
+- Switched from parcel bundler v1 to a lightweight esbuild process
+- Build assets in CI
+- Added formating using `laravel/pint`
 
 #### 3.3.1 (2025-12-22)
 
