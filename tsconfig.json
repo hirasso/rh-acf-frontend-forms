@@ -1,0 +1,16 @@
+{
+	"include": ["assets-src"],
+	"compilerOptions": {
+		"target": "es2017",
+    "module": "es2020",
+		"moduleResolution": "Node",
+		"rootDir": "assets-src",
+		"resolveJsonModule": true,
+		"allowJs": true,
+		"outDir": "./assets",
+		"esModuleInterop": true,
+		"strict": true,
+		"noImplicitAny": true,
+    "skipLibCheck": true, // ignore node_modules
+	}
+}

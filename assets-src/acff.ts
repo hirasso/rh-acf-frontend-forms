@@ -2,12 +2,12 @@ import "./css/acff.css";
 
 ("use strict");
 
-import "./js/autofill";
-import "./js/plugin.frontend-form";
+import "./js/autofill.js";
+import "./js/plugin.frontend-form.js";
 
-import ImageDrop from "./js/image-drop";
-import FileInput from "./js/file-input";
-import MaxLength from "./js/maxlength";
+import ImageDrop from "./js/image-drop.js";
+import FileInput from "./js/file-input.js";
+import MaxLength from "./js/maxlength.js";
 
 import autosize from "autosize";
 
@@ -71,10 +71,11 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
       if (!$form.hasClass("is-ajax-submit")) {
         return true;
       }
-      $form.one("submit", (e: SubmitEvent) => {
+      $form.one("submit", function (e) {
         e.preventDefault();
       });
 
+      // @ts-expect-error ts doesn't know about the datepicker
       $form.acfFrontendForm("doAjaxSubmit");
     });
   }
