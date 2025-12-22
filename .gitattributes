@@ -1,0 +1,17 @@
+# dotfiles
+.* export-ignore
+
+# js tooling
+package.json export-ignore
+pnpm-lock.yaml export-ignore
+jsconfig.json export-ignore
+
+# php tooling
+composer.lock export-ignore
+composer.json export-ignore
+
+# build tooling
+/bin export-ignore
+
+# markdown files
+*.md export-ignore
