@@ -82,6 +82,8 @@ jobs:
           git add assets/
           git diff --staged --quiet || git commit -m "chore: build output [skip ci]"
           git push
+        env:
+          HUSKY: 0
 
       # Run changesets action either if there are unreleased changesets (= a PR must be created)
       # or if the commit message matches the release PR (= new versions must be published to NPM)
