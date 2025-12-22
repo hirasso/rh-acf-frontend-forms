@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- cceff79: Trigger a release
+- cceff79: Try to get release assets running
 
 ## 4.0.0
 
