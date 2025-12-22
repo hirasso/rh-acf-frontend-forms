@@ -1,5 +1,11 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.0.2
+
+### Patch Changes
+
+- 73f460a: Do not export assets-src
+
 ## 4.0.1
 
 ### Patch Changes
