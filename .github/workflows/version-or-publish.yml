@@ -99,14 +99,24 @@ jobs:
           # doesn't work with GITHUB_TOKEN for some reason
           GITHUB_TOKEN: ${{ secrets.HIRASSO_ACTIONS_TOKEN }}
 
+      - name: Get tag
+        if: steps.cs.outputs.published == 'true'
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
       - name: Upload release asset
         if: steps.cs.outputs.published == 'true'
         run: |
-          TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
-          ASSET="${{ needs.package-infos.outputs.packageName }}.zip"
-          git archive -o "/tmp/$ASSET --prefix=${{ github.event.repository.name }}/ "$TAG"
+          TAG="${{ steps.tag.outputs.tag }}"
           echo "Latest tag: $TAG"
-          gh release upload "$TAG" "$ASSET" --clobber
-          echo "✅ Uploaded $ASSET to the release $TAG"
+
+          NAME="${{ github.event.repository.name }}"
+          echo "Repo Name: $NAME"
+
+          git archive -o "/tmp/$NAME-$TAG.zip --prefix=$NAME/ "$TAG"
+
+          gh release upload "$TAG" "/tmp/$NAME-$TAG.zip" --clobber
+
+          echo "✅ Uploaded $NAME-$TAG.zip to the release $TAG"
         env:
           GH_TOKEN: ${{ github.token }}
