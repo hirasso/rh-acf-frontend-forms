@@ -1,5 +1,11 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.1.0
+
+### Minor Changes
+
+- 6ff9b22: phpstan level 6 😅
+
 ## 4.0.2
 
 ### Patch Changes
