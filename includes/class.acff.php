@@ -850,19 +850,27 @@ class ACFF extends Singleton
    */
   public function render_time_based_honeypot() {
       ob_start(); ?>
-      <input type="hidden" name="_form_started" value="">
-      <script>document.currentScript.previousElementSibling.value = Math.floor(Date.now() / 1000)</script>
+      <input type="hidden" name="_acff_form_started" value="">
+      <script>
+        document.currentScript.previousElementSibling.value = Math.floor(Date.now() / 1000)
+      </script>
       <?php echo ob_get_clean();
   }
 
   /**
-   * Validate the time based honeypot "_form_started"
+   * Validate the time based honeypot "_acff_form_started"
    */
   public function validate_time_based_honeypot() {
-    $started = (int) ($_POST['_form_started'] ?? 0);
+    // Not an acf_form()
+    if (($_POST['_acf_screen'] ?? null) !== 'acf_form') return;
+
+    $started = $_POST['_acff_form_started'] ?? null;
+
+    // No such field in the current form
+    if (is_null($started)) return;
 
     // Missing or suspiciously fast submission
-    if (!$started || (time() - $started) < 3) {
+    if (time() - (int) $started < 3) {
       acf_add_validation_error(
         '',
         __('Submission failed. Please try again.')

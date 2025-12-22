@@ -1,6 +1,7 @@
-#### 3.3.1 (2025-12-20)
+#### 3.3.1 (2025-12-22)
 
-- Add a time-based honeypot strategy to frontend forms (#e68b1a8)
+- Cleanup (#6375f29)
+- Add a time-based honeypot strategy to frontend forms (#18b5ed7)
 
 #### 3.3.0 (2025-12-20)
 
