@@ -1,5 +1,15 @@
 # Changelog: hirasso/rh-acf-frontend-forms
 
+## 4.2.0
+
+### Minor Changes
+
+- 6ff9b22: phpstan level 6 😅
+
+### Patch Changes
+
+- 10d174b: Do not automatically assign a post_type to frontend forms
+
 ## 4.0.2
 
 ### Patch Changes
