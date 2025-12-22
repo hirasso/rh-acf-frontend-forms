@@ -99,15 +99,10 @@ jobs:
           # doesn't work with GITHUB_TOKEN for some reason
           GITHUB_TOKEN: ${{ secrets.HIRASSO_ACTIONS_TOKEN }}
 
-      - name: Get tag
-        if: steps.cs.outputs.published == 'true'
-        id: tag
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
       - name: Upload release asset
         if: steps.cs.outputs.published == 'true'
         run: |
-          TAG="${{ steps.tag.outputs.tag }}"
+          TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
           echo "Latest tag: $TAG"
 
           NAME="${{ github.event.repository.name }}"
