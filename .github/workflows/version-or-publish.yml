@@ -74,20 +74,14 @@ jobs:
       - name: Install Asset Dependencies
         run: pnpm install --frozen-lockfile
 
-      # - name: Checkout Distribution Repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ needs.package-infos.outputs.fullName }}-dist
-      #     ref: empty
-      #     path: dist
-      #     # secrets.GITHUB_TOKEN is not enough to push to the dist repo (needed later)
-      #     token: ${{ secrets.HIRASSO_ACTIONS_TOKEN }}
+      - name: Build assets
+        run: pnpm build
 
-      # Run this before changesets, to make sure releases actually work
-      - name: Create Release Files and Prepare Dist Folder
+      - name: Commit built assets
         run: |
-          bin/cli.js release:create
-          bin/cli.js dist:prepare
+          git add .
+          git diff --staged --quiet || git commit -m "chore: build output [skip ci]"
+          git push
 
       # Run changesets action either if there are unreleased changesets (= a PR must be created)
       # or if the commit message matches the release PR (= new versions must be published to NPM)
