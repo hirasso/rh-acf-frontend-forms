@@ -11,12 +11,14 @@ if (!defined('ABSPATH')) {
 
 class ACFF
 {
+    protected Permissions $permissions;
     protected string $prefix = 'rh_acff';
 
     public function __construct()
     {
+        $this->permissions = new Permissions();
         // setup hooks
-        $this->hooks();
+        $this->register_hooks();
         // always set acf validation to true, so that the form
         // also works if the page is loaded via AJAX
         acf_localize_data(['validation' => 1]);
@@ -34,7 +36,7 @@ class ACFF
     /**
      * Setup action and filter hooks
      */
-    public function hooks(): void
+    public function register_hooks(): void
     {
         // Always initializes the form_head in the frontend
         add_action('template_redirect', 'acf_form_head');
@@ -74,6 +76,8 @@ class ACFF
         add_filter('acf/location/rule_match/post_type', [$this, 'frontend_form_rule_match'], 10, 4);
 
         add_action('post_submitbox_misc_actions', [$this, 'inject_acff_field_group_settings']);
+
+        add_action('acf/form_data', [$this, 'maybe_render_acff_custom_element'], 10);
     }
 
     /**
@@ -847,6 +851,17 @@ class ACFF
                 '',
                 __('Something went wrong. If the issue persists, please contact the site site administrator.', 'acff')
             );
+        }
+    }
+
+    /**
+     * Render a custom element that will auto-initialize the form
+     * @param array<string, mixed> $data
+     */
+    public function maybe_render_acff_custom_element(array $data): void
+    {
+        if (($data['screen'] ?? null) === 'acf_form') {
+            echo "\n<acf-frontend-form></acf-frontend-form>\n";
         }
     }
 }

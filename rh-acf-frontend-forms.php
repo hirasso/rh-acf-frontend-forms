@@ -11,7 +11,7 @@
  * GitHub Plugin URI: https://github.com/hirasso/rh-acf-frontend-forms
 **/
 
-namespace Hirasso\ACFF;
+use Hirasso\ACFF\ACFF;
 
 /** Exit if accessed directly */
 if (! defined('ABSPATH')) {
@@ -47,4 +47,3 @@ function acff(): ACFF
 }
 
 acff();
-new Permissions();
