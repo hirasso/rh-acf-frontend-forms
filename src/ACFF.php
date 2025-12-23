@@ -845,9 +845,7 @@ class ACFF
         if (time() - (int) $started < 3) {
             acf_add_validation_error(
                 '',
-                sprintf(
-                    __('Please try again. If the issue persists, please contact the site administrator', 'acff'),
-                )
+                __('Something went wrong. If the issue persists, please contact the site site administrator.', 'acff')
             );
         }
     }
