@@ -3,11 +3,12 @@ import "./css/acff.css";
 ("use strict");
 
 import "./js/autofill.js";
-import "./js/plugin.frontend-form.js";
+// import "./js/plugin.frontend-form.js";
 
 import ImageDrop from "./js/image-drop.js";
 import FileInput from "./js/file-input.js";
 import MaxLength from "./js/maxlength.js";
+import { ACFFrontendFormElement } from "./js/ACFFrontendForm.js";
 
 import autosize from "autosize";
 
@@ -18,6 +19,8 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
     console.warn("The global acf object is not defined");
     return;
   }
+
+  ACFFrontendFormElement.register();
 
   setup();
   setupAjaxSubmit();

@@ -10,8 +10,8 @@
   "scripts": {
     "prepare": "husky",
     "mkdirs": "mkdir -p assets",
-    "build:js": "esbuild assets-src/*.js --outdir=assets --sourcemap --target=es2017 --bundle",
-    "watch:js": "pnpm build:js -- --watch",
+    "build:js": "esbuild assets-src/*.ts --outdir=assets --sourcemap --target=es2017 --bundle",
+    "watch:js": "pnpm build:js --watch",
     "watch": "pnpm mkdirs; pnpm watch:js",
     "build:css": "postcss assets/*.css --replace",
     "build": "pnpm build:js; pnpm build:css",

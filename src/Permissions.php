@@ -12,10 +12,9 @@ class Permissions
     private string $prefix;
     private string $hook_allowed_fields = 'hirasso/acff/allowed-fields';
 
-    public function __construct()
+    public function __construct(protected ACFF $acff)
     {
-
-        $this->prefix = acff()->get_prefix();
+        $this->prefix = $this->acff->get_prefix();
 
         add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
         add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin']);
@@ -56,11 +55,11 @@ class Permissions
 
         $classes = explode(' ', $class);
 
-        if (acff()->is_frontend_form(acf_maybe_get_GET('post'))) {
+        if ($this->acff->is_frontend_form(acf_maybe_get_GET('post'))) {
             $classes[] = 'is-edit-acf-frontend-form';
         }
 
-        $classes[] = acff()->is_super_admin()
+        $classes[] = $this->acff->is_super_admin()
             ? 'is-acf-super-admin'
             : 'is-not-acf-super-admin';
 
@@ -85,7 +84,7 @@ class Permissions
      */
     public function add_settings_page_fields()
     {
-        $settings_page = acff()->get_settings_page_info();
+        $settings_page = $this->acff->get_settings_page_info();
 
         acf_add_local_field([
             'key' => "field_{$this->prefix}_allowed_fields",
@@ -215,7 +214,7 @@ class Permissions
      */
     public function restrict_field_types(array $groups): array
     {
-        if (!acff()->is_frontend_form(acf_maybe_get_GET('post'))) {
+        if (!$this->acff->is_frontend_form(acf_maybe_get_GET('post'))) {
             return $groups;
         }
 
@@ -248,7 +247,7 @@ class Permissions
      */
     public function acf_setting_show_admin(bool $setting): bool
     {
-        if (!acff()->is_super_admin()) {
+        if (!$this->acff->is_super_admin()) {
             return false;
         }
         return $setting;
@@ -282,7 +281,7 @@ class Permissions
      */
     public function restrict_bulk_actions(array $actions): array
     {
-        if (!acff()->is_super_admin()) {
+        if (!$this->acff->is_super_admin()) {
             return [];
         }
         return $actions;
@@ -309,12 +308,12 @@ class Permissions
             return $user_caps;
         }
 
-        if ($cap !== $this->get_frontend_forms_cap() || acff()->is_super_admin()) {
+        if ($cap !== $this->get_frontend_forms_cap() || $this->acff->is_super_admin()) {
             return $user_caps;
         }
 
         // deny access to acf field groups that aren't frontend forms
-        if (get_post_type($post) === 'acf-field-group' && !acff()->is_frontend_form($post->ID)) {
+        if (get_post_type($post) === 'acf-field-group' && !$this->acff->is_frontend_form($post->ID)) {
             $user_caps[] = 'do_not_allow';
         }
 
@@ -328,7 +327,7 @@ class Permissions
      */
     public function register_post_type_args(array $args, string $pt): array
     {
-        if ($pt !== 'acf-field-group' || acff()->is_super_admin()) {
+        if ($pt !== 'acf-field-group' || $this->acff->is_super_admin()) {
             return $args;
         }
 
@@ -359,7 +358,7 @@ class Permissions
      */
     public function row_actions(array $actions, \WP_Post $post): array
     {
-        if (acff()->is_super_admin() || $post->post_type !== 'acf-field-group') {
+        if ($this->acff->is_super_admin() || $post->post_type !== 'acf-field-group') {
             return $actions;
         }
         foreach ($actions as $key => $value) {
@@ -391,7 +390,7 @@ class Permissions
      */
     private function die_if_not_admin(string $message): void
     {
-        if (acff()->is_super_admin()) {
+        if ($this->acff->is_super_admin()) {
             return;
         }
         $args = [
@@ -413,7 +412,7 @@ class Permissions
     public function remove_meta_boxes()
     {
 
-        if (!acff()->is_super_admin()) {
+        if (!$this->acff->is_super_admin()) {
             remove_meta_box('acf-field-group-locations', 'acf-field-group', 'normal');
             remove_meta_box('acf-field-group-options', 'acf-field-group', 'normal');
         }

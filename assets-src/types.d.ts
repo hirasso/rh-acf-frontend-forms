@@ -32,6 +32,17 @@ export interface ACFField {
 
   /** Remove error message */
   removeError(): void;
+
+  /** Field data */
+  data: {
+    type: string;
+    required: number;
+    key: string;
+    name: string;
+  };
+
+  /** Get something from this field's data */
+  get(key: string): any;
 }
 
 /**
@@ -72,6 +83,16 @@ export interface ACF {
     action: "new_field" | `new_field/type=${string}`,
     callback: (arg: ACFField) => void | boolean,
   ): void;
+
+  /**
+   * Get an ACFfield based on field key
+   */
+  getField(key: string): ACFField | undefined;
+
+  /**
+   * Get an ACFfield based on $field element
+   */
+  getInstance($field: JQuery): ACFField | undefined;
 
   /**
    * Trigger an action hook

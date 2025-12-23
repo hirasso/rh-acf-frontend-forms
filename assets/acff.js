@@ -4,8 +4,22 @@
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -668,7 +682,7 @@
               /***/
               (function(module2, exports2, __webpack_require__) {
                 "use strict";
-                var $7 = __webpack_require__(
+                var $5 = __webpack_require__(
                   /*! ../internals/export */
                   "./node_modules/core-js/internals/export.js"
                 );
@@ -786,7 +800,7 @@
                         redefine(IterablePrototype, KEY, methods[KEY]);
                       }
                     }
-                    else $7({ target: NAME, proto: true, forced: BUGGY_SAFARI_ITERATORS || INCORRECT_VALUES_NAME }, methods);
+                    else $5({ target: NAME, proto: true, forced: BUGGY_SAFARI_ITERATORS || INCORRECT_VALUES_NAME }, methods);
                   }
                   return methods;
                 };
@@ -2204,7 +2218,7 @@
               /*! no static exports found */
               /***/
               (function(module2, exports2, __webpack_require__) {
-                var $7 = __webpack_require__(
+                var $5 = __webpack_require__(
                   /*! ../internals/export */
                   "./node_modules/core-js/internals/export.js"
                 );
@@ -2219,7 +2233,7 @@
                 var INCORRECT_ITERATION = !checkCorrectnessOfIteration(function(iterable) {
                   Array.from(iterable);
                 });
-                $7({ target: "Array", stat: true, forced: INCORRECT_ITERATION }, {
+                $5({ target: "Array", stat: true, forced: INCORRECT_ITERATION }, {
                   from
                 });
               })
@@ -2830,319 +2844,107 @@
     }
   });
 
-  // assets-src/js/autofill.js
-  var $ = window.jQuery;
-  window.acfAutoFill = function(id = 0) {
-    let $forms = $(".acf-form");
-    if (!$forms.length) {
-      return false;
-    }
-    let values = window.acfAutofillValues;
-    if (typeof values !== "object") {
-      console.warn("window.acfAutofillValues is not defined");
-      return false;
-    }
-    values = values[id];
-    console.log("Autofilling form...");
-    let scrollTop = $(document).scrollTop();
-    $forms.each((i, el) => {
-      let $form = $(el);
-      $form.addClass("is-autofilled");
-      $form.find(".fill-password-suggestion").click();
-      fillFields($form, values);
-      $form.find("textarea").each((i2, ta) => {
-        $(ta).trigger("maxlength:update");
-        var evt = document.createEvent("Event");
-        evt.initEvent("autosize:update", true, false);
-        ta.dispatchEvent(evt);
-      });
-      $form.trigger("autofilled");
-    });
-    $("html,body").animate(
-      {
-        scrollTop
-      },
-      0
-    );
-    function fillFields($wrap, values2) {
-      $.each(values2, (key, value) => {
-        let $fields = $wrap.find(`.acf-field[data-name="${key}"]`);
-        if (!$fields.length) {
-          return true;
-        }
-        $fields.each((i, el) => {
-          let $field = $(el);
-          if (typeof value === "object" && !(value instanceof Date)) {
-            $.each(value, (key2, val) => {
-              if (typeof key2 === "number") {
-                if (key2 > 0) {
-                  $field.find('[data-event="add-row"]:last').click();
-                }
-                let $fields2 = $field.find(".acf-fields").eq(key2);
-                fillFields($fields2, val);
-              } else {
-                fillFields($field, val);
-              }
-            });
-          } else {
-            let $inputs = $field.find("input, select, checkbox, textarea");
-            fillField($inputs, value, key);
-          }
+  // assets-src/js/autofill.ts
+  (($5) => {
+    window.acfAutoFill = function(id = 0) {
+      var _a;
+      let $forms = $5(".acf-form");
+      if (!$forms.length) {
+        return false;
+      }
+      const values = (_a = window.acfAutofillValues) == null ? void 0 : _a[id];
+      if (typeof values !== "object") {
+        console.warn("window.acfAutofillValues is not defined");
+        return false;
+      }
+      console.log("Autofilling form...");
+      let scrollTop = $5(document).scrollTop();
+      $forms.each((i, el) => {
+        let $form = $5(el);
+        $form.addClass("is-autofilled");
+        $form.find(".fill-password-suggestion").trigger("click");
+        fillFields($form, values);
+        $form.find("textarea").each((i2, ta) => {
+          $5(ta).trigger("maxlength:update");
+          var evt = document.createEvent("Event");
+          evt.initEvent("autosize:update", true, false);
+          ta.dispatchEvent(evt);
         });
+        $form.trigger("autofilled");
       });
-    }
-    function fillField($inputs, value, fieldName) {
-      $inputs.each((i, el) => {
-        let $input = $(el);
-        let type = $input.attr("type");
-        let currentValue = type === "checkbox" ? $input.prop("checked") : $input.val();
-        let debugInfo = {
-          $input: el,
-          currentValue,
-          fieldName,
-          autofillValue: value
-        };
-        if (type === "hidden" || type === "file" || $input.hasClass("select2-search__field") || $input.parents(".acf-clone").length) {
-          return true;
-        }
-        if (currentValue) {
-          console.log(
-            "[ACFAutoFill] Field already has value, skipping:",
-            debugInfo
-          );
-          return true;
-        }
-        switch (type) {
-          case "checkbox":
-            $input.prop("checked", value).trigger("change");
-            return true;
-            break;
-        }
-        if ($input.hasClass("hasDatepicker")) {
-          $input.datepicker("setDate", value).trigger("change");
-          return true;
-        }
-        $input.val(value).trigger("change");
-      });
-    }
-  };
-
-  // assets-src/js/plugin.js
-  var $2 = window.jQuery;
-  function plugin(pluginName, className, shortHand = false) {
-    let dataName = `${pluginName}`;
-    let dataOptionsName = `${dataName.toLowerCase()}-options`;
-    let old = $2.fn[pluginName];
-    $2.fn[pluginName] = function(option) {
-      return this.each(function() {
-        let $this = $2(this);
-        let data = $this.data(dataName);
-        let dataOptions = $this.data(dataOptionsName);
-        let options = $2.extend(
-          {},
-          className.DEFAULTS,
-          dataOptions,
-          typeof option === "object" && option
-        );
-        if (!data) {
-          $this.data(dataName, data = new className(this, options));
-        }
-        if (typeof option === "string") {
-          data[option]();
-        }
-      });
-    };
-    if (shortHand) {
-      $2[pluginName] = (options) => $2({})[pluginName](options);
-    }
-    $2.fn[pluginName].noConflict = () => $2.fn[pluginName] = old;
-  }
-
-  // assets-src/js/plugin.frontend-form.js
-  var $3 = window.jQuery;
-  var ACFFrontendForm = class {
-    constructor(el, options = {}) {
-      let $form = $3(el);
-      this.options = options;
-      this.$form = $form;
-      if (!$form.length) {
-        console.warn("Form element doesn't exist");
-        return;
-      }
-      if (typeof acf === "undefined") {
-        console.warn("The global acf object is not defined");
-        return;
-      }
-      if ($form.hasClass("rh-is-initialized")) {
-        return;
-      }
-      $form.addClass("rh-is-initialized");
-      acf.doAction("append", $form);
-      acf.validation.enable();
-      this.$form.find(".acf-field input").each((i, el2) => {
-        this.adjustHasValueClass($3(el2));
-      });
-      this.createAjaxResponse();
-      this.setupForm();
-      this.setupInputs();
-      this.hideConditionalFields();
-      this.$form.data("RHFrontendForm", this);
-    }
-    setupForm() {
-      if (this.options.ajaxSubmit) {
-        this.$form.addClass("is-ajax-submit");
-      }
-      this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
-      this.$form.on("click", '[data-event="remove-row"]', function(e) {
-        $3(this).click();
-      });
-    }
-    doAjaxSubmit() {
-      let $fileInputs = $3('input[type="file"]:not([disabled])', this.$form);
-      $fileInputs.each(function(i, input) {
-        if (input.files.length > 0) {
-          return;
-        }
-        $3(input).prop("disabled", true);
-      });
-      var formData = new FormData(this.$form[0]);
-      $fileInputs.prop("disabled", false);
-      acf.lockForm(this.$form);
-      this.$form.addClass("rh-is-locked");
-      $3.ajax({
-        url: window.location.href,
-        method: "post",
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false
-      }).done((response) => {
-        this.handleAjaxResponse(response);
-        this.options.onSuccess(response);
-      });
-    }
-    handleAjaxResponse(response) {
-      acf.hideSpinner();
-      this.showAjaxResponse(response);
-      if (!response.success) {
-        return;
-      }
-      acf.unload.disable();
-      setTimeout(() => {
-        this.$form.removeClass("show-ajax-response");
-        acf.unlockForm(this.$form);
-        acf.validation.reset(this.$form);
-        this.$form.removeClass("rh-is-locked");
-        if (this.options.resetAfterSubmit) {
-          this.resetForm();
-        }
-      }, this.options.waitAfterSubmit);
-    }
-    createAjaxResponse() {
-      this.$ajaxResponse = $3('<div class="acf-ajax-response"></div>');
-      this.$form.find(".acf-form-submit").append(this.$ajaxResponse);
-    }
-    showAjaxResponse(response) {
-      let message = ((response || {}).data || {}).message;
-      if (!message) {
-        console.warn(
-          "[rh-acf-frontend-forms] No response message found in AJAX response"
-        );
-        return;
-      }
-      this.$form.trigger("rh/show-ajax-response", response);
-      this.$form.trigger("rh/acf-frontend-form/response", response);
-      this.$ajaxResponse.text(message).toggleClass("is--error", response.success === false);
-      this.$form.addClass("show-ajax-response");
-    }
-    resetForm() {
-      this.$form.get(0).reset();
-      this.$form.find(".acf-field").find("input,textarea,select").trigger("change");
-      this.$form.find(".acf-field").removeClass("has-value has-focus");
-    }
-    initImageDrops() {
-      $3(".acf-field-image").each((i, el) => {
-        new ImageDrop($3(el));
-      });
-    }
-    hideConditionalFields() {
-      this.$form.find(".acf-field.hidden-by-conditional-logic").hide();
-    }
-    setupInputs() {
-      let selector = "input,textarea,select";
-      this.$form.on(
-        "keyup keydown change",
-        selector,
-        (e) => this.adjustHasValueClass($3(e.currentTarget))
+      $5("html,body").animate(
+        {
+          scrollTop
+        },
+        0
       );
-      this.$form.on("change", selector, (e) => this.maybeSubmitForm(e));
-      this.$form.on("focus", selector, (e) => this.onInputFocus(e.currentTarget));
-      this.$form.on("blur", selector, (e) => this.onInputBlur(e.currentTarget));
-    }
-    adjustHasValueClass($input) {
-      let $field = $input.parents(".acf-field:first");
-      let field = acf.getInstance($field);
-      if (typeof field === "undefined") {
-        return;
+      function fillFields($wrap, values2) {
+        $5.each(values2, (key, value) => {
+          const $fields = $wrap.find(`.acf-field[data-name="${key}"]`);
+          if (!$fields.length) {
+            return true;
+          }
+          $fields.each((i, el) => {
+            let $field = $5(el);
+            if (typeof value === "object" && !(value instanceof Date)) {
+              $5.each(value, (key2, val) => {
+                if (typeof key2 === "number") {
+                  if (key2 > 0) {
+                    $field.find('[data-event="add-row"]:last').trigger("click");
+                  }
+                  fillFields($field.find(".acf-fields").eq(key2), val);
+                } else {
+                  fillFields($field, val);
+                }
+              });
+            } else {
+              let $inputs = $field.find("input, select, checkbox, textarea");
+              fillField($inputs, value, key);
+            }
+          });
+        });
       }
-      let type = $input.attr("type");
-      let val = $input.val();
-      let enabledInputs = [
-        "text",
-        "password",
-        "url",
-        "email",
-        "number",
-        "textarea",
-        "select",
-        "true_false",
-        "date_picker",
-        "time_picker",
-        "date_time_picker",
-        "oembed"
-      ];
-      if ($3.inArray(field.get("type"), enabledInputs) === -1) {
-        return;
+      function fillField($inputs, value, fieldName) {
+        $inputs.each((i, el) => {
+          let $input = $5(el);
+          let type = $input.attr("type");
+          let currentValue = type === "checkbox" ? $input.prop("checked") : $input.val();
+          let debugInfo = {
+            $input: el,
+            currentValue,
+            fieldName,
+            autofillValue: value
+          };
+          if (type === "hidden" || type === "file" || $input.hasClass("select2-search__field") || $input.parents(".acf-clone").length) {
+            return;
+          }
+          if (currentValue) {
+            console.log(
+              "[ACFAutoFill] Field already has value, skipping:",
+              debugInfo
+            );
+            return;
+          }
+          switch (type) {
+            case "checkbox":
+              $input.prop("checked", value).trigger("change");
+              return;
+              break;
+          }
+          if ($input.hasClass("hasDatepicker")) {
+            $input.datepicker("setDate", value).trigger("change");
+            return;
+          }
+          $input.val(value).trigger("change");
+        });
       }
-      if (type === "checkbox") {
-        val = $input.prop("checked");
-      }
-      if (val) {
-        $field.addClass("has-value");
-      } else {
-        $field.removeClass("has-value");
-      }
-    }
-    maybeSubmitForm(e) {
-      if (this.options.submitOnChange) {
-        this.$form.find('[type="submit"]').click();
-        this.$form.submit();
-      }
-    }
-    onInputFocus(el) {
-      this.$field(el).addClass("has-focus");
-    }
-    onInputBlur(el) {
-      this.$field(el).removeClass("has-focus");
-    }
-    $field(input) {
-      return $3(input).parents(".acf-field:first");
-    }
-  };
-  ACFFrontendForm.DEFAULTS = {
-    ajaxSubmit: true,
-    waitAfterSubmit: 1e3,
-    resetAfterSubmit: true,
-    submitOnChange: false,
-    onSuccess: () => {
-    }
-  };
-  plugin("acfFrontendForm", ACFFrontendForm, true);
+    };
+  })(window.jQuery);
 
-  // assets-src/js/image-drop.js
+  // assets-src/js/image-drop.ts
   var import_feather_icons = __toESM(require_feather(), 1);
-  var $4 = window.jQuery;
-  var ImageDrop2 = class {
+  var $ = window.jQuery;
+  var ImageDrop = class {
     constructor(acfField) {
       this.acfField = acfField;
       this.$el = acfField.$el;
@@ -3161,14 +2963,12 @@
     }
     maybeGet(key, object, fallback) {
       let value = (object || {})[key];
-      if (typeof value === "undefined") {
-        value = fallback;
-      }
-      return value;
+      return value != null ? value : fallback;
     }
     setupEvents() {
-      if ($4.inArray("dataTransfer", $4.event.props) === -1) {
-        $4.event.props.push("dataTransfer");
+      const eventProps = $.event.props;
+      if ($.inArray("dataTransfer", eventProps) === -1) {
+        eventProps.push("dataTransfer");
       }
       this.$imageUploader.on("dragover", (e) => {
         e.preventDefault();
@@ -3180,17 +2980,21 @@
       this.$imageUploader.on("drop", (e) => {
         e.preventDefault();
         this.$imageUploader.removeClass("is-dragover");
-        this.$input.get(0).files = e.dataTransfer.files;
+        const inputElement = this.$input.get(0);
+        const dataTransfer = e.dataTransfer;
+        if (inputElement && dataTransfer) {
+          inputElement.files = dataTransfer.files;
+        }
         this.$input.trigger("change");
       });
-      this.$clear.unbind().click((e) => {
+      this.$clear.off().on("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.clear();
       });
       this.currentImageSrc = this.$image.attr("src");
       this.lastInputVal = this.$input.val();
-      this.$input.change((e) => this.onInputChange(this.$input));
+      this.$input.on("change", () => this.onInputChange(this.$input));
     }
     renderImage(src) {
       if (typeof src === "undefined" || !src.length) {
@@ -3216,7 +3020,7 @@
         });
         this.$image.attr("src", src);
         this.$imageUploader.addClass("has-value");
-        $4(document).trigger("rh/acf-form-resized");
+        $(document).trigger("rh/acf-form-resized");
       };
       img.src = src;
     }
@@ -3230,12 +3034,17 @@
       }
     }
     onInputChange($input) {
+      var _a;
       if (this.lastInputVal === $input.val()) {
         return;
       }
       this.lastInputVal = $input.val();
       if ($input.val()) {
-        this.parseFile($input[0].files[0]);
+        const inputElement = $input[0];
+        const file = (_a = inputElement.files) == null ? void 0 : _a[0];
+        if (file) {
+          this.parseFile(file);
+        }
       } else {
         this.clear();
       }
@@ -3243,9 +3052,10 @@
     parseFile(file) {
       let reader = new FileReader();
       reader.onload = (e) => {
+        var _a;
         let errors = this.getErrors(file);
         if (!errors) {
-          this.renderImage(e.target.result);
+          this.renderImage((_a = e.target) == null ? void 0 : _a.result);
           this.acfField.removeError();
         } else {
           this.clear(errors);
@@ -3255,34 +3065,29 @@
       reader.readAsDataURL(file);
     }
     getErrors(file) {
+      var _a;
       let errors = [];
-      let maxSize = this.maybeGet(
-        "max_size",
-        this.dataSettings.restrictions,
-        false
-      );
+      let maxSize = this.maybeGet("max_size", this.dataSettings.restrictions, void 0);
       if (maxSize && file.size / 1e6 > maxSize.value) {
         errors.push(maxSize.error);
       }
-      let mimeTypes = this.maybeGet(
-        "mime_types",
-        this.dataSettings.restrictions,
-        false
-      );
+      let mimeTypes = this.maybeGet("mime_types", this.dataSettings.restrictions, void 0);
       if (mimeTypes) {
-        let extension = file.name.split(".").pop().toLowerCase();
-        let isValidMimeType = $4.inArray(extension, mimeTypes.value) > -1;
-        if (!isValidMimeType) {
-          errors.push(mimeTypes.error);
+        let extension = (_a = file.name.split(".").pop()) == null ? void 0 : _a.toLowerCase();
+        if (extension) {
+          let isValidMimeType = $.inArray(extension, mimeTypes.value) > -1;
+          if (!isValidMimeType) {
+            errors.push(mimeTypes.error);
+          }
         }
       }
       return errors.length ? errors : false;
     }
   };
 
-  // assets-src/js/file-input.js
+  // assets-src/js/file-input.ts
   var import_feather_icons2 = __toESM(require_feather(), 1);
-  var $5 = window.jQuery;
+  var $2 = window.jQuery;
   var FileInput = class {
     constructor(acfField) {
       this.acfField = acfField;
@@ -3298,14 +3103,12 @@
     }
     maybeGet(key, object, fallback) {
       let value = (object || {})[key];
-      if (typeof value === "undefined") {
-        value = fallback;
-      }
-      return value;
+      return value != null ? value : fallback;
     }
     setupEvents() {
-      if ($5.inArray("dataTransfer", $5.event.props) === -1) {
-        $5.event.props.push("dataTransfer");
+      const eventProps = $2.event.props;
+      if ($2.inArray("dataTransfer", eventProps) === -1) {
+        eventProps.push("dataTransfer");
       }
       this.$uploader.on("dragover", (e) => {
         e.preventDefault();
@@ -3317,16 +3120,20 @@
       this.$uploader.on("drop", (e) => {
         e.preventDefault();
         this.$uploader.removeClass("is-dragover");
-        this.$input.get(0).files = e.dataTransfer.files;
+        const inputElement = this.$input.get(0);
+        const dataTransfer = e.dataTransfer;
+        if (inputElement && dataTransfer) {
+          inputElement.files = dataTransfer.files;
+        }
         this.$input.trigger("change");
       });
-      this.$clear.unbind().click((e) => {
+      this.$clear.off().on("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.clear();
       });
       this.lastInputVal = this.$input.val();
-      this.$input.change((e) => this.onInputChange(this.$input));
+      this.$input.on("change", () => this.onInputChange(this.$input));
     }
     clear(errors = false) {
       this.acfField.removeAttachment();
@@ -3337,19 +3144,24 @@
       }
     }
     onInputChange($input) {
+      var _a;
       if (this.lastInputVal === $input.val()) {
         return;
       }
       this.lastInputVal = $input.val();
       if ($input.val()) {
-        this.parseFile($input[0].files[0]);
+        const inputElement = $input[0];
+        const file = (_a = inputElement.files) == null ? void 0 : _a[0];
+        if (file) {
+          this.parseFile(file);
+        }
       } else {
         this.clear();
       }
     }
     parseFile(file) {
       let reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = () => {
         let errors = this.getErrors(file);
         if (!errors) {
           this.acfField.removeError();
@@ -3360,45 +3172,40 @@
       reader.readAsDataURL(file);
     }
     getErrors(file) {
+      var _a;
       let errors = [];
-      let maxSize = this.maybeGet(
-        "max_size",
-        this.dataSettings.restrictions,
-        false
-      );
+      let maxSize = this.maybeGet("max_size", this.dataSettings.restrictions, void 0);
       if (maxSize && file.size / 1e6 > maxSize.value) {
         errors.push(maxSize.error);
       }
-      let mimeTypes = this.maybeGet(
-        "mime_types",
-        this.dataSettings.restrictions,
-        false
-      );
+      let mimeTypes = this.maybeGet("mime_types", this.dataSettings.restrictions, void 0);
       if (mimeTypes) {
-        let extension = file.name.split(".").pop().toLowerCase();
-        let isValidMimeType = $5.inArray(extension, mimeTypes.value) > -1;
-        if (!isValidMimeType) {
-          errors.push(mimeTypes.error);
+        let extension = (_a = file.name.split(".").pop()) == null ? void 0 : _a.toLowerCase();
+        if (extension) {
+          let isValidMimeType = $2.inArray(extension, mimeTypes.value) > -1;
+          if (!isValidMimeType) {
+            errors.push(mimeTypes.error);
+          }
         }
       }
       return errors.length ? errors : false;
     }
   };
 
-  // assets-src/js/maxlength.js
-  var $6 = window.jQuery;
+  // assets-src/js/maxlength.ts
+  var $3 = window.jQuery;
   var MaxLength = class {
     constructor(field) {
       let $el = field.$el;
       this.$info = $el.find(".maxlength-info");
-      this.max = parseInt(this.$info.attr("data-maxlength"), 10);
+      this.max = parseInt(this.$info.attr("data-maxlength") || "0", 10);
       this.$remainingCount = $el.find(".remaining-count");
       this.$input = field.$input();
       this.$input.on("input maxlength:update", () => this.update());
       this.update();
     }
     update() {
-      let value = this.$input.val();
+      let value = String(this.$input.val() || "");
       let remaining = this.max - value.length;
       remaining = Math.max(0, remaining);
       if (remaining < 20) {
@@ -3411,118 +3218,298 @@
     }
   };
 
-  // assets-src/acff.js
-  var import_autosize = __toESM(require_autosize(), 1);
-  (($7) => {
-    const acf2 = (
-      /** @type {any} */
-      window.acf
-    );
-    class App {
-      constructor() {
-        if (typeof acf2 === "undefined") {
-          console.warn("The global acf object is not defined");
+  // assets-src/js/ACFFrontendForm.ts
+  var $4 = window.jQuery;
+  var acf = window.acf;
+  var defaults = {
+    ajaxSubmit: true,
+    waitAfterSubmit: 1e3,
+    resetAfterSubmit: true,
+    submitOnChange: false,
+    onSuccess: (response) => {
+    }
+  };
+  var ACFFrontendForm = class {
+    constructor(el, options = {}) {
+      let $form = $4(el);
+      this.options = __spreadValues(__spreadValues({}, defaults), options);
+      this.$form = $form;
+      if (!$form.length) {
+        console.warn("Form element doesn't exist");
+        return;
+      }
+      if (typeof acf === "undefined") {
+        console.warn("The global acf object is not defined");
+        return;
+      }
+      if ($form.hasClass("rh-is-initialized")) {
+        return;
+      }
+      $form.addClass("rh-is-initialized");
+      acf.doAction("append", $form);
+      acf.validation.enable();
+      this.$form.find(".acf-field input").each((i, el2) => {
+        this.adjustHasValueClass($4(el2));
+      });
+      this.createAjaxResponse();
+      this.setupForm();
+      this.setupInputs();
+      this.hideConditionalFields();
+      this.$form.data("RHFrontendForm", this);
+    }
+    setupForm() {
+      if (this.options.ajaxSubmit) {
+        this.$form.addClass("is-ajax-submit");
+      }
+      this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
+      this.$form.on("click", '[data-event="remove-row"]', function() {
+        $4(this).trigger("click");
+      });
+    }
+    doAjaxSubmit() {
+      const $fileInputs = $4('input[type="file"]:not([disabled])', this.$form);
+      $fileInputs.each((i, input) => {
+        const fileInput = input;
+        if (fileInput.files && fileInput.files.length > 0) {
           return;
         }
-        this.setup();
-        this.setupAjaxSubmit();
+        $4(input).prop("disabled", true);
+      });
+      var formData = new FormData(this.$form[0]);
+      $fileInputs.prop("disabled", false);
+      acf.lockForm(this.$form);
+      this.$form.addClass("rh-is-locked");
+      $4.ajax({
+        url: window.location.href,
+        method: "post",
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false
+      }).done((response) => {
+        var _a, _b;
+        this.handleAjaxResponse(response);
+        (_b = (_a = this.options).onSuccess) == null ? void 0 : _b.call(_a, response);
+      });
+    }
+    handleAjaxResponse(response) {
+      acf.hideSpinner();
+      this.showAjaxResponse(response);
+      if (!response.success) {
+        return;
       }
-      /**
-       * Setup global acf functions and hooks
-       */
-      setup() {
-        acf2.addAction("new_field", (field) => {
-          field.$el.addClass("rh-is-initialized");
-          this.initMaxInputInfo(field);
-        });
-        acf2.addAction("new_field/type=image", (field) => {
-          new ImageDrop2(field);
-        });
-        acf2.addAction("new_field/type=textarea", (field) => {
-          this.initAutosize(field);
-        });
-        acf2.addAction("new_field/type=file", (field) => {
-          new FileInput(field);
-        });
-        acf2.showSpinner = function() {
-          $7("html").addClass("is-loading-form");
-        };
-        acf2.hideSpinner = function() {
-          $7("html").removeClass("is-loading-form");
-        };
-        acf2.addAction("remove", ($el) => {
-          let $repeater = $el.closest(".acf-repeater");
-          $el.remove();
-          this.adjustRepeater($el, $repeater, "remove");
-        });
-        acf2.addAction("append", ($el) => {
-          this.adjustRepeater($el, $el.closest(".acf-repeater"), "append");
-        });
-      }
-      /**
-       * Setup the ajax submit
-       */
-      setupAjaxSubmit() {
-        acf2.addAction("submit", ($form) => {
-          if (!$form.hasClass("is-ajax-submit")) {
-            return true;
-          }
-          $form.one("submit", (e) => {
-            e.preventDefault();
-          });
-          $form.acfFrontendForm("doAjaxSubmit");
-        });
-      }
-      getInstance($form) {
-        return $form.data("RHFrontendForm");
-      }
-      initMaxInputInfo(field) {
-        let $info = field.$el.find(".maxlength-info");
-        if ($info.length) {
-          new MaxLength(field);
+      acf.unload.disable();
+      setTimeout(() => {
+        this.$form.removeClass("show-ajax-response");
+        acf.unlockForm(this.$form);
+        acf.validation.reset(this.$form);
+        this.$form.removeClass("rh-is-locked");
+        if (this.options.resetAfterSubmit) {
+          this.resetForm();
         }
+      }, this.options.waitAfterSubmit);
+    }
+    createAjaxResponse() {
+      this.$ajaxResponse = $4('<div class="acf-ajax-response"></div>');
+      this.$form.find(".acf-form-submit").append(this.$ajaxResponse);
+    }
+    showAjaxResponse(response) {
+      var _a;
+      let message = ((response || {}).data || {}).message;
+      if (!message) {
+        console.warn(
+          "[rh-acf-frontend-forms] No response message found in AJAX response"
+        );
+        return;
       }
-      initAutosize(field) {
-        let $input = field.$input();
-        $input.each(function() {
-          (0, import_autosize.default)(this);
-        }).on("autosize:resized", function() {
-          $7(document).trigger("rh/acf-form-resized");
-        });
+      this.$form.trigger("rh/show-ajax-response", response);
+      this.$form.trigger("rh/acf-frontend-form/response", response);
+      (_a = this.$ajaxResponse) == null ? void 0 : _a.text(message).toggleClass("is--error", response.success === false);
+      this.$form.addClass("show-ajax-response");
+    }
+    resetForm() {
+      const form = this.$form.get(0);
+      form.reset();
+      this.$form.find(".acf-field").find("input,textarea,select").trigger("change");
+      this.$form.find(".acf-field").removeClass("has-value has-focus");
+    }
+    hideConditionalFields() {
+      this.$form.find(".acf-field.hidden-by-conditional-logic").hide();
+    }
+    setupInputs() {
+      let selector = "input,textarea,select";
+      this.$form.on(
+        "keyup keydown change",
+        selector,
+        (e) => this.adjustHasValueClass($4(e.currentTarget))
+      );
+      this.$form.on("change", selector, (e) => this.maybeSubmitForm(e));
+      this.$form.on("focus", selector, (e) => this.onInputFocus(e.currentTarget));
+      this.$form.on("blur", selector, (e) => this.onInputBlur(e.currentTarget));
+    }
+    adjustHasValueClass($input) {
+      const $field = $input.parents(".acf-field:first");
+      const field = acf.getInstance($field);
+      if (!field) {
+        return;
       }
-      adjustRepeater($el, $repeater, action) {
-        if (!$repeater.length) {
-          return;
-        }
-        let o = acf2.get_data($repeater);
-        let $rows = $repeater.find(".acf-row:not(.acf-clone)");
-        let $lastRow = $rows.last();
-        let $addRow = $lastRow.find('[data-event="add-row"]');
-        $addRow.toggleClass("is-disabled", o.max > 0 && $rows.length >= o.max);
-        switch (action) {
-          case "append":
-            this.focusFirstInput($lastRow);
-            break;
-          case "remove":
-            break;
-        }
-        $7(document).trigger("rh/acf-form-resized");
-      }
-      focusFirstInput($el) {
-        setTimeout(() => {
-          let $input = $el.find("input:first");
-          if (!$input.length) {
-            return;
-          }
-          $input.focus();
-        }, 1);
+      const types = [
+        "text",
+        "password",
+        "url",
+        "email",
+        "number",
+        "textarea",
+        "select",
+        "true_false",
+        "date_picker",
+        "time_picker",
+        "date_time_picker",
+        "oembed"
+      ];
+      const type = field.data.type;
+      const val = field.val();
+      if (types.includes(type)) {
+        $field.toggleClass("has-value", !!val);
       }
     }
-    new App();
-  })(
-    /** @type {jQuery} */
-    jQuery
-  );
+    maybeSubmitForm(e) {
+      if (this.options.submitOnChange) {
+        this.$form[0].requestSubmit();
+      }
+    }
+    onInputFocus(el) {
+      this.$field(el).addClass("has-focus");
+    }
+    onInputBlur(el) {
+      this.$field(el).removeClass("has-focus");
+    }
+    $field(input) {
+      return $4(input).parents(".acf-field:first");
+    }
+  };
+  ACFFrontendForm.defaults = defaults;
+  var ACFFrontendFormElement = class _ACFFrontendFormElement extends HTMLElement {
+    static register() {
+      if (!window.customElements.get("acf-frontend-form")) {
+        window.customElements.define("acf-frontend-form", _ACFFrontendFormElement);
+      }
+    }
+    /**
+     * [initialized] getter and setter
+     */
+    get loaded() {
+      return this.hasAttribute("loaded");
+    }
+    set loaded(value) {
+      this.toggleAttribute("loaded", value);
+    }
+    connectedCallback() {
+      if (this.loaded) return;
+      const form = this.closest("form");
+      if (!form) {
+        return console.error("No form found");
+      }
+      if (!form.querySelector("input[name=_acf_screen][value=acf_form]")) {
+        return console.error("Something seems off with the acf form");
+      }
+      new ACFFrontendForm(form);
+      this.loaded = true;
+    }
+  };
+
+  // assets-src/acff.ts
+  var import_autosize = __toESM(require_autosize(), 1);
+  (($5, acf2) => {
+    if (typeof acf2 === "undefined") {
+      console.warn("The global acf object is not defined");
+      return;
+    }
+    ACFFrontendFormElement.register();
+    setup();
+    setupAjaxSubmit();
+    function setup() {
+      acf2.addAction("new_field", (field) => {
+        field.$el.addClass("rh-is-initialized");
+        initMaxInputInfo(field);
+      });
+      acf2.addAction("new_field/type=image", (field) => {
+        new ImageDrop(field);
+      });
+      acf2.addAction("new_field/type=textarea", (field) => {
+        initAutosize(field);
+      });
+      acf2.addAction("new_field/type=file", (field) => {
+        new FileInput(field);
+      });
+      acf2.showSpinner = function() {
+        $5("html").addClass("is-loading-form");
+      };
+      acf2.hideSpinner = function() {
+        $5("html").removeClass("is-loading-form");
+      };
+      acf2.addAction("remove", ($el) => {
+        let $repeater = $el.closest(".acf-repeater");
+        $el.remove();
+        adjustRepeater($el, $repeater, "remove");
+      });
+      acf2.addAction("append", ($el) => {
+        adjustRepeater($el, $el.closest(".acf-repeater"), "append");
+      });
+    }
+    function setupAjaxSubmit() {
+      acf2.addAction("submit", ($form) => {
+        if (!$form.hasClass("is-ajax-submit")) {
+          return true;
+        }
+        $form.one("submit", function(e) {
+          e.preventDefault();
+        });
+        $form.acfFrontendForm("doAjaxSubmit");
+      });
+    }
+    function initMaxInputInfo(field) {
+      let $info = field.$el.find(".maxlength-info");
+      if ($info.length) {
+        new MaxLength(field);
+      }
+    }
+    function initAutosize(field) {
+      const $input = field.$input();
+      $input.each((i, el) => {
+        (0, import_autosize.default)(el);
+      }).on("autosize:resized", function() {
+        $5(document).trigger("rh/acf-form-resized");
+      });
+    }
+    function adjustRepeater($el, $repeater, action) {
+      if (!$repeater.length) {
+        return;
+      }
+      let o = acf2.get_data($repeater);
+      let $rows = $repeater.find(".acf-row:not(.acf-clone)");
+      let $lastRow = $rows.last();
+      let $addRow = $lastRow.find('[data-event="add-row"]');
+      $addRow.toggleClass("is-disabled", o.max > 0 && $rows.length >= o.max);
+      switch (action) {
+        case "append":
+          focusFirstInput($lastRow);
+          break;
+        case "remove":
+          break;
+      }
+      $5(document).trigger("rh/acf-form-resized");
+    }
+    function focusFirstInput($el) {
+      setTimeout(() => {
+        const $input = $el.find("input:first");
+        if (!$input.length) {
+          return;
+        }
+        $input.trigger("focus");
+      }, 1);
+    }
+  })(jQuery, window.acf);
 })();
 /*! Bundled license information:
 

@@ -87,7 +87,6 @@
   width: 80%;
   height: 80%;
   transform: translate3d(-50%, -50%, 0);
-  fill: #fff;
   fill: var(--acff-white);
   stroke-width: 1.5px;
 }
@@ -111,13 +110,11 @@
   display: none;
 }
 .acf-error-message p {
-  background: hsla(10, 100%, 55%, 1);
   background: var(--acff-red);
   margin: 0;
   font-size: 0.8em;
   letter-spacing: 0.05em;
   padding: 0.55em 0.7em 0.55em;
-  color: #fff;
   color: var(--acff-white);
 }
 .acf-input .acf-error-message {
@@ -131,7 +128,6 @@
   display: block;
   width: 0.5em;
   height: 0.5em;
-  background: hsla(10, 100%, 55%, 1);
   background: var(--acff-red);
   transform: rotate(-45deg);
   margin-top: -0.3em;
@@ -149,13 +145,12 @@
   resize: none;
 }
 .acf-ajax-response {
-  background: hsla(139, 100%, 42%, 1);
   background: var(--acff-green);
 }
 .acf-ajax-response.is--error {
-  background: hsla(10, 100%, 55%, 1);
   background: var(--acff-red);
 }
 .acf-field-repeater > .acf-input > .acf-notice.-warning.-dismiss {
   display: none;
 }
+/*# sourceMappingURL=acff.css.map */

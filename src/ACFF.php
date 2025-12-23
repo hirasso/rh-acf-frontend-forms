@@ -16,7 +16,7 @@ class ACFF
 
     public function __construct()
     {
-        $this->permissions = new Permissions();
+        $this->permissions = new Permissions($this);
         // setup hooks
         $this->register_hooks();
         // always set acf validation to true, so that the form

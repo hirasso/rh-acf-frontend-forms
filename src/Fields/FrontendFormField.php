@@ -2,8 +2,6 @@
 
 namespace Hirasso\ACFF\Fields;
 
-use function Hirasso\ACFF\ACFF;
-
 class FrontendFormField extends \acf_field_select
 {
     /*
