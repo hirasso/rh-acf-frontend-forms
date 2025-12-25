@@ -11,7 +11,7 @@
  * GitHub Plugin URI: https://github.com/hirasso/rh-acf-frontend-forms
 **/
 
-use Hirasso\ACFF\ACFF;
+use Hirasso\ACFFF\ACFFF;
 
 /** Exit if accessed directly */
 if (! defined('ABSPATH')) {
@@ -29,21 +29,21 @@ require_once match(\is_readable(__DIR__ . '/vendor/autoload.php')) {
 };
 
 
-define('ACFF_ROOT', __FILE__);
+define('ACFFF_ROOT', __FILE__);
 
 /**
- * API Access to ACFF Singleton Instance
+ * API Access to ACFFF Singleton Instance
  */
-function acff(): ACFF
+function acfff(): ACFFF
 {
-    /** @var ?ACFF $instance */
+    /** @var ?ACFFF $instance */
     static $instance = null;
 
     if (!$instance) {
-        $instance = new ACFF();
+        $instance = new ACFFF();
     }
 
     return $instance;
 }
 
-acff();
+acfff();

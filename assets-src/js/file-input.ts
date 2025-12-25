@@ -1,11 +1,11 @@
 const $ = window.jQuery;
 
 import feather from "feather-icons";
-import type { ACFFileField, ImageFieldSettings } from "../types.js";
+import type { ACFFFileField, ImageFieldSettings } from "../types.js";
 
 export default class FileInput {
-  acfField: ACFFileField;
-  $el: ACFFileField["$el"];
+  acfField: ACFFFileField;
+  $el: ACFFFileField["$el"];
   $input: JQuery<HTMLElement>;
   $clear: JQuery<HTMLElement>;
   $uploader: JQuery<HTMLElement>;
@@ -13,7 +13,7 @@ export default class FileInput {
   dataSettings: ImageFieldSettings;
   lastInputVal: string | number | string[] | undefined;
 
-  constructor(acfField: ACFFileField) {
+  constructor(acfField: ACFFFileField) {
     // vars
     this.acfField = acfField;
     this.$el = acfField.$el;

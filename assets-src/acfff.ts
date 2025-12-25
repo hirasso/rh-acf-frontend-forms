@@ -1,4 +1,4 @@
-import "./css/acff.css";
+import "./css/acfff.css";
 
 ("use strict");
 
@@ -8,11 +8,11 @@ import "./js/autofill.js";
 import ImageDrop from "./js/image-drop.js";
 import FileInput from "./js/file-input.js";
 import MaxLength from "./js/maxlength.js";
-import { ACFFrontendFormElement } from "./js/ACFFrontendForm.js";
+import { FrontendFormElement } from "./js/ACFFrontendForm.js";
 
 import autosize from "autosize";
 
-import type { ACFField, ACF, ACFRepeaterData } from "./types";
+import type { ACFFField, ACF, ACFRepeaterData } from "./types";
 
 (($, acf) => {
   if (typeof acf === "undefined") {
@@ -20,7 +20,7 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
     return;
   }
 
-  ACFFrontendFormElement.register();
+  FrontendFormElement.register();
   setup();
 
   /**
@@ -28,11 +28,11 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
    */
   function setup() {
     acf.addAction("validation_success", ($form) => {
-      $form.trigger("acff/validation/success");
+      $form.trigger("acfff/validation/success");
     });
     // add initialized class to fields on initialization
     acf.addAction("new_field", (field) => {
-      field.$el.addClass("acff-initialized");
+      field.$el.addClass("acfff-initialized");
       initMaxInputInfo(field);
     });
 
@@ -67,14 +67,14 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
     });
   }
 
-  function initMaxInputInfo(field: ACFField) {
+  function initMaxInputInfo(field: ACFFField) {
     let $info = field.$el.find(".maxlength-info");
     if ($info.length) {
       new MaxLength(field);
     }
   }
 
-  function initAutosize(field: ACFField) {
+  function initAutosize(field: ACFFField) {
     const $input = field.$input();
 
     $input
@@ -82,7 +82,7 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
         autosize(el);
       })
       .on("autosize:resized", function () {
-        $(document).trigger("rh/acf-form-resized");
+        $(document).trigger("hirasso/acfff/form-resized");
       });
   }
 
@@ -105,7 +105,7 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
         break;
     }
 
-    $(document).trigger("rh/acf-form-resized");
+    $(document).trigger("hirasso/acfff/form-resized");
   }
 
   /**

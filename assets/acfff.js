@@ -3020,7 +3020,7 @@
         });
         this.$image.attr("src", src);
         this.$imageUploader.addClass("has-value");
-        $(document).trigger("rh/acf-form-resized");
+        $(document).trigger("hirasso/acfff/form-resized");
       };
       img.src = src;
     }
@@ -3267,7 +3267,7 @@
           (_b = (_a = this.options).onSuccess) == null ? void 0 : _b.call(_a, response);
         });
       };
-      let $form = $4(el);
+      const $form = $4(el);
       this.options = __spreadValues(__spreadValues({}, defaults), options);
       this.$form = $form;
       if (!$form.length) {
@@ -3278,10 +3278,10 @@
         console.warn("The global acf object is not defined");
         return;
       }
-      if ($form.hasClass("acff-initialized")) {
+      if ($form.hasClass("acfff-initialized")) {
         return;
       }
-      $form.addClass("acff-initialized");
+      $form.addClass("acfff-initialized");
       acf.doAction("append", $form);
       setTimeout(() => {
         acf.set("post_id", $form.find("#_acf_post_id").val());
@@ -3301,7 +3301,7 @@
     }
     setupForm() {
       if (this.options.ajaxSubmit) {
-        this.$form.on("acff/validation/success", this.submitViaAjax);
+        this.$form.on("acfff/validation/success", this.submitViaAjax);
         this.$form.addClass("is-ajax-submit");
       }
       this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
@@ -3341,8 +3341,7 @@
           "[rh-acf-frontend-forms] No response message found in AJAX response"
         );
       }
-      this.$form.trigger("rh/show-ajax-response", response);
-      this.$form.trigger("rh/acf-frontend-form/response", response);
+      this.$form.trigger("hirasso/acfff/response", response);
       (_a = this.$ajaxResponse) == null ? void 0 : _a.text(message).toggleClass("is--error", response.success === false);
       this.$form.addClass("show-ajax-response");
     }
@@ -3408,50 +3407,61 @@
     }
   };
   FrontendForm.defaults = defaults;
-  var ACFFrontendFormElement = class _ACFFrontendFormElement extends HTMLElement {
+  var FrontendFormElement = class _FrontendFormElement extends HTMLElement {
+    /**
+     * A static register function
+     */
     static register() {
       if (!window.customElements.get("acf-frontend-form")) {
-        window.customElements.define("acf-frontend-form", _ACFFrontendFormElement);
+        window.customElements.define("acf-frontend-form", _FrontendFormElement);
       }
     }
     /**
      * [initialized] getter and setter
      */
-    get loaded() {
-      return this.hasAttribute("loaded");
+    get initialized() {
+      return this.hasAttribute("initialized");
     }
-    set loaded(value) {
-      this.toggleAttribute("loaded", value);
+    set initialized(value) {
+      this.toggleAttribute("initialized", value);
     }
     connectedCallback() {
-      if (this.loaded) return;
-      const form = this.closest("form");
+      this.initialize();
+    }
+    initialize() {
+      var _a, _b;
+      if (this.initialized) return;
+      const form = this.querySelector("form");
       if (!form) {
         return console.error("No form found");
       }
       if (!form.querySelector("input[name=_acf_screen][value=acf_form]")) {
         return console.error("Something seems off with the acf form");
       }
-      const frontendForm = new FrontendForm(form);
-      this.loaded = true;
+      const options = JSON.parse(
+        ((_b = (_a = this.querySelector("script[data-acfff-options")) == null ? void 0 : _a.textContent) == null ? void 0 : _b.trim()) || "{}"
+      );
+      console.log({ options });
+      new FrontendForm(form, options);
+      this.initialized = true;
     }
   };
 
-  // assets-src/acff.ts
+  // assets-src/acfff.ts
   var import_autosize = __toESM(require_autosize(), 1);
   (($5, acf2) => {
     if (typeof acf2 === "undefined") {
       console.warn("The global acf object is not defined");
       return;
     }
-    ACFFrontendFormElement.register();
+    FrontendFormElement.register();
     setup();
     function setup() {
       acf2.addAction("validation_success", ($form) => {
-        $form.trigger("acff/validation/success");
+        $form.trigger("acfff/validation/success");
       });
       acf2.addAction("new_field", (field) => {
-        field.$el.addClass("acff-initialized");
+        field.$el.addClass("acfff-initialized");
         initMaxInputInfo(field);
       });
       acf2.addAction("new_field/type=image", (field) => {
@@ -3489,7 +3499,7 @@
       $input.each((i, el) => {
         (0, import_autosize.default)(el);
       }).on("autosize:resized", function() {
-        $5(document).trigger("rh/acf-form-resized");
+        $5(document).trigger("hirasso/acfff/form-resized");
       });
     }
     function adjustRepeater($el, $repeater, action) {
@@ -3508,7 +3518,7 @@
         case "remove":
           break;
       }
-      $5(document).trigger("rh/acf-form-resized");
+      $5(document).trigger("hirasso/acfff/form-resized");
     }
     function focusFirstInput($el) {
       setTimeout(() => {
@@ -3537,4 +3547,4 @@ autosize/dist/autosize.js:
   	http://www.jacklmoore.com/autosize
   *)
 */
-//# sourceMappingURL=acff.js.map
+//# sourceMappingURL=acfff.js.map

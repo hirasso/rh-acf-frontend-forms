@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Hirasso\ACFF;
+namespace Hirasso\ACFFF;
 
 /**
  * A custom Autoloader to replace the composer autoloader in production.

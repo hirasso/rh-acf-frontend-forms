@@ -1,18 +1,19 @@
 <?php
 
-namespace Hirasso\ACFF;
+namespace Hirasso\ACFFF;
 
-use Hirasso\ACFF\Fields\FormReviewField;
-use Hirasso\ACFF\Fields\FrontendFormField;
+use Hirasso\ACFFF\Fields\FormReviewField;
+use Hirasso\ACFFF\Fields\FrontendFormField;
+use Hirasso\ACFFF\Form\Form;
 
 if (!defined('ABSPATH')) {
     exit;
 } // Exit if accessed directly
 
-class ACFF
+class ACFFF
 {
     protected Permissions $permissions;
-    protected string $prefix = 'rh_acff';
+    protected string $prefix = 'rh_acfff';
 
     public function __construct()
     {
@@ -78,9 +79,7 @@ class ACFF
 
         add_filter('acf/location/rule_match/post_type', [$this, 'frontend_form_rule_match'], 10, 4);
 
-        add_action('post_submitbox_misc_actions', [$this, 'inject_acff_field_group_settings']);
-
-        add_action('acf/form_data', [$this, 'maybe_render_acff_custom_element'], 10);
+        add_action('post_submitbox_misc_actions', [$this, 'inject_acfff_field_group_settings']);
     }
 
     /**
@@ -89,12 +88,12 @@ class ACFF
     public function frontend_assets(): void
     {
         // enqueue plugin script
-        wp_enqueue_script('rh-acff', $this->asset_uri('assets/acff.js'), ['jquery'], null, true);
+        wp_enqueue_script('rh-acfff', $this->asset_uri('assets/acfff.js'), ['jquery'], null, true);
 
         // enqueue plugin styles
-        wp_enqueue_style('rh-acff', $this->asset_uri('assets/acff.css'), [], null, 'all');
+        wp_enqueue_style('rh-acfff', $this->asset_uri('assets/acfff.css'), [], null, 'all');
 
-        if (apply_filters('hirasso/acff/deregister-acf-styles', true)) {
+        if (apply_filters('hirasso/acfff/deregister-acf-styles', true)) {
             // Removes the default ACF styles
             wp_deregister_style('acf-global');
             wp_deregister_style('acf-input');
@@ -107,7 +106,7 @@ class ACFF
      */
     public function admin_styles(): void
     {
-        wp_enqueue_style("rh-acff-admin", $this->asset_uri('assets/acff-admin.css'));
+        wp_enqueue_style("rh-acfff-admin", $this->asset_uri('assets/acfff-admin.css'));
     }
 
     /**
@@ -115,7 +114,7 @@ class ACFF
      */
     public function asset_uri(string $path): string
     {
-        $uri = plugins_url($path, ACFF_ROOT);
+        $uri = plugins_url($path, ACFFF_ROOT);
         $file = $this->get_file_path($path);
         if (file_exists($file)) {
             $version = filemtime($file);
@@ -130,7 +129,7 @@ class ACFF
     public function get_file_path(string $path): string
     {
         $path = ltrim($path, '/');
-        $file = plugin_dir_path(ACFF_ROOT) . $path;
+        $file = plugin_dir_path(ACFFF_ROOT) . $path;
         return $file;
     }
 
@@ -396,20 +395,25 @@ class ACFF
     }
 
     /**
-     * Adds the ACFF Settings page
-     *
-     * @return void
+     * Adds the ACFFF Settings page
      */
-    public function add_settings_page()
+    public function add_settings_page(): void
     {
         $settings_page = $this->get_settings_page_info();
 
         /**
+         * Not everyone has ACF pro
+         */
+        if (!function_exists('acf_add_options_page')) {
+            return;
+        }
+
+        /**
          * We only have normal ACF (not pro) available for static analysis
          */
-        acf_add_options_page([ // @phpstan-ignore function.notFound
+        acf_add_options_page([
             'page_title'    => __('Frontend Forms Settings'),
-            'menu_title'    => __('ACFF Admin'),
+            'menu_title'    => __('ACFFF Admin'),
             'menu_slug'     => $settings_page->slug,
             'capability'    => 'manage_options',
             'post_id'       => $settings_page->id,
@@ -440,7 +444,7 @@ class ACFF
     public function is_frontend_form(?int $post_id = 0): bool
     {
         $field_group = acf_get_field_group($post_id);
-        return (bool) ($field_group['acff_is_frontend_form'] ?? false);
+        return (bool) ($field_group['acfff_is_frontend_form'] ?? false);
     }
 
 
@@ -454,8 +458,8 @@ class ACFF
             return false;
         }
 
-        $is_frontend_form = (bool) ($field_group['acff_is_frontend_form'] ?? false);
-        $for_post_type = $field_group['acff_for_post_type'] ?? '';
+        $is_frontend_form = (bool) ($field_group['acfff_is_frontend_form'] ?? false);
+        $for_post_type = $field_group['acfff_for_post_type'] ?? '';
         return $is_frontend_form && $for_post_type === $post_type;
     }
 
@@ -690,7 +694,7 @@ class ACFF
     public function get_frontend_forms(): array
     {
         return array_filter($this->get_field_groups_from_db(), function ($field_group) {
-            return (bool) acf_maybe_get($field_group, 'acff_is_frontend_form', false);
+            return (bool) acf_maybe_get($field_group, 'acfff_is_frontend_form', false);
         });
     }
 
@@ -702,7 +706,7 @@ class ACFF
     private function get_admin_forms(): array
     {
         return array_filter($this->get_field_groups_from_db(), function ($field_group) {
-            return (bool) acf_maybe_get($field_group, 'acff_is_frontend_form', false) === false;
+            return (bool) acf_maybe_get($field_group, 'acfff_is_frontend_form', false) === false;
         });
     }
 
@@ -793,9 +797,9 @@ class ACFF
     }
 
     /**
-     * Inject ACFF settings for non-admins
+     * Inject ACFFF settings for non-admins
      */
-    public function inject_acff_field_group_settings(): void
+    public function inject_acfff_field_group_settings(): void
     {
         global $field_group;
 
@@ -803,17 +807,17 @@ class ACFF
             return;
         }
 
-        $acff_is_frontend_form = (string) ($field_group['acff_is_frontend_form'] ?? 0);
-        $acff_for_post_type = (string) ($field_group['acff_for_post_type'] ?? '');
+        $acfff_is_frontend_form = (string) ($field_group['acfff_is_frontend_form'] ?? 0);
+        $acfff_for_post_type = (string) ($field_group['acfff_for_post_type'] ?? '');
         $location_rule_name = "acf_field_group[location][group_0][rule_0]";
 
         ob_start() ?>
     <!-- Start acf frontend forms -->
-    <input type='hidden' name='acf_field_group[acff_is_frontend_form]' value='<?= esc_attr($acff_is_frontend_form) ?>'></input>
-    <input type='hidden' name='acf_field_group[acff_for_post_type]' value='<?= esc_attr($acff_for_post_type) ?>'></input>
+    <input type='hidden' name='acf_field_group[acfff_is_frontend_form]' value='<?= esc_attr($acfff_is_frontend_form) ?>'></input>
+    <input type='hidden' name='acf_field_group[acfff_for_post_type]' value='<?= esc_attr($acfff_for_post_type) ?>'></input>
     <input type="hidden" name='<?= $location_rule_name ?>[param]' value='post_type'></input>
     <input type="hidden" name='<?= $location_rule_name ?>[operator]' value='=='></input>
-    <input type="hidden" name='<?= $location_rule_name ?>[value]' value='<?= esc_attr($acff_for_post_type) ?>'></input>
+    <input type="hidden" name='<?= $location_rule_name ?>[value]' value='<?= esc_attr($acfff_for_post_type) ?>'></input>
     <!-- End acf frontend forms -->
 <?php echo ob_get_clean();
     }
@@ -824,7 +828,7 @@ class ACFF
     public function render_time_based_honeypot(): void
     {
         ob_start(); ?>
-      <input type="hidden" name="_acff_form_started" value="">
+      <input type="hidden" name="_acfff_form_started" value="">
       <script>
         document.currentScript.previousElementSibling.value = Math.floor(Date.now() / 1000)
       </script>
@@ -832,7 +836,7 @@ class ACFF
     }
 
     /**
-     * Validate the time based honeypot "_acff_form_started"
+     * Validate the time based honeypot "_acfff_form_started"
      */
     public function validate_time_based_honeypot(): void
     {
@@ -841,7 +845,7 @@ class ACFF
             return;
         }
 
-        $started = $_POST['_acff_form_started'] ?? null;
+        $started = $_POST['_acfff_form_started'] ?? null;
 
         // No such field in the current form
         if (is_null($started)) {
@@ -852,19 +856,8 @@ class ACFF
         if (time() - (int) $started < 3) {
             acf_add_validation_error(
                 '',
-                __('Something went wrong. If the issue persists, please contact the site site administrator.', 'acff')
+                __('Something went wrong. If the issue persists, please contact the site site administrator.', 'acfff')
             );
-        }
-    }
-
-    /**
-     * Render a custom element that will auto-initialize the form
-     * @param array<string, mixed> $data
-     */
-    public function maybe_render_acff_custom_element(array $data): void
-    {
-        if (($data['screen'] ?? null) === 'acf_form') {
-            echo "\n<acf-frontend-form></acf-frontend-form>\n";
         }
     }
 
@@ -878,5 +871,14 @@ class ACFF
             return;
         }
         acf_get_store('form')->set('validation', true);
+    }
+
+    /**
+     * Create a frontend form
+     * @param array<string, mixed> $args – These options are forwarded unmodified to acf_form($args)
+     */
+    public function form(array $args): Form
+    {
+        return new Form($args);
     }
 }

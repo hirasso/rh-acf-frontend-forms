@@ -5,7 +5,7 @@
 /**
  * ACF Field object
  */
-export interface ACFField {
+export interface ACFFField {
   /** The field's jQuery element */
   $el: JQuery;
 
@@ -147,7 +147,7 @@ export interface ACF {
   /**
    * Add an action hook
    * @param action - Action name (e.g., 'new_field', 'new_field/type=image', 'submit', 'append', 'remove')
-   * @param callback - Callback function (receives ACFField for field actions, JQuery for element actions)
+   * @param callback - Callback function (receives ACFFField for field actions, JQuery for element actions)
    */
   addAction<T extends HTMLElement>(
     action: "remove" | "append",
@@ -166,22 +166,22 @@ export interface ACF {
   );
   addAction(
     action: `new_field/type=image` | `new_field/type=file`,
-    callback: (arg: ACFFileField) => void | boolean,
+    callback: (arg: ACFFFileField) => void | boolean,
   ): void;
   addAction(
     action: "new_field" | `new_field/type=${string}`,
-    callback: (arg: ACFField) => void | boolean,
+    callback: (arg: ACFFField) => void | boolean,
   ): void;
 
   /**
    * Get an ACFfield based on field key
    */
-  getField(key: string): ACFField | undefined;
+  getField(key: string): ACFFField | undefined;
 
   /**
    * Get an ACFfield based on $field element
    */
-  getInstance($field: JQuery): ACFField | undefined;
+  getInstance($field: JQuery): ACFFField | undefined;
 
   /**
    * Trigger an action hook
@@ -249,9 +249,9 @@ export interface ImageFieldSettings {
 }
 
 /**
- * ACF Image Field - extends ACFField with image-specific methods
+ * ACF Image Field - extends ACFFField with image-specific methods
  */
-export interface ACFFileField extends ACFField {
+export interface ACFFFileField extends ACFFField {
   /** Remove attachment from field */
   removeAttachment(): void;
 }

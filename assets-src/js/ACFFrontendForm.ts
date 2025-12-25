@@ -31,7 +31,7 @@ class FrontendForm {
   $ajaxResponse?: JQuery<HTMLElement>;
 
   constructor(el: HTMLFormElement, options: Partial<typeof defaults> = {}) {
-    let $form = $<HTMLFormElement>(el);
+    const $form = $<HTMLFormElement>(el);
     this.options = { ...defaults, ...options };
     this.$form = $form;
 
@@ -46,10 +46,10 @@ class FrontendForm {
       return;
     }
     // return if form has already been initialized
-    if ($form.hasClass("acff-initialized")) {
+    if ($form.hasClass("acfff-initialized")) {
       return;
     }
-    $form.addClass("acff-initialized");
+    $form.addClass("acfff-initialized");
 
     /** This, in combination with create_buffered_acf_form, makes the JS load after SPA navigation */
     acf.doAction("append", $form);
@@ -79,7 +79,7 @@ class FrontendForm {
 
   setupForm() {
     if (this.options.ajaxSubmit) {
-      this.$form.on("acff/validation/success", this.submitViaAjax);
+      this.$form.on("acfff/validation/success", this.submitViaAjax);
       this.$form.addClass("is-ajax-submit");
     }
 
@@ -173,8 +173,9 @@ class FrontendForm {
         "[rh-acf-frontend-forms] No response message found in AJAX response",
       );
     }
-    this.$form.trigger("rh/show-ajax-response", response);
-    this.$form.trigger("rh/acf-frontend-form/response", response);
+
+    this.$form.trigger("hirasso/acfff/response", response);
+
     this.$ajaxResponse
       ?.text(message)
       .toggleClass("is--error", response.success === false);
@@ -257,27 +258,34 @@ class FrontendForm {
 /**
  * A custom element that automatically initializes an ACF frontend form
  */
-export class ACFFrontendFormElement extends HTMLElement {
+export class FrontendFormElement extends HTMLElement {
+  /**
+   * A static register function
+   */
   static register() {
     if (!window.customElements.get("acf-frontend-form")) {
-      window.customElements.define("acf-frontend-form", ACFFrontendFormElement);
+      window.customElements.define("acf-frontend-form", FrontendFormElement);
     }
   }
 
   /**
    * [initialized] getter and setter
    */
-  get loaded(): boolean {
-    return this.hasAttribute("loaded");
+  get initialized(): boolean {
+    return this.hasAttribute("initialized");
   }
-  set loaded(value: boolean) {
-    this.toggleAttribute("loaded", value);
+  set initialized(value: boolean) {
+    this.toggleAttribute("initialized", value);
   }
 
   connectedCallback() {
-    if (this.loaded) return;
+    this.initialize();
+  }
 
-    const form = this.closest("form");
+  initialize() {
+    if (this.initialized) return;
+
+    const form = this.querySelector("form");
     if (!form) {
       return console.error("No form found");
     }
@@ -286,8 +294,13 @@ export class ACFFrontendFormElement extends HTMLElement {
       return console.error("Something seems off with the acf form");
     }
 
-    const frontendForm = new FrontendForm(form);
+    const options = JSON.parse(
+      this.querySelector("script[data-acfff-options")?.textContent?.trim() ||
+        "{}",
+    );
+    console.log({ options });
+    new FrontendForm(form, options);
 
-    this.loaded = true;
+    this.initialized = true;
   }
 }

@@ -78,7 +78,7 @@
   width: 80%;
   height: 80%;
   transform: translate3d(-50%, -50%, 0);
-  fill: var(--acff-white);
+  fill: var(--acfff-white);
   stroke-width: 1.5px;
 }
 .image-drop [type="file"] {

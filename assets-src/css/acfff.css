@@ -12,10 +12,10 @@
   resize: none;
 }
 .acf-ajax-response {
-  background: var(--acff-green);
+  background: var(--acfff-green);
 }
 .acf-ajax-response.is--error {
-  background: var(--acff-red);
+  background: var(--acfff-red);
 }
 .acf-field-repeater > .acf-input > .acf-notice.-warning.-dismiss {
   display: none;

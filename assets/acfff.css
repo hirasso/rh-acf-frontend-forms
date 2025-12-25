@@ -1,10 +1,10 @@
 /* assets-src/css/inc/_vars.css */
 :root {
-  --acff-black: #000;
-  --acff-white: #fff;
-  --acff-red: hsla(10, 100%, 55%, 1);
-  --acff-green: hsla(139, 100%, 42%, 1);
-  --acff-blue: hsla(200, 100%, 50%, 1);
+  --acfff-black: #000;
+  --acfff-white: #fff;
+  --acfff-red: hsla(10, 100%, 55%, 1);
+  --acfff-green: hsla(139, 100%, 42%, 1);
+  --acfff-blue: hsla(200, 100%, 50%, 1);
 }
 
 /* assets-src/css/inc/_image-drop.css */
@@ -87,7 +87,7 @@
   width: 80%;
   height: 80%;
   transform: translate3d(-50%, -50%, 0);
-  fill: var(--acff-white);
+  fill: var(--acfff-white);
   stroke-width: 1.5px;
 }
 .image-drop [type=file] {
@@ -110,12 +110,12 @@
   display: none;
 }
 .acf-error-message p {
-  background: var(--acff-red);
+  background: var(--acfff-red);
   margin: 0;
   font-size: 0.8em;
   letter-spacing: 0.05em;
   padding: 0.55em 0.7em 0.55em;
-  color: var(--acff-white);
+  color: var(--acfff-white);
 }
 .acf-input .acf-error-message {
   display: block;
@@ -128,13 +128,13 @@
   display: block;
   width: 0.5em;
   height: 0.5em;
-  background: var(--acff-red);
+  background: var(--acfff-red);
   transform: rotate(-45deg);
   margin-top: -0.3em;
   margin-left: 1.5em;
 }
 
-/* assets-src/css/acff.css */
+/* assets-src/css/acfff.css */
 .acf-input {
   position: relative;
 }
@@ -145,12 +145,12 @@
   resize: none;
 }
 .acf-ajax-response {
-  background: var(--acff-green);
+  background: var(--acfff-green);
 }
 .acf-ajax-response.is--error {
-  background: var(--acff-red);
+  background: var(--acfff-red);
 }
 .acf-field-repeater > .acf-input > .acf-notice.-warning.-dismiss {
   display: none;
 }
-/*# sourceMappingURL=acff.css.map */
+/*# sourceMappingURL=acfff.css.map */

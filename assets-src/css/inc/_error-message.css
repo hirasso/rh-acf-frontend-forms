@@ -5,12 +5,12 @@
   display: none;
 }
 .acf-error-message p {
-  background: var(--acff-red);
+  background: var(--acfff-red);
   margin: 0;
   font-size: 0.8em;
   letter-spacing: 0.05em;
   padding: 0.55em 0.7em 0.55em;
-  color: var(--acff-white);
+  color: var(--acfff-white);
 }
 .acf-input .acf-error-message {
   display: block;
@@ -23,7 +23,7 @@
   display: block;
   width: 0.5em;
   height: 0.5em;
-  background: var(--acff-red);
+  background: var(--acfff-red);
   transform: rotate(-45deg);
   margin-top: -0.3em;
   margin-left: 1.5em;

@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- c6a3044: Remove the title hack from the ACFF Settings page field group
+- c6a3044: Remove the title hack from the ACFFF Settings page field group
 - Add typings to all js code
 
 ## 4.2.1
@@ -39,8 +39,8 @@
 
 ### Major Changes
 
-- **BREAKING**: renamed the main plugin namespace from `RH\ACFF` to `Hirasso\ACFF`
-- **BREAKING**: renamed filters from "rh/acff/filtername" to "hirasso/acff/filtername"
+- **BREAKING**: renamed the main plugin namespace from `RH\ACFFF` to `Hirasso\ACFFF`
+- **BREAKING**: renamed filters from "rh/acfff/filtername" to "hirasso/acfff/filtername"
 - Switched to `@changesets/cli` for CHANGELOG management
 - Switched from parcel bundler v1 to a lightweight esbuild process
 - Build assets in CI
@@ -86,7 +86,7 @@
 #### 3.2.7 (2020-05-25)
 
 - introducing: Parcel! (#cd3faf2)
-- more robust injection of acff field group settings (#bfb1c60)
+- more robust injection of acfff field group settings (#bfb1c60)
 
 #### 3.2.6 (2020-05-25)
 
@@ -102,7 +102,7 @@
 
 #### 3.2.3 (2020-05-25)
 
-- truly hide ACFF field group settings for non-admins (#2113658)
+- truly hide ACFFF field group settings for non-admins (#2113658)
 - cleanup (#57974bb)
 - add list view 'Admin Forms' (#bc63177)
 - wait for ACF until initialization (#482aeb9)

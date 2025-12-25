@@ -1,6 +1,6 @@
 const $ = window.jQuery;
 
-import type { ACFField } from "../types.js";
+import type { ACFFField } from "../types.js";
 
 export default class MaxLength {
   $info: JQuery<HTMLElement>;
@@ -8,7 +8,7 @@ export default class MaxLength {
   $remainingCount: JQuery<HTMLElement>;
   $input: JQuery<HTMLElement>;
 
-  constructor(field: ACFField) {
+  constructor(field: ACFFField) {
     let $el = field.$el;
     this.$info = $el.find(".maxlength-info");
     this.max = parseInt(this.$info.attr("data-maxlength") || "0", 10);

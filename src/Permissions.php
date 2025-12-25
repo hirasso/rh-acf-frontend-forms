@@ -1,6 +1,6 @@
 <?php
 
-namespace Hirasso\ACFF;
+namespace Hirasso\ACFFF;
 
 /** Exit if accessed directly */
 if (! defined('ABSPATH')) {
@@ -10,11 +10,11 @@ if (! defined('ABSPATH')) {
 class Permissions
 {
     private string $prefix;
-    private string $hook_allowed_fields = 'hirasso/acff/allowed-fields';
+    private string $hook_allowed_fields = 'hirasso/acfff/allowed-fields';
 
-    public function __construct(protected ACFF $acff)
+    public function __construct(protected ACFFF $acfff)
     {
-        $this->prefix = $this->acff->get_prefix();
+        $this->prefix = $this->acfff->get_prefix();
 
         add_filter('acf/settings/capability', [$this, 'acf_setting_capability']);
         add_filter('acf/settings/show_admin', [$this, 'acf_setting_show_admin']);
@@ -55,11 +55,11 @@ class Permissions
 
         $classes = explode(' ', $class);
 
-        if ($this->acff->is_frontend_form(acf_maybe_get_GET('post'))) {
+        if ($this->acfff->is_frontend_form(acf_maybe_get_GET('post'))) {
             $classes[] = 'is-edit-acf-frontend-form';
         }
 
-        $classes[] = $this->acff->is_super_admin()
+        $classes[] = $this->acfff->is_super_admin()
             ? 'is-acf-super-admin'
             : 'is-not-acf-super-admin';
 
@@ -79,12 +79,10 @@ class Permissions
 
     /**
      * Add settings page for frontend forms
-     *
-     * @return void
      */
-    public function add_settings_page_fields()
+    public function add_settings_page_fields(): void
     {
-        $settings_page = $this->acff->get_settings_page_info();
+        $settings_page = $this->acfff->get_settings_page_info();
 
         acf_add_local_field([
             'key' => "field_{$this->prefix}_allowed_fields",
@@ -214,7 +212,7 @@ class Permissions
      */
     public function restrict_field_types(array $groups): array
     {
-        if (!$this->acff->is_frontend_form(acf_maybe_get_GET('post'))) {
+        if (!$this->acfff->is_frontend_form(acf_maybe_get_GET('post'))) {
             return $groups;
         }
 
@@ -247,7 +245,7 @@ class Permissions
      */
     public function acf_setting_show_admin(bool $setting): bool
     {
-        if (!$this->acff->is_super_admin()) {
+        if (!$this->acfff->is_super_admin()) {
             return false;
         }
         return $setting;
@@ -258,7 +256,7 @@ class Permissions
      */
     private function get_frontend_forms_cap(): string
     {
-        return (string) apply_filters('hirasso/acff/settings/capability', 'manage_options');
+        return (string) apply_filters('hirasso/acfff/settings/capability', 'manage_options');
     }
 
     /**
@@ -281,7 +279,7 @@ class Permissions
      */
     public function restrict_bulk_actions(array $actions): array
     {
-        if (!$this->acff->is_super_admin()) {
+        if (!$this->acfff->is_super_admin()) {
             return [];
         }
         return $actions;
@@ -308,12 +306,12 @@ class Permissions
             return $user_caps;
         }
 
-        if ($cap !== $this->get_frontend_forms_cap() || $this->acff->is_super_admin()) {
+        if ($cap !== $this->get_frontend_forms_cap() || $this->acfff->is_super_admin()) {
             return $user_caps;
         }
 
         // deny access to acf field groups that aren't frontend forms
-        if (get_post_type($post) === 'acf-field-group' && !$this->acff->is_frontend_form($post->ID)) {
+        if (get_post_type($post) === 'acf-field-group' && !$this->acfff->is_frontend_form($post->ID)) {
             $user_caps[] = 'do_not_allow';
         }
 
@@ -327,7 +325,7 @@ class Permissions
      */
     public function register_post_type_args(array $args, string $pt): array
     {
-        if ($pt !== 'acf-field-group' || $this->acff->is_super_admin()) {
+        if ($pt !== 'acf-field-group' || $this->acfff->is_super_admin()) {
             return $args;
         }
 
@@ -336,11 +334,11 @@ class Permissions
         }
 
         $super_cap = 'manage_options';
-        $acff_cap = $this->get_frontend_forms_cap();
+        $acfff_cap = $this->get_frontend_forms_cap();
         // TODO??
-        // $args['capabilities']['edit_post'] = $acff_cap;
-        // $args['capabilities']['edit_posts'] = $acff_cap;
-        // $args['capabilities']['edit_others_posts'] = $acff_cap;
+        // $args['capabilities']['edit_post'] = $acfff_cap;
+        // $args['capabilities']['edit_posts'] = $acfff_cap;
+        // $args['capabilities']['edit_others_posts'] = $acfff_cap;
         $args['capabilities']['create_posts'] = $super_cap;
         $args['capabilities']['delete_post'] = $super_cap;
         $args['capabilities']['delete_posts'] = $super_cap;
@@ -358,7 +356,7 @@ class Permissions
      */
     public function row_actions(array $actions, \WP_Post $post): array
     {
-        if ($this->acff->is_super_admin() || $post->post_type !== 'acf-field-group') {
+        if ($this->acfff->is_super_admin() || $post->post_type !== 'acf-field-group') {
             return $actions;
         }
         foreach ($actions as $key => $value) {
@@ -371,10 +369,8 @@ class Permissions
 
     /**
      * Restrict access to ACF submenu screens
-     *
-     * @return void
      */
-    public function check_current_screen()
+    public function check_current_screen(): void
     {
         $screen = get_current_screen();
         if (!$screen || !in_array($screen->id, ['custom-fields_page_acf-tools', 'custom-fields_page_acf-tools'])) {
@@ -385,12 +381,10 @@ class Permissions
 
     /**
      * Die if current user is not administrator
-     *
-     * @return void
      */
     private function die_if_not_admin(string $message): void
     {
-        if ($this->acff->is_super_admin()) {
+        if ($this->acfff->is_super_admin()) {
             return;
         }
         $args = [
@@ -406,13 +400,11 @@ class Permissions
 
     /**
      * Hide field group settings for non-administrators
-     *
-     * @return void
      */
-    public function remove_meta_boxes()
+    public function remove_meta_boxes(): void
     {
 
-        if (!$this->acff->is_super_admin()) {
+        if (!$this->acfff->is_super_admin()) {
             remove_meta_box('acf-field-group-locations', 'acf-field-group', 'normal');
             remove_meta_box('acf-field-group-options', 'acf-field-group', 'normal');
         }
@@ -424,36 +416,36 @@ class Permissions
      */
     public function render_field_group_settings(array $field_group): void
     {
-        $is_frontend_form = !empty($field_group['acff_is_frontend_form'])
-            ? $field_group['acff_is_frontend_form'] : false;
+        $is_frontend_form = !empty($field_group['acfff_is_frontend_form'])
+            ? $field_group['acfff_is_frontend_form'] : false;
 
         acf_render_field_wrap([
-            'id'       => 'acff_acff_is_frontend_form',
+            'id'       => 'acfff_acfff_is_frontend_form',
             'label'			=> __('Frontend Form', 'acf'),
             'instructions'	=> 'Allow as frontend form?',
             'type'			=> 'true_false',
-            'name'			=> 'acff_is_frontend_form',
+            'name'			=> 'acfff_is_frontend_form',
             'prefix'		=> 'acf_field_group',
             'value'			=> $is_frontend_form,
             'ui'			=> 1,
         ]);
 
-        $post_type = !empty($field_group['acff_for_post_type'])
-            ? $field_group['acff_for_post_type']
+        $post_type = !empty($field_group['acfff_for_post_type'])
+            ? $field_group['acfff_for_post_type']
             : '';
 
         acf_render_field_wrap([
             'label' => __('Frontend Form for', 'acf'),
             'instructions' => 'Which post type should this frontend form create?',
             'type' => 'select',
-            'name' => 'acff_for_post_type',
+            'name' => 'acfff_for_post_type',
             'prefix' => 'acf_field_group',
             'value' => $post_type,
             'ui' => false,
             'allow_null' => true,
             'choices' => $this->get_post_type_select_choices(),
             'conditional_logic' => [
-                'field'     => 'acff_is_frontend_form',
+                'field'     => 'acfff_is_frontend_form',
                 'operator'  => '==',
                 'value'     => '1'
             ]
@@ -479,7 +471,7 @@ class Permissions
      *
      * TODO: 22.12.25 Test why that was develped in the first place.
      * But we actually can't NOT save the field group, otherwise our
-     * custom field group settings won't work anymore (acff_is_frontend_form, ...)
+     * custom field group settings won't work anymore (acfff_is_frontend_form, ...)
      */
     // public function acf_save_json(string $path)
     // {
@@ -491,7 +483,7 @@ class Permissions
     //     }
 
     //     // Bail early if this is no frontend form
-    //     $is_frontend_form = (bool) acf_maybe_get($field_group, 'acff_is_frontend_form');
+    //     $is_frontend_form = (bool) acf_maybe_get($field_group, 'acfff_is_frontend_form');
     //     if (!$is_frontend_form) {
     //         return $path;
     //     }
