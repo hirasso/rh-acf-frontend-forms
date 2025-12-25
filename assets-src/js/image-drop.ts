@@ -1,11 +1,11 @@
 const $ = window.jQuery;
 
 import feather from "feather-icons";
-import type { ACFImageField, ImageFieldSettings } from "../types.js";
+import type { ACFFileField, ImageFieldSettings } from "../types.js";
 
 export default class ImageDrop {
-  acfField: ACFImageField;
-  $el: ACFImageField["$el"];
+  acfField: ACFFileField;
+  $el: ACFFileField["$el"];
   $input: JQuery<HTMLElement>;
   $imagePreview: JQuery<HTMLElement>;
   $image: JQuery<HTMLImageElement>;
@@ -16,7 +16,7 @@ export default class ImageDrop {
   currentImageSrc: string | undefined;
   lastInputVal: string | number | string[] | undefined;
 
-  constructor(acfField: ACFImageField) {
+  constructor(acfField: ACFFileField) {
     // vars
     this.acfField = acfField;
 
