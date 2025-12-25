@@ -5,34 +5,20 @@
 .acf-columns-2 .acf-column-2 {
   display: none;
 }
-.is-edit-acf-frontend-form {
-  .acf-field-object-group .acf-field-setting-layout,
-  .acf-field-object-repeater .acf-field-setting-layout,
-  .acf-field-object-textarea .acf-field-setting-rows,
-  .acf-field-setting-ui {
+.is-edit-acf-frontend-form .acf-field-object-group .acf-field-setting-layout,.is-edit-acf-frontend-form .acf-field-object-repeater .acf-field-setting-layout,.is-edit-acf-frontend-form .acf-field-object-textarea .acf-field-setting-rows,.is-edit-acf-frontend-form .acf-field-setting-ui {
     display: none !important;
   }
-  .acf-field .ed_button {
+.is-edit-acf-frontend-form .acf-field .ed_button {
     display: none;
   }
-  .acf-field .ed_button[value=link],
-  .acf-field .ed_button[value=ul],
-  .acf-field .ed_button[value=li],
-  .acf-field .ed_button[value="/li"],
-  .acf-field .ed_button[value="close tags"] {
+.is-edit-acf-frontend-form .acf-field .ed_button[value=link],.is-edit-acf-frontend-form .acf-field .ed_button[value=ul],.is-edit-acf-frontend-form .acf-field .ed_button[value=li],.is-edit-acf-frontend-form .acf-field .ed_button[value="/li"],.is-edit-acf-frontend-form .acf-field .ed_button[value="close tags"] {
     display: inline-block;
   }
-  .acf-field-setting-rich_text_message + .acf-field-setting-message {
+.is-edit-acf-frontend-form .acf-field-setting-rich_text_message + .acf-field-setting-message {
     display: none;
   }
-  .acf-field-object-form-review {
-    .acf-field-setting-name,
-    .acf-field-setting-instructions,
-    .acf-field-setting-required,
-    .acf-field-setting-conditional_logic,
-    .acf-field-setting-wrapper {
+.is-edit-acf-frontend-form .acf-field-object-form-review .acf-field-setting-name,.is-edit-acf-frontend-form .acf-field-object-form-review .acf-field-setting-instructions,.is-edit-acf-frontend-form .acf-field-object-form-review .acf-field-setting-required,.is-edit-acf-frontend-form .acf-field-object-form-review .acf-field-setting-conditional_logic,.is-edit-acf-frontend-form .acf-field-object-form-review .acf-field-setting-wrapper {
       display: none !important;
     }
-  }
-}
+
 /*# sourceMappingURL=acfff-admin.css.map */
