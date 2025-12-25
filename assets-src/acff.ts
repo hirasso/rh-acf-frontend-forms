@@ -21,17 +21,18 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
   }
 
   ACFFrontendFormElement.register();
-
   setup();
-  setupAjaxSubmit();
 
   /**
    * Setup global acf functions and hooks
    */
   function setup() {
+    acf.addAction("validation_success", ($form) => {
+      $form.trigger("acff/validation/success");
+    });
     // add initialized class to fields on initialization
     acf.addAction("new_field", (field) => {
-      field.$el.addClass("rh-is-initialized");
+      field.$el.addClass("acff-initialized");
       initMaxInputInfo(field);
     });
 
@@ -63,22 +64,6 @@ import type { ACFField, ACF, ACFRepeaterData } from "./types";
 
     acf.addAction("append", ($el) => {
       adjustRepeater($el, $el.closest(".acf-repeater"), "append");
-    });
-  }
-
-  /**
-   * Setup the ajax submit
-   */
-  function setupAjaxSubmit() {
-    acf.addAction("submit", ($form) => {
-      if (!$form.hasClass("is-ajax-submit")) {
-        return true;
-      }
-      $form.one("submit", function (e) {
-        e.preventDefault();
-      });
-
-      ($form as any).acfFrontendForm("doAjaxSubmit");
     });
   }
 

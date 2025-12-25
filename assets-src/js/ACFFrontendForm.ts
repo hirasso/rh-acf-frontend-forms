@@ -24,7 +24,7 @@ const defaults = {
   onSuccess: (response: AjaxResponse) => {},
 };
 
-class ACFFrontendForm {
+class FrontendForm {
   static defaults = defaults;
   options: typeof defaults;
   $form: JQuery<HTMLFormElement>;
@@ -46,13 +46,24 @@ class ACFFrontendForm {
       return;
     }
     // return if form has already been initialized
-    if ($form.hasClass("rh-is-initialized")) {
+    if ($form.hasClass("acff-initialized")) {
       return;
     }
-    $form.addClass("rh-is-initialized");
+    $form.addClass("acff-initialized");
 
+    /** This, in combination with create_buffered_acf_form, makes the JS load after SPA navigation */
     acf.doAction("append", $form);
-    acf.validation.enable();
+
+    setTimeout(() => {
+      acf.set("post_id", $form.find<HTMLInputElement>("#_acf_post_id").val());
+      acf.set("screen", "acf_form");
+      acf.set("validation", true);
+
+      const { post_id, screen, validation } = acf.data;
+      console.log({ post_id, screen, validation });
+    }, 5);
+
+    // console.log(acf.data);
 
     this.$form.find(".acf-field input").each((i, el) => {
       this.adjustHasValueClass($(el));
@@ -68,6 +79,7 @@ class ACFFrontendForm {
 
   setupForm() {
     if (this.options.ajaxSubmit) {
+      this.$form.on("acff/validation/success", this.submitViaAjax);
       this.$form.addClass("is-ajax-submit");
     }
 
@@ -79,7 +91,20 @@ class ACFFrontendForm {
     });
   }
 
-  doAjaxSubmit() {
+  /**
+   * Submit this form via AJAX
+   */
+  submitViaAjax = () => {
+    if (!this.$form.hasClass("is-ajax-submit")) {
+      return;
+    }
+
+    this.$form.one("submit", function (e) {
+      e.preventDefault();
+    });
+
+    acf.unload.enable();
+
     // Fix for Safari Webkit – empty file inputs
     // https://stackoverflow.com/a/49827426/586823
     const $fileInputs = $('input[type="file"]:not([disabled])', this.$form);
@@ -110,7 +135,7 @@ class ACFFrontendForm {
       this.handleAjaxResponse(response);
       this.options.onSuccess?.(response);
     });
-  }
+  };
 
   handleAjaxResponse(response: any) {
     acf.hideSpinner();
@@ -118,10 +143,16 @@ class ACFFrontendForm {
     if (!response.success) {
       return;
     }
+
     acf.unload.disable();
+
     setTimeout(() => {
       this.$form.removeClass("show-ajax-response");
       acf.unlockForm(this.$form);
+      /**
+       * reset and re-activate the validation for this
+       * form so that multiple submissions are possible
+       */
       acf.validation.reset(this.$form);
       this.$form.removeClass("rh-is-locked");
       if (this.options.resetAfterSubmit) {
@@ -131,17 +162,16 @@ class ACFFrontendForm {
   }
 
   createAjaxResponse() {
-    this.$ajaxResponse = $('<div class="acf-ajax-response"></div>');
+    this.$ajaxResponse = $(/*html*/ `<div class="acf-ajax-response"></div>`);
     this.$form.find(".acf-form-submit").append(this.$ajaxResponse);
   }
 
   showAjaxResponse(response: AjaxResponse) {
     let message = ((response || {}).data || {}).message;
     if (!message) {
-      console.warn(
+      return console.warn(
         "[rh-acf-frontend-forms] No response message found in AJAX response",
       );
-      return;
     }
     this.$form.trigger("rh/show-ajax-response", response);
     this.$form.trigger("rh/acf-frontend-form/response", response);
@@ -256,7 +286,7 @@ export class ACFFrontendFormElement extends HTMLElement {
       return console.error("Something seems off with the acf form");
     }
 
-    new ACFFrontendForm(form);
+    const frontendForm = new FrontendForm(form);
 
     this.loaded = true;
   }

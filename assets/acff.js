@@ -3229,8 +3229,44 @@
     onSuccess: (response) => {
     }
   };
-  var ACFFrontendForm = class {
+  var FrontendForm = class {
     constructor(el, options = {}) {
+      /**
+       * Submit this form via AJAX
+       */
+      this.submitViaAjax = () => {
+        if (!this.$form.hasClass("is-ajax-submit")) {
+          return;
+        }
+        this.$form.one("submit", function(e) {
+          e.preventDefault();
+        });
+        acf.unload.enable();
+        const $fileInputs = $4('input[type="file"]:not([disabled])', this.$form);
+        $fileInputs.each((i, input) => {
+          const fileInput = input;
+          if (fileInput.files && fileInput.files.length > 0) {
+            return;
+          }
+          $4(input).prop("disabled", true);
+        });
+        var formData = new FormData(this.$form[0]);
+        $fileInputs.prop("disabled", false);
+        acf.lockForm(this.$form);
+        this.$form.addClass("rh-is-locked");
+        $4.ajax({
+          url: window.location.href,
+          method: "post",
+          data: formData,
+          cache: false,
+          processData: false,
+          contentType: false
+        }).done((response) => {
+          var _a, _b;
+          this.handleAjaxResponse(response);
+          (_b = (_a = this.options).onSuccess) == null ? void 0 : _b.call(_a, response);
+        });
+      };
       let $form = $4(el);
       this.options = __spreadValues(__spreadValues({}, defaults), options);
       this.$form = $form;
@@ -3242,12 +3278,18 @@
         console.warn("The global acf object is not defined");
         return;
       }
-      if ($form.hasClass("rh-is-initialized")) {
+      if ($form.hasClass("acff-initialized")) {
         return;
       }
-      $form.addClass("rh-is-initialized");
+      $form.addClass("acff-initialized");
       acf.doAction("append", $form);
-      acf.validation.enable();
+      setTimeout(() => {
+        acf.set("post_id", $form.find("#_acf_post_id").val());
+        acf.set("screen", "acf_form");
+        acf.set("validation", true);
+        const { post_id, screen, validation } = acf.data;
+        console.log({ post_id, screen, validation });
+      }, 5);
       this.$form.find(".acf-field input").each((i, el2) => {
         this.adjustHasValueClass($4(el2));
       });
@@ -3259,37 +3301,12 @@
     }
     setupForm() {
       if (this.options.ajaxSubmit) {
+        this.$form.on("acff/validation/success", this.submitViaAjax);
         this.$form.addClass("is-ajax-submit");
       }
       this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
       this.$form.on("click", '[data-event="remove-row"]', function() {
         $4(this).trigger("click");
-      });
-    }
-    doAjaxSubmit() {
-      const $fileInputs = $4('input[type="file"]:not([disabled])', this.$form);
-      $fileInputs.each((i, input) => {
-        const fileInput = input;
-        if (fileInput.files && fileInput.files.length > 0) {
-          return;
-        }
-        $4(input).prop("disabled", true);
-      });
-      var formData = new FormData(this.$form[0]);
-      $fileInputs.prop("disabled", false);
-      acf.lockForm(this.$form);
-      this.$form.addClass("rh-is-locked");
-      $4.ajax({
-        url: window.location.href,
-        method: "post",
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false
-      }).done((response) => {
-        var _a, _b;
-        this.handleAjaxResponse(response);
-        (_b = (_a = this.options).onSuccess) == null ? void 0 : _b.call(_a, response);
       });
     }
     handleAjaxResponse(response) {
@@ -3310,17 +3327,19 @@
       }, this.options.waitAfterSubmit);
     }
     createAjaxResponse() {
-      this.$ajaxResponse = $4('<div class="acf-ajax-response"></div>');
+      this.$ajaxResponse = $4(
+        /*html*/
+        `<div class="acf-ajax-response"></div>`
+      );
       this.$form.find(".acf-form-submit").append(this.$ajaxResponse);
     }
     showAjaxResponse(response) {
       var _a;
       let message = ((response || {}).data || {}).message;
       if (!message) {
-        console.warn(
+        return console.warn(
           "[rh-acf-frontend-forms] No response message found in AJAX response"
         );
-        return;
       }
       this.$form.trigger("rh/show-ajax-response", response);
       this.$form.trigger("rh/acf-frontend-form/response", response);
@@ -3388,7 +3407,7 @@
       return $4(input).parents(".acf-field:first");
     }
   };
-  ACFFrontendForm.defaults = defaults;
+  FrontendForm.defaults = defaults;
   var ACFFrontendFormElement = class _ACFFrontendFormElement extends HTMLElement {
     static register() {
       if (!window.customElements.get("acf-frontend-form")) {
@@ -3413,7 +3432,7 @@
       if (!form.querySelector("input[name=_acf_screen][value=acf_form]")) {
         return console.error("Something seems off with the acf form");
       }
-      new ACFFrontendForm(form);
+      const frontendForm = new FrontendForm(form);
       this.loaded = true;
     }
   };
@@ -3427,10 +3446,12 @@
     }
     ACFFrontendFormElement.register();
     setup();
-    setupAjaxSubmit();
     function setup() {
+      acf2.addAction("validation_success", ($form) => {
+        $form.trigger("acff/validation/success");
+      });
       acf2.addAction("new_field", (field) => {
-        field.$el.addClass("rh-is-initialized");
+        field.$el.addClass("acff-initialized");
         initMaxInputInfo(field);
       });
       acf2.addAction("new_field/type=image", (field) => {
@@ -3455,17 +3476,6 @@
       });
       acf2.addAction("append", ($el) => {
         adjustRepeater($el, $el.closest(".acf-repeater"), "append");
-      });
-    }
-    function setupAjaxSubmit() {
-      acf2.addAction("submit", ($form) => {
-        if (!$form.hasClass("is-ajax-submit")) {
-          return true;
-        }
-        $form.one("submit", function(e) {
-          e.preventDefault();
-        });
-        $form.acfFrontendForm("doAjaxSubmit");
       });
     }
     function initMaxInputInfo(field) {
