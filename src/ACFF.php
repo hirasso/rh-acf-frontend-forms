@@ -41,6 +41,9 @@ class ACFF
         // Always initializes the form_head in the frontend
         add_action('template_redirect', 'acf_form_head');
 
+        // Always render a form, on every page. Otherwise, ACF won't fully initialize
+        add_action('wp_footer', [$this, 'set_acf_form_data']);
+
         // internal hooks
         add_action('wp_enqueue_scripts', [$this, 'frontend_assets'], 100);
         add_action('admin_enqueue_scripts', [$this, 'admin_styles'], 999);
@@ -863,5 +866,17 @@ class ACFF
         if (($data['screen'] ?? null) === 'acf_form') {
             echo "\n<acf-frontend-form></acf-frontend-form>\n";
         }
+    }
+
+    /**
+     * Always set form validation to true
+     */
+    public function set_acf_form_data(): void
+    {
+        /** Only pages without any ACF form need this */
+        if (did_action('acf/form_data')) {
+            return;
+        }
+        acf_get_store('form')->set('validation', true);
     }
 }
