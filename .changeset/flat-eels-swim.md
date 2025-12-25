@@ -8,19 +8,12 @@
 ```php
 /**
  * Render an ACF Frontend Form
- * @param string $id
- * @param array<string, mixed> $args
+ * @param array<string, mixed> $args – These options are forwarded unmodified to acf_form($args)
+ * @see https://www.advancedcustomfields.com/resources/acf_form/
  */
-echo acfff()->form(
-  id: string,
-  args: [
-    /**
-     * These options are forwarded unmodified to acf_form().
-     * @see https://www.advancedcustomfields.com/resources/acf_form/
-     */
-  ]
-)->ajax(
-  enabled: true,
+echo acfff()->form([
+  /** @see https://www.advancedcustomfields.com/resources/acf_form/ */
+])->ajax(
   waitAfterSubmit: 1500,
   resetAfterSubmit: true,
   submitOnChange: false,
