@@ -3571,6 +3571,15 @@
 
   // assets-src/acfff.ts
   var import_autosize = __toESM(require_autosize(), 1);
+
+  // assets-src/js/helpers.ts
+  function nextTick() {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+  }
+
+  // assets-src/acfff.ts
   (($5, acf2) => {
     if (typeof acf2 === "undefined") {
       console.warn("The global acf object is not defined");
@@ -3599,12 +3608,12 @@
         $5("html").removeClass("is-loading-form");
       };
       acf2.addAction("remove", ($el) => {
-        let $repeater = $el.closest(".acf-repeater");
+        const $repeater = $el.closest(".acf-repeater");
         $el.remove();
-        adjustRepeater($el, $repeater, "remove");
+        adjustRepeater($repeater, "remove");
       });
       acf2.addAction("append", ($el) => {
-        adjustRepeater($el, $el.closest(".acf-repeater"), "append");
+        adjustRepeater($el.closest(".acf-repeater"), "append");
       });
     }
     function initMaxInputInfo(field) {
@@ -3621,32 +3630,25 @@
         $5(document).trigger("hirasso/acfff/form-resized");
       });
     }
-    function adjustRepeater($el, $repeater, action) {
+    function adjustRepeater($repeater, action) {
       if (!$repeater.length) {
         return;
       }
-      let o = acf2.get_data($repeater);
-      let $rows = $repeater.find(".acf-row:not(.acf-clone)");
-      let $lastRow = $rows.last();
-      let $addRow = $lastRow.find('[data-event="add-row"]');
-      $addRow.toggleClass("is-disabled", o.max > 0 && $rows.length >= o.max);
-      switch (action) {
-        case "append":
-          focusFirstInput($lastRow);
-          break;
-        case "remove":
-          break;
-      }
+      const repeater = acf2.get_data($repeater);
+      const $rows = $repeater.find(".acf-row:not(.acf-clone)");
+      const $lastRow = $rows.last();
+      const $addRow = $lastRow.find('[data-event="add-row"]');
+      $addRow.toggleClass(
+        "acff:disabled",
+        repeater.max > 0 && $rows.length >= repeater.max
+      );
+      if (action === "append") focusFirstInput($lastRow);
       $5(document).trigger("hirasso/acfff/form-resized");
     }
-    function focusFirstInput($el) {
-      setTimeout(() => {
-        const $input = $el.find("input:first");
-        if (!$input.length) {
-          return;
-        }
-        $input.trigger("focus");
-      }, 1);
+    async function focusFirstInput($el) {
+      var _a;
+      await nextTick();
+      (_a = $el.find("input,select,textarea")[0]) == null ? void 0 : _a.focus();
     }
   })(jQuery, window.acf);
 })();
