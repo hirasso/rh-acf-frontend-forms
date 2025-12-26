@@ -12,6 +12,7 @@ import MaxLength from "./js/maxlength.js";
 import autosize from "autosize";
 
 import type { ACFFField, ACF, ACFRepeaterData } from "./types";
+import { nextTick } from "./js/helpers.js";
 
 (($, acf) => {
   if (typeof acf === "undefined") {
@@ -53,13 +54,13 @@ import type { ACFFField, ACF, ACFRepeaterData } from "./types";
     };
 
     acf.addAction("remove", ($el) => {
-      let $repeater = $el.closest(".acf-repeater");
+      const $repeater = $el.closest(".acf-repeater");
       $el.remove();
-      adjustRepeater($el, $repeater, "remove");
+      adjustRepeater($repeater, "remove");
     });
 
     acf.addAction("append", ($el) => {
-      adjustRepeater($el, $el.closest(".acf-repeater"), "append");
+      adjustRepeater($el.closest(".acf-repeater"), "append");
     });
   }
 
@@ -82,40 +83,35 @@ import type { ACFFField, ACF, ACFRepeaterData } from "./types";
       });
   }
 
-  function adjustRepeater($el: JQuery, $repeater: JQuery, action: string) {
+  /**
+   * Tweaks for the ACF repeater field
+   */
+  function adjustRepeater($repeater: JQuery, action: string) {
     if (!$repeater.length) {
       return;
     }
     // adjust disabled class
-    let o = acf.get_data($repeater);
-    let $rows = $repeater.find(".acf-row:not(.acf-clone)");
-    let $lastRow = $rows.last();
-    let $addRow = $lastRow.find('[data-event="add-row"]');
-    $addRow.toggleClass("is-disabled", o.max > 0 && $rows.length >= o.max);
+    const repeater = acf.get_data<ACFRepeaterData>($repeater);
+    const $rows = $repeater.find(".acf-row:not(.acf-clone)");
+    const $lastRow = $rows.last();
+    const $addRow = $lastRow.find('[data-event="add-row"]');
 
-    switch (action) {
-      case "append":
-        focusFirstInput($lastRow);
-        break;
-      case "remove":
-        break;
-    }
+    $addRow.toggleClass(
+      "acff:disabled",
+      repeater.max > 0 && $rows.length >= repeater.max,
+    );
+
+    if (action === "append") focusFirstInput($lastRow);
 
     $(document).trigger("hirasso/acfff/form-resized");
   }
 
   /**
-   * Focus the first input of the new row
+   * Focus the first input inside a jQuery element
    */
-  function focusFirstInput($el: JQuery) {
-    setTimeout(() => {
-      const $input = $el.find<HTMLInputElement>("input:first");
+  async function focusFirstInput($el: JQuery) {
+    await nextTick();
 
-      if (!$input.length) {
-        return;
-      }
-
-      $input.trigger("focus");
-    }, 1);
+    $el.find<HTMLInputElement>("input,select,textarea")[0]?.focus();
   }
 })(jQuery, window.acf);

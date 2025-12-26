@@ -192,7 +192,7 @@ export type ACF = {
    * Get data from an ACF element
    * @param $el - jQuery element
    */
-  get_data($el: JQuery): ACFRepeaterData;
+  get_data<T = unknown>($el: JQuery): T;
 
   /**
    * Show loading spinner
