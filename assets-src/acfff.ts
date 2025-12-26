@@ -4,10 +4,10 @@ import "./css/acfff.css";
 
 import "./js/autofill.js";
 
+import { register } from "./js/FrontendFormElement.js";
 import ImageDrop from "./js/image-drop.js";
 import FileInput from "./js/file-input.js";
 import MaxLength from "./js/maxlength.js";
-import { FrontendFormElement } from "./js/ACFFrontendForm.js";
 
 import autosize from "autosize";
 
@@ -19,7 +19,7 @@ import type { ACFFField, ACF, ACFRepeaterData } from "./types";
     return;
   }
 
-  FrontendFormElement.register();
+  register();
   setup();
 
   /**

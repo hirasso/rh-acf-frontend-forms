@@ -28,7 +28,7 @@ const defaults = {
   },
 };
 
-class FrontendForm {
+export class FrontendForm {
   static defaults = defaults;
   options: typeof defaults;
 
@@ -299,57 +299,5 @@ class FrontendForm {
    */
   $field(input: HTMLElement | JQuery<HTMLElement>) {
     return $(input).parents(".acf-field:first");
-  }
-}
-
-const initializedElements = new Set<FrontendFormElement>();
-
-/**
- * A custom element that automatically initializes an ACF frontend form
- */
-export class FrontendFormElement extends HTMLElement {
-  /**
-   * A static register function
-   */
-  static register() {
-    if (!window.customElements.get("acf-frontend-form")) {
-      window.customElements.define("acf-frontend-form", FrontendFormElement);
-    }
-  }
-
-  /**
-   * [initialized] getter and setter
-   */
-  get initialized(): boolean {
-    return this.hasAttribute("initialized");
-  }
-  set initialized(value: boolean) {
-    this.toggleAttribute("initialized", value);
-  }
-
-  connectedCallback() {
-    this.initialize();
-  }
-
-  initialize() {
-    if (initializedElements.has(this)) return;
-    initializedElements.add(this);
-    this.initialized = true;
-
-    const form = this.querySelector("form");
-    if (!form) {
-      return console.error("No form found");
-    }
-
-    if (!form.querySelector("input[name=_acf_screen][value=acf_form]")) {
-      return console.error("Something seems off with the acf form");
-    }
-
-    const options = JSON.parse(
-      this.querySelector("script[data-acfff-options")?.textContent?.trim() ||
-        "{}",
-    );
-
-    new FrontendForm(form, options);
   }
 }

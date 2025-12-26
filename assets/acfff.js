@@ -2936,283 +2936,6 @@
     };
   })(window.jQuery);
 
-  // assets-src/js/image-drop.ts
-  var import_feather_icons = __toESM(require_feather(), 1);
-  var $ = window.jQuery;
-  var ImageDrop = class {
-    constructor(acfField) {
-      this.acfField = acfField;
-      this.$el = acfField.$el;
-      this.$input = this.$el.find('input[type="file"]');
-      this.$imagePreview = this.$el.find(".image-wrap");
-      this.$image = this.$imagePreview.find("img");
-      this.$clear = this.$el.find('[data-name="remove"]');
-      this.$clear.html(import_feather_icons.default.icons["x-circle"].toSvg());
-      this.$imageUploader = this.$el.find(".acf-image-uploader");
-      this.$instructions = this.$el.find(".instructions");
-      this.$instructions.appendTo(this.$imageUploader);
-      this.dataSettings = this.$instructions.data("settings");
-      this.$el.addClass("image-drop");
-      this.setupEvents();
-      this.renderImage(this.$image.attr("src"));
-    }
-    maybeGet(key, object, fallback) {
-      let value = (object || {})[key];
-      return value != null ? value : fallback;
-    }
-    setupEvents() {
-      const eventProps = $.event.props;
-      if ($.inArray("dataTransfer", eventProps) === -1) {
-        eventProps.push("dataTransfer");
-      }
-      this.$imageUploader.on("dragover", (e) => {
-        e.preventDefault();
-        this.$imageUploader.addClass("is-dragover");
-      });
-      this.$imageUploader.on("dragleave", () => {
-        this.$imageUploader.removeClass("is-dragover");
-      });
-      this.$imageUploader.on("drop", (e) => {
-        e.preventDefault();
-        this.$imageUploader.removeClass("is-dragover");
-        const inputElement = this.$input.get(0);
-        const dataTransfer = e.dataTransfer;
-        if (inputElement && dataTransfer) {
-          inputElement.files = dataTransfer.files;
-        }
-        this.$input.trigger("change");
-      });
-      this.$clear.off().on("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.clear();
-      });
-      this.currentImageSrc = this.$image.attr("src");
-      this.lastInputVal = this.$input.val();
-      this.$input.on("change", () => this.onInputChange(this.$input));
-    }
-    renderImage(src) {
-      if (typeof src === "undefined" || !src.length) {
-        return;
-      }
-      let img = new Image();
-      img.onload = () => {
-        let ratio = img.height / img.width;
-        if (ratio < 0.5) {
-          this.clear([
-            `The image can't be more than twice the width of it's height`
-          ]);
-          return;
-        } else if (ratio > 2) {
-          this.clear([
-            `The image can't be more than twice the height of it's width`
-          ]);
-          return;
-        }
-        let paddingBottom = Math.floor(ratio * 100);
-        this.$imageUploader.css({
-          paddingBottom: `${paddingBottom}%`
-        });
-        this.$image.attr("src", src);
-        this.$imageUploader.addClass("has-value");
-        $(document).trigger("hirasso/acfff/form-resized");
-      };
-      img.src = src;
-    }
-    clear(errors = false) {
-      this.acfField.removeAttachment();
-      this.$input.val("");
-      this.lastInputVal = this.$input.val();
-      this.$imageUploader.css({ paddingBottom: "" });
-      if (errors) {
-        this.acfField.showError(errors.join("<br>"));
-      }
-    }
-    onInputChange($input) {
-      var _a;
-      if (this.lastInputVal === $input.val()) {
-        return;
-      }
-      this.lastInputVal = $input.val();
-      if ($input.val()) {
-        const inputElement = $input[0];
-        const file = (_a = inputElement.files) == null ? void 0 : _a[0];
-        if (file) {
-          this.parseFile(file);
-        }
-      } else {
-        this.clear();
-      }
-    }
-    parseFile(file) {
-      let reader = new FileReader();
-      reader.onload = (e) => {
-        var _a;
-        let errors = this.getErrors(file);
-        if (!errors) {
-          this.renderImage((_a = e.target) == null ? void 0 : _a.result);
-          this.acfField.removeError();
-        } else {
-          this.clear(errors);
-          this.renderImage(this.currentImageSrc);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-    getErrors(file) {
-      var _a;
-      let errors = [];
-      let maxSize = this.maybeGet("max_size", this.dataSettings.restrictions, void 0);
-      if (maxSize && file.size / 1e6 > maxSize.value) {
-        errors.push(maxSize.error);
-      }
-      let mimeTypes = this.maybeGet("mime_types", this.dataSettings.restrictions, void 0);
-      if (mimeTypes) {
-        let extension = (_a = file.name.split(".").pop()) == null ? void 0 : _a.toLowerCase();
-        if (extension) {
-          let isValidMimeType = $.inArray(extension, mimeTypes.value) > -1;
-          if (!isValidMimeType) {
-            errors.push(mimeTypes.error);
-          }
-        }
-      }
-      return errors.length ? errors : false;
-    }
-  };
-
-  // assets-src/js/file-input.ts
-  var import_feather_icons2 = __toESM(require_feather(), 1);
-  var $2 = window.jQuery;
-  var FileInput = class {
-    constructor(acfField) {
-      this.acfField = acfField;
-      this.$el = acfField.$el;
-      this.$input = this.$el.find('input[type="file"]');
-      this.$clear = this.$el.find('[data-name="remove"]');
-      this.$clear.html(import_feather_icons2.default.icons["x-circle"].toSvg());
-      this.$uploader = this.$el.find(".acf-file-uploader");
-      this.$instructions = this.$el.find(".instructions");
-      this.$instructions.appendTo(this.$uploader);
-      this.dataSettings = this.$instructions.data("settings");
-      this.setupEvents();
-    }
-    maybeGet(key, object, fallback) {
-      let value = (object || {})[key];
-      return value != null ? value : fallback;
-    }
-    setupEvents() {
-      const eventProps = $2.event.props;
-      if ($2.inArray("dataTransfer", eventProps) === -1) {
-        eventProps.push("dataTransfer");
-      }
-      this.$uploader.on("dragover", (e) => {
-        e.preventDefault();
-        this.$uploader.addClass("is-dragover");
-      });
-      this.$uploader.on("dragleave", () => {
-        this.$uploader.removeClass("is-dragover");
-      });
-      this.$uploader.on("drop", (e) => {
-        e.preventDefault();
-        this.$uploader.removeClass("is-dragover");
-        const inputElement = this.$input.get(0);
-        const dataTransfer = e.dataTransfer;
-        if (inputElement && dataTransfer) {
-          inputElement.files = dataTransfer.files;
-        }
-        this.$input.trigger("change");
-      });
-      this.$clear.off().on("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.clear();
-      });
-      this.lastInputVal = this.$input.val();
-      this.$input.on("change", () => this.onInputChange(this.$input));
-    }
-    clear(errors = false) {
-      this.acfField.removeAttachment();
-      this.$input.val("");
-      this.lastInputVal = this.$input.val();
-      if (errors) {
-        this.acfField.showError(errors.join("<br>"));
-      }
-    }
-    onInputChange($input) {
-      var _a;
-      if (this.lastInputVal === $input.val()) {
-        return;
-      }
-      this.lastInputVal = $input.val();
-      if ($input.val()) {
-        const inputElement = $input[0];
-        const file = (_a = inputElement.files) == null ? void 0 : _a[0];
-        if (file) {
-          this.parseFile(file);
-        }
-      } else {
-        this.clear();
-      }
-    }
-    parseFile(file) {
-      let reader = new FileReader();
-      reader.onload = () => {
-        let errors = this.getErrors(file);
-        if (!errors) {
-          this.acfField.removeError();
-        } else {
-          this.clear(errors);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-    getErrors(file) {
-      var _a;
-      let errors = [];
-      let maxSize = this.maybeGet("max_size", this.dataSettings.restrictions, void 0);
-      if (maxSize && file.size / 1e6 > maxSize.value) {
-        errors.push(maxSize.error);
-      }
-      let mimeTypes = this.maybeGet("mime_types", this.dataSettings.restrictions, void 0);
-      if (mimeTypes) {
-        let extension = (_a = file.name.split(".").pop()) == null ? void 0 : _a.toLowerCase();
-        if (extension) {
-          let isValidMimeType = $2.inArray(extension, mimeTypes.value) > -1;
-          if (!isValidMimeType) {
-            errors.push(mimeTypes.error);
-          }
-        }
-      }
-      return errors.length ? errors : false;
-    }
-  };
-
-  // assets-src/js/maxlength.ts
-  var $3 = window.jQuery;
-  var MaxLength = class {
-    constructor(field) {
-      let $el = field.$el;
-      this.$info = $el.find(".maxlength-info");
-      this.max = parseInt(this.$info.attr("data-maxlength") || "0", 10);
-      this.$remainingCount = $el.find(".remaining-count");
-      this.$input = field.$input();
-      this.$input.on("input maxlength:update", () => this.update());
-      this.update();
-    }
-    update() {
-      let value = String(this.$input.val() || "");
-      let remaining = this.max - value.length;
-      remaining = Math.max(0, remaining);
-      if (remaining < 20) {
-        this.$info.addClass("is-warning");
-      } else {
-        this.$info.removeClass("is-warning");
-      }
-      this.$remainingCount.text(remaining);
-      this.$input.val(value.substring(0, this.max));
-    }
-  };
-
   // node_modules/.pnpm/es-toolkit@1.43.0/node_modules/es-toolkit/dist/predicate/isPlainObject.mjs
   function isPlainObject(value) {
     if (!value || typeof value !== "object") {
@@ -3319,8 +3042,8 @@
     return debounced;
   }
 
-  // assets-src/js/ACFFrontendForm.ts
-  var $4 = window.jQuery;
+  // assets-src/js/FrontendForm.ts
+  var $ = window.jQuery;
   var acf = window.acf;
   var defaults = {
     ajax: {
@@ -3394,7 +3117,7 @@
         $emptyFileInputs.prop("disabled", false);
         acf.lockForm(this.$form);
         this.$form.addClass("acfff:locked");
-        $4.ajax({
+        $.ajax({
           url: window.location.href,
           method: "post",
           data: formData,
@@ -3438,7 +3161,7 @@
           this.submit();
         }
       }, 100);
-      this.$form = $4(el);
+      this.$form = $(el);
       this.options = merge(defaults, options);
       if (!(el instanceof HTMLFormElement)) {
         console.error("Form element doesn't exist");
@@ -3456,7 +3179,7 @@
       }
       this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
       this.$form.on("click", '[data-event="remove-row"]', function() {
-        $4(this).trigger("click");
+        $(this).trigger("click");
       });
     }
     handleAjaxResponse(response) {
@@ -3477,7 +3200,7 @@
       }, this.options.ajax.waitAfterSubmit);
     }
     createAjaxResponse() {
-      this.$ajaxResponse = $4(
+      this.$ajaxResponse = $(
         /*html*/
         `<div class="acf-ajax-response"></div>`
       );
@@ -3525,20 +3248,14 @@
      * Get the jQuery wrapped field element, based on an input
      */
     $field(input) {
-      return $4(input).parents(".acf-field:first");
+      return $(input).parents(".acf-field:first");
     }
   };
   FrontendForm.defaults = defaults;
+
+  // assets-src/js/FrontendFormElement.ts
   var initializedElements = /* @__PURE__ */ new Set();
-  var FrontendFormElement = class _FrontendFormElement extends HTMLElement {
-    /**
-     * A static register function
-     */
-    static register() {
-      if (!window.customElements.get("acf-frontend-form")) {
-        window.customElements.define("acf-frontend-form", _FrontendFormElement);
-      }
-    }
+  var FrontendFormElement = class extends HTMLElement {
     /**
      * [initialized] getter and setter
      */
@@ -3569,6 +3286,288 @@
       new FrontendForm(form, options);
     }
   };
+  function register() {
+    if (!window.customElements.get("acf-frontend-form")) {
+      window.customElements.define("acf-frontend-form", FrontendFormElement);
+    }
+  }
+
+  // assets-src/js/image-drop.ts
+  var import_feather_icons = __toESM(require_feather(), 1);
+  var $2 = window.jQuery;
+  var ImageDrop = class {
+    constructor(acfField) {
+      this.acfField = acfField;
+      this.$el = acfField.$el;
+      this.$input = this.$el.find('input[type="file"]');
+      this.$imagePreview = this.$el.find(".image-wrap");
+      this.$image = this.$imagePreview.find("img");
+      this.$clear = this.$el.find('[data-name="remove"]');
+      this.$clear.html(import_feather_icons.default.icons["x-circle"].toSvg());
+      this.$imageUploader = this.$el.find(".acf-image-uploader");
+      this.$instructions = this.$el.find(".instructions");
+      this.$instructions.appendTo(this.$imageUploader);
+      this.dataSettings = this.$instructions.data("settings");
+      this.$el.addClass("image-drop");
+      this.setupEvents();
+      this.renderImage(this.$image.attr("src"));
+    }
+    maybeGet(key, object, fallback) {
+      let value = (object || {})[key];
+      return value != null ? value : fallback;
+    }
+    setupEvents() {
+      const eventProps = $2.event.props;
+      if ($2.inArray("dataTransfer", eventProps) === -1) {
+        eventProps.push("dataTransfer");
+      }
+      this.$imageUploader.on("dragover", (e) => {
+        e.preventDefault();
+        this.$imageUploader.addClass("is-dragover");
+      });
+      this.$imageUploader.on("dragleave", () => {
+        this.$imageUploader.removeClass("is-dragover");
+      });
+      this.$imageUploader.on("drop", (e) => {
+        e.preventDefault();
+        this.$imageUploader.removeClass("is-dragover");
+        const inputElement = this.$input.get(0);
+        const dataTransfer = e.dataTransfer;
+        if (inputElement && dataTransfer) {
+          inputElement.files = dataTransfer.files;
+        }
+        this.$input.trigger("change");
+      });
+      this.$clear.off().on("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.clear();
+      });
+      this.currentImageSrc = this.$image.attr("src");
+      this.lastInputVal = this.$input.val();
+      this.$input.on("change", () => this.onInputChange(this.$input));
+    }
+    renderImage(src) {
+      if (typeof src === "undefined" || !src.length) {
+        return;
+      }
+      let img = new Image();
+      img.onload = () => {
+        let ratio = img.height / img.width;
+        if (ratio < 0.5) {
+          this.clear([
+            `The image can't be more than twice the width of it's height`
+          ]);
+          return;
+        } else if (ratio > 2) {
+          this.clear([
+            `The image can't be more than twice the height of it's width`
+          ]);
+          return;
+        }
+        let paddingBottom = Math.floor(ratio * 100);
+        this.$imageUploader.css({
+          paddingBottom: `${paddingBottom}%`
+        });
+        this.$image.attr("src", src);
+        this.$imageUploader.addClass("has-value");
+        $2(document).trigger("hirasso/acfff/form-resized");
+      };
+      img.src = src;
+    }
+    clear(errors = false) {
+      this.acfField.removeAttachment();
+      this.$input.val("");
+      this.lastInputVal = this.$input.val();
+      this.$imageUploader.css({ paddingBottom: "" });
+      if (errors) {
+        this.acfField.showError(errors.join("<br>"));
+      }
+    }
+    onInputChange($input) {
+      var _a;
+      if (this.lastInputVal === $input.val()) {
+        return;
+      }
+      this.lastInputVal = $input.val();
+      if ($input.val()) {
+        const inputElement = $input[0];
+        const file = (_a = inputElement.files) == null ? void 0 : _a[0];
+        if (file) {
+          this.parseFile(file);
+        }
+      } else {
+        this.clear();
+      }
+    }
+    parseFile(file) {
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        var _a;
+        let errors = this.getErrors(file);
+        if (!errors) {
+          this.renderImage((_a = e.target) == null ? void 0 : _a.result);
+          this.acfField.removeError();
+        } else {
+          this.clear(errors);
+          this.renderImage(this.currentImageSrc);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    getErrors(file) {
+      var _a;
+      let errors = [];
+      let maxSize = this.maybeGet("max_size", this.dataSettings.restrictions, void 0);
+      if (maxSize && file.size / 1e6 > maxSize.value) {
+        errors.push(maxSize.error);
+      }
+      let mimeTypes = this.maybeGet("mime_types", this.dataSettings.restrictions, void 0);
+      if (mimeTypes) {
+        let extension = (_a = file.name.split(".").pop()) == null ? void 0 : _a.toLowerCase();
+        if (extension) {
+          let isValidMimeType = $2.inArray(extension, mimeTypes.value) > -1;
+          if (!isValidMimeType) {
+            errors.push(mimeTypes.error);
+          }
+        }
+      }
+      return errors.length ? errors : false;
+    }
+  };
+
+  // assets-src/js/file-input.ts
+  var import_feather_icons2 = __toESM(require_feather(), 1);
+  var $3 = window.jQuery;
+  var FileInput = class {
+    constructor(acfField) {
+      this.acfField = acfField;
+      this.$el = acfField.$el;
+      this.$input = this.$el.find('input[type="file"]');
+      this.$clear = this.$el.find('[data-name="remove"]');
+      this.$clear.html(import_feather_icons2.default.icons["x-circle"].toSvg());
+      this.$uploader = this.$el.find(".acf-file-uploader");
+      this.$instructions = this.$el.find(".instructions");
+      this.$instructions.appendTo(this.$uploader);
+      this.dataSettings = this.$instructions.data("settings");
+      this.setupEvents();
+    }
+    maybeGet(key, object, fallback) {
+      let value = (object || {})[key];
+      return value != null ? value : fallback;
+    }
+    setupEvents() {
+      const eventProps = $3.event.props;
+      if ($3.inArray("dataTransfer", eventProps) === -1) {
+        eventProps.push("dataTransfer");
+      }
+      this.$uploader.on("dragover", (e) => {
+        e.preventDefault();
+        this.$uploader.addClass("is-dragover");
+      });
+      this.$uploader.on("dragleave", () => {
+        this.$uploader.removeClass("is-dragover");
+      });
+      this.$uploader.on("drop", (e) => {
+        e.preventDefault();
+        this.$uploader.removeClass("is-dragover");
+        const inputElement = this.$input.get(0);
+        const dataTransfer = e.dataTransfer;
+        if (inputElement && dataTransfer) {
+          inputElement.files = dataTransfer.files;
+        }
+        this.$input.trigger("change");
+      });
+      this.$clear.off().on("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.clear();
+      });
+      this.lastInputVal = this.$input.val();
+      this.$input.on("change", () => this.onInputChange(this.$input));
+    }
+    clear(errors = false) {
+      this.acfField.removeAttachment();
+      this.$input.val("");
+      this.lastInputVal = this.$input.val();
+      if (errors) {
+        this.acfField.showError(errors.join("<br>"));
+      }
+    }
+    onInputChange($input) {
+      var _a;
+      if (this.lastInputVal === $input.val()) {
+        return;
+      }
+      this.lastInputVal = $input.val();
+      if ($input.val()) {
+        const inputElement = $input[0];
+        const file = (_a = inputElement.files) == null ? void 0 : _a[0];
+        if (file) {
+          this.parseFile(file);
+        }
+      } else {
+        this.clear();
+      }
+    }
+    parseFile(file) {
+      let reader = new FileReader();
+      reader.onload = () => {
+        let errors = this.getErrors(file);
+        if (!errors) {
+          this.acfField.removeError();
+        } else {
+          this.clear(errors);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    getErrors(file) {
+      var _a;
+      let errors = [];
+      let maxSize = this.maybeGet("max_size", this.dataSettings.restrictions, void 0);
+      if (maxSize && file.size / 1e6 > maxSize.value) {
+        errors.push(maxSize.error);
+      }
+      let mimeTypes = this.maybeGet("mime_types", this.dataSettings.restrictions, void 0);
+      if (mimeTypes) {
+        let extension = (_a = file.name.split(".").pop()) == null ? void 0 : _a.toLowerCase();
+        if (extension) {
+          let isValidMimeType = $3.inArray(extension, mimeTypes.value) > -1;
+          if (!isValidMimeType) {
+            errors.push(mimeTypes.error);
+          }
+        }
+      }
+      return errors.length ? errors : false;
+    }
+  };
+
+  // assets-src/js/maxlength.ts
+  var $4 = window.jQuery;
+  var MaxLength = class {
+    constructor(field) {
+      let $el = field.$el;
+      this.$info = $el.find(".maxlength-info");
+      this.max = parseInt(this.$info.attr("data-maxlength") || "0", 10);
+      this.$remainingCount = $el.find(".remaining-count");
+      this.$input = field.$input();
+      this.$input.on("input maxlength:update", () => this.update());
+      this.update();
+    }
+    update() {
+      let value = String(this.$input.val() || "");
+      let remaining = this.max - value.length;
+      remaining = Math.max(0, remaining);
+      if (remaining < 20) {
+        this.$info.addClass("is-warning");
+      } else {
+        this.$info.removeClass("is-warning");
+      }
+      this.$remainingCount.text(remaining);
+      this.$input.val(value.substring(0, this.max));
+    }
+  };
 
   // assets-src/acfff.ts
   var import_autosize = __toESM(require_autosize(), 1);
@@ -3577,7 +3576,7 @@
       console.warn("The global acf object is not defined");
       return;
     }
-    FrontendFormElement.register();
+    register();
     setup();
     function setup() {
       acf2.addAction("new_field", (field) => {
