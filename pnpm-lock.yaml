@@ -11,6 +11,9 @@ importers:
       autosize:
         specifier: ^4.0.2
         version: 4.0.4
+      es-toolkit:
+        specifier: ^1.43.0
+        version: 1.43.0
       feather-icons:
         specifier: ^4.28.0
         version: 4.29.2
@@ -781,6 +784,9 @@ packages:
   environment@1.1.0:
     resolution: {integrity: sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==}
     engines: {node: '>=18'}
+
+  es-toolkit@1.43.0:
+    resolution: {integrity: sha512-SKCT8AsWvYzBBuUqMk4NPwFlSdqLpJwmy6AP322ERn8W2YLIB6JBXnwMI2Qsh2gfphT3q7EKAxKb23cvFHFwKA==}
 
   esbuild@0.27.2:
     resolution: {integrity: sha512-HyNQImnsOC7X9PMNaCIeAm4ISCQXs5a5YasTXVliKv4uuBo1dKrG0A+uQS8M5eXjVMnLg3WgXaKvprHlFJQffw==}
@@ -2160,6 +2166,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   environment@1.1.0: {}
+
+  es-toolkit@1.43.0: {}
 
   esbuild@0.27.2:
     optionalDependencies:

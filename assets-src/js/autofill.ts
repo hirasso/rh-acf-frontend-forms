@@ -34,12 +34,7 @@
       $form.trigger("autofilled");
     });
 
-    $("html,body").animate(
-      {
-        scrollTop: scrollTop,
-      },
-      0,
-    );
+    $("html,body").animate({ scrollTop }, 0);
 
     function fillFields(
       $wrap: JQuery<HTMLElement>,

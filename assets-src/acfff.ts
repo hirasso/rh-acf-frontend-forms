@@ -3,7 +3,6 @@ import "./css/acfff.css";
 ("use strict");
 
 import "./js/autofill.js";
-// import "./js/plugin.frontend-form.js";
 
 import ImageDrop from "./js/image-drop.js";
 import FileInput from "./js/file-input.js";
@@ -27,9 +26,6 @@ import type { ACFFField, ACF, ACFRepeaterData } from "./types";
    * Setup global acf functions and hooks
    */
   function setup() {
-    acf.addAction("validation_success", ($form) => {
-      $form.trigger("acfff/validation/success");
-    });
     // add initialized class to fields on initialization
     acf.addAction("new_field", (field) => {
       field.$el.addClass("acfff-initialized");

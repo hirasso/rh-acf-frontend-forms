@@ -853,7 +853,7 @@ class ACFFF
         }
 
         // Missing or suspiciously fast submission
-        if (time() - (int) $started < 3) {
+        if (time() - (int) $started < 2) {
             acf_add_validation_error(
                 '',
                 __('Something went wrong. If the issue persists, please contact the site site administrator.', 'acfff')

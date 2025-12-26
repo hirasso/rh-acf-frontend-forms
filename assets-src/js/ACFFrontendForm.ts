@@ -13,31 +13,40 @@ type AjaxResponse = {
   };
 };
 
+import type { ACF } from "../types.js";
+import { merge } from "es-toolkit/object";
+import { debounce } from "es-toolkit/function";
+
 /**
  * Defaults
  */
 const defaults = {
-  ajaxSubmit: true,
-  waitAfterSubmit: 1000,
-  resetAfterSubmit: true,
-  submitOnChange: false,
-  onSuccess: (response: AjaxResponse) => {},
+  ajax: {
+    enabled: true,
+    waitAfterSubmit: 50,
+    submitOnChange: false,
+  },
 };
 
 class FrontendForm {
   static defaults = defaults;
   options: typeof defaults;
+
   $form: JQuery<HTMLFormElement>;
   $ajaxResponse?: JQuery<HTMLElement>;
 
   constructor(el: HTMLFormElement, options: Partial<typeof defaults> = {}) {
-    const $form = $<HTMLFormElement>(el);
-    this.options = { ...defaults, ...options };
-    this.$form = $form;
+    this.$form = $<HTMLFormElement>(el);
 
-    // return if there is no form element
-    if (!$form.length) {
-      console.warn("Form element doesn't exist");
+    /**
+     * Using merge instead of spread operator here
+     * to support nested objects merge
+     */
+    this.options = merge(defaults, options);
+
+    /** Bail early if there is no form element */
+    if (!(el instanceof HTMLFormElement)) {
+      console.error("Form element doesn't exist");
       return;
     }
     // return if global acf object doesn't exist
@@ -45,41 +54,62 @@ class FrontendForm {
       console.warn("The global acf object is not defined");
       return;
     }
-    // return if form has already been initialized
-    if ($form.hasClass("acfff-initialized")) {
+
+    this.initialize();
+  }
+
+  /**
+   * Run setup
+   */
+  initialize = async () => {
+    /** return if form has already been initialized */
+    if (this.$form.hasClass("acfff-initialized")) {
       return;
     }
-    $form.addClass("acfff-initialized");
+    this.$form.addClass("acfff-initialized");
 
-    /** This, in combination with create_buffered_acf_form, makes the JS load after SPA navigation */
-    acf.doAction("append", $form);
+    /** @see https://support.advancedcustomfields.com/forums/topic/reinitialize-js-acf-object/ */
+    acf.doAction("append", this.$form);
+    acf.set(
+      "post_id",
+      this.$form.find<HTMLInputElement>("#_acf_post_id").val(),
+    );
+    acf.set("screen", "acf_form");
+    acf.set("validation", true);
 
-    setTimeout(() => {
-      acf.set("post_id", $form.find<HTMLInputElement>("#_acf_post_id").val());
-      acf.set("screen", "acf_form");
-      acf.set("validation", true);
+    /** Disable the defaut validation, we will initialize this this ourselves on submit */
+    acf.validation.disable();
 
-      const { post_id, screen, validation } = acf.data;
-      console.log({ post_id, screen, validation });
-    }, 5);
+    /** Always run our own validation first */
+    this.$form.on("submit", (e) => {
+      e.preventDefault();
 
-    // console.log(acf.data);
-
-    this.$form.find(".acf-field input").each((i, el) => {
-      this.adjustHasValueClass($(el));
+      const validator = this.validate({
+        reset: true,
+        loading: () => {
+          console.log("validation loading...");
+        },
+        complete: () => {
+          console.log("...validation complete!");
+        },
+        failure: () => {
+          console.error("validation error");
+        },
+        success: ($form) => {
+          console.log("validation success:", $form);
+          this.submit();
+        },
+      });
     });
 
     this.createAjaxResponse();
-    this.setupForm();
-    this.setupInputs();
+    this.customizeForm();
+    this.watchFields();
     this.hideConditionalFields();
+  };
 
-    this.$form.data("RHFrontendForm", this);
-  }
-
-  setupForm() {
-    if (this.options.ajaxSubmit) {
-      this.$form.on("acfff/validation/success", this.submitViaAjax);
+  customizeForm() {
+    if (this.options.ajax.enabled) {
       this.$form.addClass("is-ajax-submit");
     }
 
@@ -92,37 +122,45 @@ class FrontendForm {
   }
 
   /**
+   * Validate this form
+   */
+  validate = (
+    options: Omit<
+      Parameters<typeof acf.validateForm>[0],
+      "form" | "event"
+    > = {},
+  ): ACF["validator"] => {
+    const $form = this.$form;
+    acf.validateForm({ form: $form, ...options });
+    return $form.data("acf");
+  };
+
+  /**
    * Submit this form via AJAX
    */
-  submitViaAjax = () => {
-    if (!this.$form.hasClass("is-ajax-submit")) {
+  submit = () => {
+    if (!this.options.ajax.enabled) {
+      this.$form[0].submit();
       return;
     }
-
-    this.$form.one("submit", function (e) {
-      e.preventDefault();
-    });
 
     acf.unload.enable();
 
     // Fix for Safari Webkit – empty file inputs
-    // https://stackoverflow.com/a/49827426/586823
-    const $fileInputs = $('input[type="file"]:not([disabled])', this.$form);
-    $fileInputs.each((i, input) => {
-      const fileInput = input as HTMLInputElement;
-      if (fileInput.files && fileInput.files.length > 0) {
-        return;
-      }
-      $(input).prop("disabled", true);
-    });
+    // @see https://stackoverflow.com/a/49827426/586823
+    const $emptyFileInputs = this.$form
+      .find<HTMLInputElement>('input[type="file"]:not([disabled])')
+      .filter((i, input) => !input.disabled && !Boolean(input.files));
 
-    var formData = new FormData(this.$form[0]);
+    $emptyFileInputs.prop("disabled", true);
 
-    // Re-enable empty file $fileInputs
-    $fileInputs.prop("disabled", false);
+    const formData = new FormData(this.$form[0]);
+
+    $emptyFileInputs.prop("disabled", false);
 
     acf.lockForm(this.$form);
-    this.$form.addClass("rh-is-locked");
+
+    this.$form.addClass("acfff:locked");
 
     $.ajax({
       url: window.location.href,
@@ -133,32 +171,29 @@ class FrontendForm {
       contentType: false,
     }).done((response: AjaxResponse) => {
       this.handleAjaxResponse(response);
-      this.options.onSuccess?.(response);
     });
   };
 
-  handleAjaxResponse(response: any) {
+  handleAjaxResponse(response: AjaxResponse) {
     acf.hideSpinner();
     this.showAjaxResponse(response);
+
     if (!response.success) {
       return;
     }
 
+    this.$form.trigger("acfff/ajax/success", { response });
     acf.unload.disable();
 
     setTimeout(() => {
       this.$form.removeClass("show-ajax-response");
       acf.unlockForm(this.$form);
-      /**
-       * reset and re-activate the validation for this
-       * form so that multiple submissions are possible
-       */
-      acf.validation.reset(this.$form);
-      this.$form.removeClass("rh-is-locked");
-      if (this.options.resetAfterSubmit) {
+      this.$form.removeClass("acfff:locked");
+
+      if (!this.options.ajax.submitOnChange) {
         this.resetForm();
       }
-    }, this.options.waitAfterSubmit);
+    }, this.options.ajax.waitAfterSubmit);
   }
 
   createAjaxResponse() {
@@ -183,77 +218,91 @@ class FrontendForm {
     this.$form.addClass("show-ajax-response");
   }
 
+  /**
+   * Reset the form back to the defaults
+   */
   resetForm() {
-    const form = this.$form.get(0) as HTMLFormElement;
-    form.reset();
+    this.$form[0].reset();
+
     this.$form
       .find(".acf-field")
       .find("input,textarea,select")
       .trigger("change");
-    this.$form.find(".acf-field").removeClass("has-value has-focus");
   }
 
+  /**
+   * Initially hide fields that should be hidden by conditional logic
+   */
   hideConditionalFields() {
     this.$form.find(".acf-field.hidden-by-conditional-logic").hide();
   }
 
-  setupInputs() {
-    let selector = "input,textarea,select";
-    this.$form.on("keyup keydown change", selector, (e) =>
-      this.adjustHasValueClass($(e.currentTarget)),
-    );
-    this.$form.on("change", selector, (e) => this.maybeSubmitForm(e));
-    this.$form.on("focus", selector, (e) => this.onInputFocus(e.currentTarget));
-    this.$form.on("blur", selector, (e) => this.onInputBlur(e.currentTarget));
+  /**
+   * Watch fields for changes and react
+   */
+  watchFields() {
+    const selector = "input,textarea,select";
+
+    this.$form.on("input change", selector, ({ currentTarget, type }) => {
+      this.setHasValueClass(currentTarget);
+      if (type === "change") this.maybeSubmitOnChange();
+    });
+
+    this.$form.find(selector).each((i, el) => {
+      this.setHasValueClass(el);
+    });
   }
 
-  adjustHasValueClass($input: JQuery<HTMLElement>) {
-    const $field = $input.parents(".acf-field:first");
-    const field = acf.getInstance($field);
+  /**
+   * Set "has-value" on a field based on it's value
+   */
+  setHasValueClass = (input: HTMLElement) => {
+    const field = acf.getInstance(this.$field(input));
 
-    if (!field) {
+    if (
+      !field ||
+      ![
+        "text",
+        "password",
+        "url",
+        "email",
+        "number",
+        "textarea",
+        "select",
+        "true_false",
+        "date_picker",
+        "time_picker",
+        "date_time_picker",
+        "oembed",
+      ].includes(field.data.type)
+    ) {
       return;
     }
 
-    const types = [
-      "text",
-      "password",
-      "url",
-      "email",
-      "number",
-      "textarea",
-      "select",
-      "true_false",
-      "date_picker",
-      "time_picker",
-      "date_time_picker",
-      "oembed",
-    ];
-
-    const type = field.data.type;
     const val = field.val();
+    const hasValue = Array.isArray(val) ? val.length > 0 : Boolean(val);
 
-    if (types.includes(type)) {
-      $field.toggleClass("has-value", !!val);
+    field.$el.toggleClass("has-value", hasValue);
+  };
+
+  /**
+   * Submit on Change, debounced
+   */
+  maybeSubmitOnChange = debounce(() => {
+    if (this.options.ajax.submitOnChange) {
+      this.submit();
     }
-  }
+  }, 100);
 
-  maybeSubmitForm(e: JQuery.TriggeredEvent) {
-    if (this.options.submitOnChange) {
-      this.$form[0].requestSubmit();
-    }
-  }
-
-  onInputFocus(el: HTMLElement) {
-    this.$field(el).addClass("has-focus");
-  }
-  onInputBlur(el: HTMLElement) {
-    this.$field(el).removeClass("has-focus");
-  }
-  $field(input: HTMLElement) {
+  /**
+   * Get the jQuery wrapped field element, based on an input
+   */
+  $field(input: HTMLElement | JQuery<HTMLElement>) {
     return $(input).parents(".acf-field:first");
   }
 }
+
+const initializedElements = new Set<FrontendFormElement>();
 
 /**
  * A custom element that automatically initializes an ACF frontend form
@@ -283,7 +332,9 @@ export class FrontendFormElement extends HTMLElement {
   }
 
   initialize() {
-    if (this.initialized) return;
+    if (initializedElements.has(this)) return;
+    initializedElements.add(this);
+    this.initialized = true;
 
     const form = this.querySelector("form");
     if (!form) {
@@ -298,9 +349,7 @@ export class FrontendFormElement extends HTMLElement {
       this.querySelector("script[data-acfff-options")?.textContent?.trim() ||
         "{}",
     );
-    console.log({ options });
-    new FrontendForm(form, options);
 
-    this.initialized = true;
+    new FrontendForm(form, options);
   }
 }

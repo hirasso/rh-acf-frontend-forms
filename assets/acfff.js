@@ -2872,12 +2872,7 @@
         });
         $form.trigger("autofilled");
       });
-      $5("html,body").animate(
-        {
-          scrollTop
-        },
-        0
-      );
+      $5("html,body").animate({ scrollTop }, 0);
       function fillFields($wrap, values2) {
         $5.each(values2, (key, value) => {
           const $fields = $wrap.find(`.acf-field[data-name="${key}"]`);
@@ -3218,42 +3213,187 @@
     }
   };
 
+  // node_modules/.pnpm/es-toolkit@1.43.0/node_modules/es-toolkit/dist/predicate/isPlainObject.mjs
+  function isPlainObject(value) {
+    if (!value || typeof value !== "object") {
+      return false;
+    }
+    const proto = Object.getPrototypeOf(value);
+    const hasObjectPrototype = proto === null || proto === Object.prototype || Object.getPrototypeOf(proto) === null;
+    if (!hasObjectPrototype) {
+      return false;
+    }
+    return Object.prototype.toString.call(value) === "[object Object]";
+  }
+
+  // node_modules/.pnpm/es-toolkit@1.43.0/node_modules/es-toolkit/dist/_internal/isUnsafeProperty.mjs
+  function isUnsafeProperty(key) {
+    return key === "__proto__";
+  }
+
+  // node_modules/.pnpm/es-toolkit@1.43.0/node_modules/es-toolkit/dist/object/merge.mjs
+  function merge(target, source) {
+    const sourceKeys = Object.keys(source);
+    for (let i = 0; i < sourceKeys.length; i++) {
+      const key = sourceKeys[i];
+      if (isUnsafeProperty(key)) {
+        continue;
+      }
+      const sourceValue = source[key];
+      const targetValue = target[key];
+      if (isMergeableValue(sourceValue) && isMergeableValue(targetValue)) {
+        target[key] = merge(targetValue, sourceValue);
+      } else if (Array.isArray(sourceValue)) {
+        target[key] = merge([], sourceValue);
+      } else if (isPlainObject(sourceValue)) {
+        target[key] = merge({}, sourceValue);
+      } else if (targetValue === void 0 || sourceValue !== void 0) {
+        target[key] = sourceValue;
+      }
+    }
+    return target;
+  }
+  function isMergeableValue(value) {
+    return isPlainObject(value) || Array.isArray(value);
+  }
+
+  // node_modules/.pnpm/es-toolkit@1.43.0/node_modules/es-toolkit/dist/function/debounce.mjs
+  function debounce(func, debounceMs, { signal, edges } = {}) {
+    let pendingThis = void 0;
+    let pendingArgs = null;
+    const leading = edges != null && edges.includes("leading");
+    const trailing = edges == null || edges.includes("trailing");
+    const invoke = () => {
+      if (pendingArgs !== null) {
+        func.apply(pendingThis, pendingArgs);
+        pendingThis = void 0;
+        pendingArgs = null;
+      }
+    };
+    const onTimerEnd = () => {
+      if (trailing) {
+        invoke();
+      }
+      cancel();
+    };
+    let timeoutId = null;
+    const schedule = () => {
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+        onTimerEnd();
+      }, debounceMs);
+    };
+    const cancelTimer = () => {
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    };
+    const cancel = () => {
+      cancelTimer();
+      pendingThis = void 0;
+      pendingArgs = null;
+    };
+    const flush = () => {
+      invoke();
+    };
+    const debounced = function(...args) {
+      if (signal == null ? void 0 : signal.aborted) {
+        return;
+      }
+      pendingThis = this;
+      pendingArgs = args;
+      const isFirstCall = timeoutId == null;
+      schedule();
+      if (leading && isFirstCall) {
+        invoke();
+      }
+    };
+    debounced.schedule = schedule;
+    debounced.cancel = cancel;
+    debounced.flush = flush;
+    signal == null ? void 0 : signal.addEventListener("abort", cancel, { once: true });
+    return debounced;
+  }
+
   // assets-src/js/ACFFrontendForm.ts
   var $4 = window.jQuery;
   var acf = window.acf;
   var defaults = {
-    ajaxSubmit: true,
-    waitAfterSubmit: 1e3,
-    resetAfterSubmit: true,
-    submitOnChange: false,
-    onSuccess: (response) => {
+    ajax: {
+      enabled: true,
+      waitAfterSubmit: 50,
+      submitOnChange: false
     }
   };
   var FrontendForm = class {
     constructor(el, options = {}) {
       /**
-       * Submit this form via AJAX
+       * Run setup
        */
-      this.submitViaAjax = () => {
-        if (!this.$form.hasClass("is-ajax-submit")) {
+      this.initialize = async () => {
+        if (this.$form.hasClass("acfff-initialized")) {
           return;
         }
-        this.$form.one("submit", function(e) {
+        this.$form.addClass("acfff-initialized");
+        acf.doAction("append", this.$form);
+        acf.set(
+          "post_id",
+          this.$form.find("#_acf_post_id").val()
+        );
+        acf.set("screen", "acf_form");
+        acf.set("validation", true);
+        acf.validation.disable();
+        this.$form.on("submit", (e) => {
           e.preventDefault();
+          const validator = this.validate({
+            reset: true,
+            loading: () => {
+              console.log("validation loading...");
+            },
+            complete: () => {
+              console.log("...validation complete!");
+            },
+            failure: () => {
+              console.error("validation error");
+            },
+            success: ($form) => {
+              console.log("validation success:", $form);
+              this.submit();
+            }
+          });
         });
+        this.createAjaxResponse();
+        this.customizeForm();
+        this.watchFields();
+        this.hideConditionalFields();
+      };
+      /**
+       * Validate this form
+       */
+      this.validate = (options = {}) => {
+        const $form = this.$form;
+        acf.validateForm(__spreadValues({ form: $form }, options));
+        return $form.data("acf");
+      };
+      /**
+       * Submit this form via AJAX
+       */
+      this.submit = () => {
+        if (!this.options.ajax.enabled) {
+          this.$form[0].submit();
+          return;
+        }
         acf.unload.enable();
-        const $fileInputs = $4('input[type="file"]:not([disabled])', this.$form);
-        $fileInputs.each((i, input) => {
-          const fileInput = input;
-          if (fileInput.files && fileInput.files.length > 0) {
-            return;
-          }
-          $4(input).prop("disabled", true);
-        });
-        var formData = new FormData(this.$form[0]);
-        $fileInputs.prop("disabled", false);
+        const $emptyFileInputs = this.$form.find('input[type="file"]:not([disabled])').filter((i, input) => !input.disabled && !Boolean(input.files));
+        $emptyFileInputs.prop("disabled", true);
+        const formData = new FormData(this.$form[0]);
+        $emptyFileInputs.prop("disabled", false);
         acf.lockForm(this.$form);
-        this.$form.addClass("rh-is-locked");
+        this.$form.addClass("acfff:locked");
         $4.ajax({
           url: window.location.href,
           method: "post",
@@ -3262,46 +3402,56 @@
           processData: false,
           contentType: false
         }).done((response) => {
-          var _a, _b;
           this.handleAjaxResponse(response);
-          (_b = (_a = this.options).onSuccess) == null ? void 0 : _b.call(_a, response);
         });
       };
-      const $form = $4(el);
-      this.options = __spreadValues(__spreadValues({}, defaults), options);
-      this.$form = $form;
-      if (!$form.length) {
-        console.warn("Form element doesn't exist");
+      /**
+       * Set "has-value" on a field based on it's value
+       */
+      this.setHasValueClass = (input) => {
+        const field = acf.getInstance(this.$field(input));
+        if (!field || ![
+          "text",
+          "password",
+          "url",
+          "email",
+          "number",
+          "textarea",
+          "select",
+          "true_false",
+          "date_picker",
+          "time_picker",
+          "date_time_picker",
+          "oembed"
+        ].includes(field.data.type)) {
+          return;
+        }
+        const val = field.val();
+        const hasValue = Array.isArray(val) ? val.length > 0 : Boolean(val);
+        field.$el.toggleClass("has-value", hasValue);
+      };
+      /**
+       * Submit on Change, debounced
+       */
+      this.maybeSubmitOnChange = debounce(() => {
+        if (this.options.ajax.submitOnChange) {
+          this.submit();
+        }
+      }, 100);
+      this.$form = $4(el);
+      this.options = merge(defaults, options);
+      if (!(el instanceof HTMLFormElement)) {
+        console.error("Form element doesn't exist");
         return;
       }
       if (typeof acf === "undefined") {
         console.warn("The global acf object is not defined");
         return;
       }
-      if ($form.hasClass("acfff-initialized")) {
-        return;
-      }
-      $form.addClass("acfff-initialized");
-      acf.doAction("append", $form);
-      setTimeout(() => {
-        acf.set("post_id", $form.find("#_acf_post_id").val());
-        acf.set("screen", "acf_form");
-        acf.set("validation", true);
-        const { post_id, screen, validation } = acf.data;
-        console.log({ post_id, screen, validation });
-      }, 5);
-      this.$form.find(".acf-field input").each((i, el2) => {
-        this.adjustHasValueClass($4(el2));
-      });
-      this.createAjaxResponse();
-      this.setupForm();
-      this.setupInputs();
-      this.hideConditionalFields();
-      this.$form.data("RHFrontendForm", this);
+      this.initialize();
     }
-    setupForm() {
-      if (this.options.ajaxSubmit) {
-        this.$form.on("acfff/validation/success", this.submitViaAjax);
+    customizeForm() {
+      if (this.options.ajax.enabled) {
         this.$form.addClass("is-ajax-submit");
       }
       this.$form.find('[data-event="add-row"]').removeClass("acf-icon");
@@ -3315,16 +3465,16 @@
       if (!response.success) {
         return;
       }
+      this.$form.trigger("acfff/ajax/success", { response });
       acf.unload.disable();
       setTimeout(() => {
         this.$form.removeClass("show-ajax-response");
         acf.unlockForm(this.$form);
-        acf.validation.reset(this.$form);
-        this.$form.removeClass("rh-is-locked");
-        if (this.options.resetAfterSubmit) {
+        this.$form.removeClass("acfff:locked");
+        if (!this.options.ajax.submitOnChange) {
           this.resetForm();
         }
-      }, this.options.waitAfterSubmit);
+      }, this.options.ajax.waitAfterSubmit);
     }
     createAjaxResponse() {
       this.$ajaxResponse = $4(
@@ -3345,68 +3495,41 @@
       (_a = this.$ajaxResponse) == null ? void 0 : _a.text(message).toggleClass("is--error", response.success === false);
       this.$form.addClass("show-ajax-response");
     }
+    /**
+     * Reset the form back to the defaults
+     */
     resetForm() {
-      const form = this.$form.get(0);
-      form.reset();
+      this.$form[0].reset();
       this.$form.find(".acf-field").find("input,textarea,select").trigger("change");
-      this.$form.find(".acf-field").removeClass("has-value has-focus");
     }
+    /**
+     * Initially hide fields that should be hidden by conditional logic
+     */
     hideConditionalFields() {
       this.$form.find(".acf-field.hidden-by-conditional-logic").hide();
     }
-    setupInputs() {
-      let selector = "input,textarea,select";
-      this.$form.on(
-        "keyup keydown change",
-        selector,
-        (e) => this.adjustHasValueClass($4(e.currentTarget))
-      );
-      this.$form.on("change", selector, (e) => this.maybeSubmitForm(e));
-      this.$form.on("focus", selector, (e) => this.onInputFocus(e.currentTarget));
-      this.$form.on("blur", selector, (e) => this.onInputBlur(e.currentTarget));
+    /**
+     * Watch fields for changes and react
+     */
+    watchFields() {
+      const selector = "input,textarea,select";
+      this.$form.on("input change", selector, ({ currentTarget, type }) => {
+        this.setHasValueClass(currentTarget);
+        if (type === "change") this.maybeSubmitOnChange();
+      });
+      this.$form.find(selector).each((i, el) => {
+        this.setHasValueClass(el);
+      });
     }
-    adjustHasValueClass($input) {
-      const $field = $input.parents(".acf-field:first");
-      const field = acf.getInstance($field);
-      if (!field) {
-        return;
-      }
-      const types = [
-        "text",
-        "password",
-        "url",
-        "email",
-        "number",
-        "textarea",
-        "select",
-        "true_false",
-        "date_picker",
-        "time_picker",
-        "date_time_picker",
-        "oembed"
-      ];
-      const type = field.data.type;
-      const val = field.val();
-      if (types.includes(type)) {
-        $field.toggleClass("has-value", !!val);
-      }
-    }
-    maybeSubmitForm(e) {
-      if (this.options.submitOnChange) {
-        this.$form[0].requestSubmit();
-      }
-    }
-    onInputFocus(el) {
-      this.$field(el).addClass("has-focus");
-    }
-    onInputBlur(el) {
-      this.$field(el).removeClass("has-focus");
-    }
+    /**
+     * Get the jQuery wrapped field element, based on an input
+     */
     $field(input) {
       return $4(input).parents(".acf-field:first");
     }
   };
   FrontendForm.defaults = defaults;
+  var initializedElements = /* @__PURE__ */ new Set();
   var FrontendFormElement = class _FrontendFormElement extends HTMLElement {
     /**
      * A static register function
@@ -3430,7 +3553,9 @@
     }
     initialize() {
       var _a, _b;
-      if (this.initialized) return;
+      if (initializedElements.has(this)) return;
+      initializedElements.add(this);
+      this.initialized = true;
       const form = this.querySelector("form");
       if (!form) {
         return console.error("No form found");
@@ -3441,9 +3566,7 @@
       const options = JSON.parse(
         ((_b = (_a = this.querySelector("script[data-acfff-options")) == null ? void 0 : _a.textContent) == null ? void 0 : _b.trim()) || "{}"
       );
-      console.log({ options });
       new FrontendForm(form, options);
-      this.initialized = true;
     }
   };
 
@@ -3457,9 +3580,6 @@
     FrontendFormElement.register();
     setup();
     function setup() {
-      acf2.addAction("validation_success", ($form) => {
-        $form.trigger("acfff/validation/success");
-      });
       acf2.addAction("new_field", (field) => {
         field.$el.addClass("acfff-initialized");
         initMaxInputInfo(field);

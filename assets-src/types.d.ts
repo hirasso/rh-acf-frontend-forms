@@ -135,7 +135,7 @@ type ACFKey = keyof ACFGlobalConfig;
 /**
  * Advanced Custom Fields global API
  */
-export interface ACF {
+export type ACF = {
   data: ACFGlobalConfig;
 
   /** Get a property from acf.data */
@@ -176,7 +176,7 @@ export interface ACF {
   /**
    * Get an ACFfield based on field key
    */
-  getField(key: string): ACFFField | undefined;
+  getField(key: string | JQuery): ACFFField | undefined;
 
   /**
    * Get an ACFfield based on $field element
@@ -224,13 +224,37 @@ export interface ACF {
   };
 
   /**
+   * Validate a form
+   *
+   * @param form – A jQuery instance of the HTMLFormElement
+   * @param event – Will be re-triggered if validation passes. Do not use
+   * @param reset – If errors, notices etc. should be reset after validation
+   */
+  validateForm(args: {
+    form: JQuery<HTMLFormElement>;
+    event?: SubmitEvent | JQuery.Event<SubmitEvent>;
+    reset?: boolean;
+    loading?: () => void;
+    complete?: () => void;
+    failure?: () => void;
+    success?: ($form: JQuery<HTMLFormElement>) => void;
+  }): void;
+
+  /**
+   * An ACF validator Backbone.js Model instance
+   */
+  validator: {
+    id: "Validator";
+  };
+
+  /**
    * Unload API
    */
   unload: {
     enable(): void;
     disable(): void;
   };
-}
+};
 
 /**
  * Image field data settings
