@@ -549,7 +549,6 @@ class ACFF extends Singleton
     }
 
     if (!in_array($field['type'], ['repeater', 'group', 'flexible_content', 'file', 'image']) && !empty($field['value'])) {
-      dump($field['value']);
       $field['wrapper']['class'] .= ' has-value';
     }
     return $field;
