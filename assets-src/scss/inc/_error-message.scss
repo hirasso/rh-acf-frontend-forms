@@ -1,0 +1,35 @@
+@use '_vars';
+
+.acf-error-message {
+  
+}
+.acf-error-message.-dismiss {
+  display: none;
+}
+.acf-temp-remove {
+  display: none;
+}
+.acf-error-message p {
+  background: vars.$red;
+  margin: 0;
+  font-size: 0.8em;
+  letter-spacing: 0.05em;
+  padding: 0.55em 0.7em 0.55em;
+  color: vars.$white;
+}
+.acf-input .acf-error-message {
+  display: block;
+  pointer-events: none;
+  z-index: 4;
+  margin-bottom: 0.5em;
+}
+.acf-input .acf-error-message:after {
+  content: "";
+  display: block;
+  width: 0.5em;
+  height: 0.5em;
+  background: vars.$red;
+  transform: rotate(-45deg);
+  margin-top: -0.3em;
+  margin-left: 1.5em;
+}
