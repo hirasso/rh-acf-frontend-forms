@@ -8,12 +8,6 @@
   display: none;
 }
 
-.is-not-acf-super-admin.post-type-acf-field-group {
-  #acf-field-group-locations,
-  #acf-field-group-options {
-    // display: none !important; // disabled due to a better PHP-based solution 
-  }
-}
 .is-edit-acf-frontend-form {
   // hide built-in field settings for some fields
   .acf-field-object-group .acf-field-setting-layout,
@@ -40,8 +34,8 @@
   }
   // hide default field settings for field "form-review"
   .acf-field-object-form-review {
-    .acf-field-setting-name, 
-    .acf-field-setting-instructions, 
+    .acf-field-setting-name,
+    .acf-field-setting-instructions,
     .acf-field-setting-required,
     .acf-field-setting-conditional_logic,
     .acf-field-setting-wrapper {

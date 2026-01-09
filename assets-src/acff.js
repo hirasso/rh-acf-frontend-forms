@@ -4,8 +4,6 @@
  * Version: 1.0
  */
 
-import './scss/acff.scss';
-
 const $ = window.jQuery;
 
 import './js/autofill';

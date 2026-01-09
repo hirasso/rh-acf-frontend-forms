@@ -108,7 +108,7 @@ class ACFF extends Singleton
   /**
    * Helper function to get versioned asset urls
    *
-   * @param [type] $path
+   * @param string $path
    * @return void
    */
   function asset_uri($path)
@@ -125,7 +125,7 @@ class ACFF extends Singleton
   /**
    * Gets the path of a file
    *
-   * @return void
+   * @return string
    */
   function get_file_path($path)
   {
@@ -549,6 +549,7 @@ class ACFF extends Singleton
     }
 
     if (!in_array($field['type'], ['repeater', 'group', 'flexible_content', 'file', 'image']) && !empty($field['value'])) {
+      dump($field['value']);
       $field['wrapper']['class'] .= ' has-value';
     }
     return $field;
