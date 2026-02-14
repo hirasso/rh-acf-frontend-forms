@@ -91,6 +91,7 @@ class ACFF extends Singleton
       // Removes the default ACF styles
       wp_deregister_style('acf-global');
       wp_deregister_style('acf-input');
+      wp_deregister_style('acf-pro-input');
       wp_deregister_style('acf-field-group');
     }
   }
